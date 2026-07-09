@@ -5,6 +5,8 @@ import {
   type DomainEvent,
   ExportacaoDadosSolicitada,
   TrilhaDeAuditoria,
+  VinculoDePerfisAutorizado,
+  VinculoDePerfisRevogado,
 } from '@cosmaria/core-domain';
 import { IdGenerator } from '../ports/id-generator.port';
 import { TrilhaDeAuditoriaRepository } from '../ports/trilha-de-auditoria.repository';
@@ -21,6 +23,8 @@ export class RegistrarNaTrilhaDeAuditoriaService {
     'ConsentimentoAlterado',
     'ContaExclusaoSolicitada',
     'ExportacaoDadosSolicitada',
+    'VinculoDePerfisAutorizado',
+    'VinculoDePerfisRevogado',
   ];
 
   constructor(
@@ -75,6 +79,27 @@ export class RegistrarNaTrilhaDeAuditoriaService {
         entidadeAfetada: 'SolicitacaoDeExportacao',
         entidadeId: evento.solicitacaoId,
         acao: 'SOLICITADA',
+        autorId: evento.usuarioId,
+      });
+    }
+    if (evento instanceof VinculoDePerfisAutorizado) {
+      return TrilhaDeAuditoria.registrar({
+        id,
+        entidadeAfetada: 'RegistroDeVinculoDePerfis',
+        entidadeId: evento.vinculoId,
+        acao: 'AUTORIZADO',
+        autorId: evento.usuarioId,
+        // Só a quantidade: os ids dos perfis não entram na trilha, senão ela própria
+        // viraria o cruzamento de contextos que o doc 06 §13 proíbe.
+        detalhe: { quantidadePerfis: evento.quantidadePerfis },
+      });
+    }
+    if (evento instanceof VinculoDePerfisRevogado) {
+      return TrilhaDeAuditoria.registrar({
+        id,
+        entidadeAfetada: 'RegistroDeVinculoDePerfis',
+        entidadeId: evento.vinculoId,
+        acao: 'REVOGADO',
         autorId: evento.usuarioId,
       });
     }

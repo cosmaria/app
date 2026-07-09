@@ -165,7 +165,7 @@ Classificação obrigatória: **Pública** (exposta a apps cliente) · **Interna
 |---|---|---|---|
 | `GET/PUT /v1/comunidade/perfis/{contexto}` | Pública | API-1 | Perfil Público (criação implícita) |
 | `GET /v1/comunidade/perfis/{contexto}/estatisticas` | Pública (Premium) | API-3 | *(adicionado na revisão 00-09 — dava suporte de banco ausente para "quem visitou/alcance", agora respaldado por `VisualizacaoDePerfil`)* Estatísticas avançadas de perfil |
-| `POST/DELETE /v1/comunidade/vinculo-perfis` | Pública | API-4 | Vínculo opt-in entre perfis (Versão 2) |
+| `POST/GET/DELETE /v1/comunidade/vinculo-perfis` | Pública | API-4 | Vínculo opt-in entre perfis (Versão 2). *(o `GET` foi acrescentado na implementação da Sprint Core-5: sem ele, a tela "Configuração de Vínculo de Perfis" do doc 06 não conseguiria renderizar o estado atual depois de um restart do app — o `vinculoId` só existia na resposta do `POST`)* Enquanto a feature flag `FEATURE_VINCULO_DE_PERFIS` estiver desligada, os três respondem `404`. |
 | `POST/DELETE /v1/comunidade/seguir/{perfilId}` | Pública | API-1 | Seguir/deixar de seguir (escopado por contexto). **Publica `SeguimentoIniciado`** *(corrigido na revisão 00-09 — a notificação de "novo seguidor" prometida no doc 06 não tinha evento para dispará-la)* |
 | `POST /v1/comunidade/publicacoes` | Pública | API-1 | Publicar (Growlog ou Experiência de Tratamento — unifica o que aparecia separado em docs 02/03/06) |
 | `POST /v1/midia` | Pública | API-2 | *(reclassificado na revisão 00-09: Core, não mais exclusivo do Grow)* Upload de mídia, anexável a `Planta` (Grow) ou `Tratamento`/exame (Med) |

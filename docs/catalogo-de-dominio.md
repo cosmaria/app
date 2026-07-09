@@ -56,8 +56,9 @@
 | `EfeitoRegistrado` | Med | IA | Doc 03 |
 | `RelatorioGerado` | Med / Core (Motor de Relatórios) | — | Doc 03/04/05 |
 | `PublicacaoComunidadeMedCriada` | Med | Comunidade (Core) | Doc 03 |
-| `PerfilPublicoCriado` | Core (Comunidade) | *(informacional — nenhuma reação necessária)* | Doc 06 |
-| `VinculoDePerfisAutorizado` | Core (Comunidade) | **TrilhaDeAuditoria** *(corrigido na revisão 00-09 — era implicação de privacidade sem consumidor de auditoria)* | Doc 06 |
+| `PerfilPublicoCriado` | Core (Identidade Social) | *(informacional — nenhuma reação necessária; deliberadamente NÃO auditado: criar um perfil não é revelação de identidade)* | Doc 06 |
+| `VinculoDePerfisAutorizado` | Core (Identidade Social) | **TrilhaDeAuditoria** *(corrigido na revisão 00-09 — era implicação de privacidade sem consumidor de auditoria)* | Doc 06 |
+| `VinculoDePerfisRevogado` | Core (Identidade Social) | **TrilhaDeAuditoria** *(novo — Sprint Core-5: doc 08 §14 exige trilha para toda mudança em entidade crítica, e desfazer um vínculo é uma dessas mudanças; só a autorização tinha evento)* | Doc 06 (implementação) |
 | `ConfiguracaoDeCompartilhamentoAlterada` | Core (Comunidade/Grow/Med, ao publicar ou editar privacidade) | **TrilhaDeAuditoria** *(novo — revisão 00-09: doc 08 §7 já exigia auditoria dessa entidade, mas nenhum evento a implementava)* | Doc 09 (revisão) |
 | `ProdutoVinculadoALote` | Med | **IA** (Motor de Correlação — inicia consideração de dados do Grow para a correlação, doc 03 §8) *(novo — revisão 00-09: ação existia mas não publicava evento, IA não tinha como saber)* | Doc 09 (revisão) |
 | `SeguimentoIniciado`, `ComentarioCriado`, `CurtidaRegistrada` | Comunidade | Notificações *(novos — revisão 00-09: doc 06 já prometia notificação de "novo seguidor/comentário/curtida", mas os eventos que disparariam isso nunca foram catalogados)* | Doc 09 (revisão) |
@@ -80,6 +81,10 @@
 | `AssinaturaAtualizada` | Core (Billing) | Notificações, TrilhaDeAuditoria | Doc 09 |
 
 ---
+
+## Log de Correções Aplicadas (implementação — Sprint Core-5, Identidade Social)
+
+- 2026-07-09 — Ao implementar `PerfilPúblico`/`RegistroDeVinculoDePerfis`, três lacunas reais apareceram: (1) **`VinculoDePerfisRevogado` não existia** — só a autorização publicava evento, mas o doc 08 §14 exige trilha de auditoria para *toda* mudança em entidade crítica, e a revogação é uma delas (evento criado e auditado); (2) o **`GET /v1/comunidade/vinculo-perfis` faltava no doc 09** — sem ele a tela de Configuração de Vínculo não renderiza o estado atual após restart do app (endpoint adicionado ao doc 09); (3) esclarecido que o consentimento `VINCULO_GROW_MED` **não** governa o vínculo de perfis — aquele consentimento é sobre cruzar *dados* Grow↔Med, este registro é sobre revelar *identidade social*; conflatá-los faria um opt-in liberar silenciosamente o outro. Também registrado que a `TrilhaDeAuditoria` guarda apenas a **quantidade** de perfis vinculados, nunca os ids: a própria trilha, de outro modo, viraria o cruzamento de contextos que o doc 06 §13 proíbe.
 
 ## Log de Correções Aplicadas (revisão arquitetural 00–09)
 

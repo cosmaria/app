@@ -30,6 +30,15 @@ export { TRILHA_DE_AUDITORIA_REPOSITORY } from './lib/ports/trilha-de-auditoria.
 export type { TrilhaDeAuditoriaRepository } from './lib/ports/trilha-de-auditoria.repository';
 export { SOLICITACAO_EXPORTACAO_REPOSITORY } from './lib/ports/solicitacao-exportacao.repository';
 export type { SolicitacaoExportacaoRepository } from './lib/ports/solicitacao-exportacao.repository';
+export { PERFIL_PUBLICO_REPOSITORY } from './lib/ports/perfil-publico.repository';
+export type {
+  PerfilPublicoRepository,
+  ResultadoInsercaoPerfil,
+} from './lib/ports/perfil-publico.repository';
+export { VINCULO_DE_PERFIS_REPOSITORY } from './lib/ports/vinculo-de-perfis.repository';
+export type { VinculoDePerfisRepository } from './lib/ports/vinculo-de-perfis.repository';
+export { FEATURE_FLAGS } from './lib/ports/feature-flags.port';
+export type { FeatureFlags } from './lib/ports/feature-flags.port';
 
 // Use cases
 export { RegistrarUsuarioUseCase } from './lib/use-cases/registrar-usuario.use-case';
@@ -72,3 +81,19 @@ export {
   ConsultarTrilhaDeAuditoriaUseCase,
 } from './lib/use-cases/auditoria.use-cases';
 export type { TrilhaView } from './lib/use-cases/auditoria.use-cases';
+
+// Identidade Social — Perfil Público por contexto + Vínculo de Perfis (doc 06)
+export type { PerfilView } from './lib/use-cases/perfil-view';
+export {
+  ObterOuCriarPerfilPublicoUseCase,
+  AtualizarPerfilPublicoUseCase,
+  ObterPerfilPublicoUseCase,
+} from './lib/use-cases/perfil-publico.use-cases';
+export type { AtualizarPerfilPublicoInput } from './lib/use-cases/perfil-publico.use-cases';
+export {
+  AutorizarVinculoDePerfisUseCase,
+  RevogarVinculoDePerfisUseCase,
+  ObterPerfisVinculadosPublicamenteUseCase,
+  ListarVinculosDoUsuarioUseCase,
+} from './lib/use-cases/vinculo-de-perfis.use-cases';
+export type { VinculoView } from './lib/use-cases/vinculo-de-perfis.use-cases';

@@ -23,9 +23,18 @@ export {
   InMemoryTrilhaDeAuditoriaRepository,
   InMemorySolicitacaoExportacaoRepository,
 } from './lib/persistence/in-memory-lgpd.repositories';
+export {
+  PostgresPerfilPublicoRepository,
+  PostgresVinculoDePerfisRepository,
+} from './lib/persistence/postgres-perfil.repositories';
+export {
+  InMemoryPerfilPublicoRepository,
+  InMemoryVinculoDePerfisRepository,
+} from './lib/persistence/in-memory-perfil.repositories';
 
 export { RedisCacheAdapter } from './lib/adapters/redis-cache.adapter';
 export { InMemoryCacheAdapter } from './lib/adapters/in-memory-cache.adapter';
+export { EnvFeatureFlags } from './lib/adapters/env-feature-flags';
 
 export { InProcessEventPublisher } from './lib/events/in-process-event-publisher';
 export type { ManipuladorDeEvento } from './lib/events/in-process-event-publisher';

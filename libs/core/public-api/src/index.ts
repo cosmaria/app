@@ -12,3 +12,5 @@ export {
   type ReferenciaDeConteudo,
   type DefinirCompartilhamentoEntrada,
 } from './lib/privacidade.public-api';
+
+export { PERFIL_PUBLIC_API, type PerfilPublicApi } from './lib/perfil.public-api';

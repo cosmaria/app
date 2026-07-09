@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { AutorizacaoModule } from './autorizacao/autorizacao.module';
 import { PrivacidadeModule } from './privacidade/privacidade.module';
 import { LgpdModule } from './lgpd/lgpd.module';
+import { PerfilModule } from './perfil/perfil.module';
 
 /**
  * Módulo raiz do Modular Monolith.
@@ -17,6 +18,7 @@ import { LgpdModule } from './lgpd/lgpd.module';
  * - AutorizacaoModule: RBAC + permissões (Core, doc 04 §11).
  * - PrivacidadeModule: Motor de Privacidade Granular (Core, doc 04 §12).
  * - LgpdModule: Consentimento, LGPD (exclusão/exportação) e Trilha de Auditoria (Core, doc 04 §21).
+ * - PerfilModule: Identidade Social — Perfil Público por contexto + Vínculo de Perfis (Core, doc 06).
  * Grow, Med, Comunidade e IA (doc 04) entram em sprints seguintes.
  */
 @Module({
@@ -29,6 +31,7 @@ import { LgpdModule } from './lgpd/lgpd.module';
     AutorizacaoModule,
     PrivacidadeModule,
     LgpdModule,
+    PerfilModule,
   ],
 })
 export class AppModule {}

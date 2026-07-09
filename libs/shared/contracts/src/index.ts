@@ -10,3 +10,10 @@ export type {
   VerificarPermissaoResponse,
   MinhaAutorizacaoResponse,
 } from './lib/auth.dto';
+
+export type {
+  PerfilPublicoResponse,
+  AtualizarPerfilRequest,
+  AutorizarVinculoPerfisRequest,
+  VinculoPerfisResponse,
+} from './lib/perfil.dto';

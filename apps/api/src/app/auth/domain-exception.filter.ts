@@ -7,7 +7,10 @@ import {
   DomainError,
   EmailInvalidoError,
   EmailJaCadastradoError,
+  PerfilNaoEncontradoError,
   SessaoInvalidaError,
+  VinculoDePerfisDesabilitadoError,
+  VinculoDePerfisInvalidoError,
 } from '@cosmaria/core-domain';
 
 /**
@@ -37,6 +40,11 @@ export class DomainExceptionFilter implements ExceptionFilter {
     if (erro instanceof AcessoNegadoError) return HttpStatus.FORBIDDEN;
     if (erro instanceof EmailJaCadastradoError) return HttpStatus.CONFLICT;
     if (erro instanceof EmailInvalidoError) return HttpStatus.BAD_REQUEST;
+    if (erro instanceof PerfilNaoEncontradoError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof VinculoDePerfisInvalidoError) return HttpStatus.BAD_REQUEST;
+    // Funcionalidade de Versão 2 desligada por flag (doc 06): o recurso ainda não
+    // existe para o cliente — 404, não 403, que sugeriria falta de permissão.
+    if (erro instanceof VinculoDePerfisDesabilitadoError) return HttpStatus.NOT_FOUND;
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 }

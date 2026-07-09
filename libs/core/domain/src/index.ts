@@ -21,6 +21,19 @@ export { ConfiguracaoDeCompartilhamentoAlterada } from './lib/eventos/configurac
 export { ConsentimentoAlterado } from './lib/eventos/consentimento-alterado.event';
 export { ContaExclusaoSolicitada } from './lib/eventos/conta-exclusao-solicitada.event';
 export { ExportacaoDadosSolicitada } from './lib/eventos/exportacao-dados-solicitada.event';
+export { PerfilPublicoCriado } from './lib/eventos/perfil-publico-criado.event';
+export {
+  VinculoDePerfisAutorizado,
+  VinculoDePerfisRevogado,
+} from './lib/eventos/vinculo-de-perfis.events';
+
+// Identidade Social — Perfil Público por contexto (doc 06 §4)
+export { ContextoDeApp, ehContextoDeAppValido } from './lib/perfil/contexto-de-app';
+export { PoliticaDeNomeDePerfil } from './lib/perfil/politica-de-nome-de-perfil';
+export { PerfilPublico } from './lib/perfil/perfil-publico.entity';
+export type { PerfilPublicoProps } from './lib/perfil/perfil-publico.entity';
+export { RegistroDeVinculoDePerfis } from './lib/perfil/registro-de-vinculo-de-perfis.entity';
+export type { RegistroDeVinculoDePerfisProps } from './lib/perfil/registro-de-vinculo-de-perfis.entity';
 
 // Consentimento & LGPD (doc 04 §21)
 export {
@@ -45,3 +58,8 @@ export {
   EmailInvalidoError,
   AcessoNegadoError,
 } from './lib/errors/auth.errors';
+export {
+  PerfilNaoEncontradoError,
+  VinculoDePerfisDesabilitadoError,
+  VinculoDePerfisInvalidoError,
+} from './lib/errors/perfil.errors';
