@@ -56,6 +56,20 @@ export {
   TTL_IDEMPOTENCIA_SEGUNDOS,
 } from './lib/ports/idempotencia.port';
 export type { RegistroDeIdempotenciaRepository } from './lib/ports/idempotencia.port';
+export {
+  PREFERENCIA_DE_NOTIFICACAO_REPOSITORY,
+  NOTIFICACAO_REPOSITORY,
+} from './lib/ports/notificacao.repositories';
+export type {
+  PreferenciaDeNotificacaoRepository,
+  NotificacaoRepository,
+  PaginaDeNotificacoes,
+} from './lib/ports/notificacao.repositories';
+export { DESPACHANTE_DE_NOTIFICACAO } from './lib/ports/despachante-de-notificacao.port';
+export type {
+  DespachanteDeNotificacao,
+  EnvioDeNotificacao,
+} from './lib/ports/despachante-de-notificacao.port';
 export { PROCESSADOR_DE_PAGAMENTO } from './lib/ports/processador-de-pagamento.port';
 export type {
   ProcessadorDePagamento,
@@ -140,3 +154,28 @@ export { ConsultarLimitesUseCase, VerificarLimiteUseCase } from './lib/use-cases
 export type { ResultadoDeLimite, LimiteVigenteView } from './lib/use-cases/limites.use-cases';
 export { ProcessarEventoDePagamentoUseCase } from './lib/use-cases/webhook-pagamento.use-case';
 export type { ResultadoWebhook } from './lib/use-cases/webhook-pagamento.use-case';
+
+// Notificações (doc 04 §15)
+export {
+  ResolverPreferenciaDeNotificacaoService,
+  EnviarNotificacaoService,
+  minutosDoDiaNoFuso,
+  JANELA_ANTI_SPAM_SEGUNDOS,
+} from './lib/use-cases/notificacao.use-cases';
+export type {
+  EnviarNotificacaoInput,
+  NotificacaoDespachadaView,
+} from './lib/use-cases/notificacao.use-cases';
+export {
+  ObterPreferenciaDeNotificacaoUseCase,
+  AtualizarPreferenciaDeNotificacaoUseCase,
+  ListarNotificacoesUseCase,
+  MarcarNotificacaoLidaUseCase,
+} from './lib/use-cases/central-de-notificacoes.use-cases';
+export type {
+  PreferenciaView,
+  AtualizarPreferenciaInput,
+  NotificacaoView,
+  CentralDeNotificacoesView,
+} from './lib/use-cases/central-de-notificacoes.use-cases';
+export { NotificarSobreEventosService } from './lib/use-cases/notificar-sobre-eventos.service';

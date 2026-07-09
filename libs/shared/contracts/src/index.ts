@@ -25,3 +25,10 @@ export type {
   AplicarCupomRequest,
   LimitesResponse,
 } from './lib/billing.dto';
+
+export type {
+  PreferenciaNotificacaoResponse,
+  AtualizarPreferenciaNotificacaoRequest,
+  NotificacaoItemResponse,
+  CentralDeNotificacoesResponse,
+} from './lib/notificacao.dto';

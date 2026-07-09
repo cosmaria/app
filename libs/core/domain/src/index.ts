@@ -57,6 +57,21 @@ export type {
   PrecoRegionalProps,
 } from './lib/billing/catalogo-de-cobranca.entities';
 
+// Notificações (doc 04 §15)
+export {
+  CategoriaDeNotificacao,
+  ehCategoriaDeNotificacaoValida,
+  CanalDeNotificacao,
+  ehCanalDeNotificacaoValido,
+  CANAIS_EXTERNOS,
+} from './lib/notificacao/categoria-e-canal';
+export { PreferenciaDeNotificacao } from './lib/notificacao/preferencia-de-notificacao.entity';
+export type { PreferenciaDeNotificacaoProps } from './lib/notificacao/preferencia-de-notificacao.entity';
+export { Notificacao, StatusNotificacao } from './lib/notificacao/notificacao.entity';
+export type { NotificacaoProps, ConteudoDeNotificacao } from './lib/notificacao/notificacao.entity';
+export { PoliticaDeDespacho } from './lib/notificacao/politica-de-despacho';
+export type { DecisaoDeDespacho } from './lib/notificacao/politica-de-despacho';
+
 // Identidade Social — Perfil Público por contexto (doc 06 §4)
 export { ContextoDeApp, ehContextoDeAppValido } from './lib/perfil/contexto-de-app';
 export { PoliticaDeNomeDePerfil } from './lib/perfil/politica-de-nome-de-perfil';

@@ -44,6 +44,14 @@ export {
   InMemoryCatalogoDeCobrancaRepository,
 } from './lib/persistence/in-memory-billing.repositories';
 export { CacheRegistroDeIdempotenciaRepository } from './lib/persistence/cache-idempotencia.repository';
+export {
+  PostgresPreferenciaDeNotificacaoRepository,
+  PostgresNotificacaoRepository,
+} from './lib/persistence/postgres-notificacao.repositories';
+export {
+  InMemoryPreferenciaDeNotificacaoRepository,
+  InMemoryNotificacaoRepository,
+} from './lib/persistence/in-memory-notificacao.repositories';
 
 export { RedisCacheAdapter } from './lib/adapters/redis-cache.adapter';
 export { InMemoryCacheAdapter } from './lib/adapters/in-memory-cache.adapter';
@@ -52,6 +60,10 @@ export {
   ProcessadorDePagamentoHmac,
   assinarPayloadWebhook,
 } from './lib/adapters/processador-de-pagamento-hmac';
+export {
+  DespachanteDeRegistro,
+  DespachanteEmMemoria,
+} from './lib/adapters/despachante-de-notificacao.adapter';
 
 export { InProcessEventPublisher } from './lib/events/in-process-event-publisher';
 export type { ManipuladorDeEvento } from './lib/events/in-process-event-publisher';

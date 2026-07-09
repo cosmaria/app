@@ -10,6 +10,7 @@ import { PrivacidadeModule } from './privacidade/privacidade.module';
 import { LgpdModule } from './lgpd/lgpd.module';
 import { PerfilModule } from './perfil/perfil.module';
 import { BillingModule } from './billing/billing.module';
+import { NotificacaoModule } from './notificacao/notificacao.module';
 
 /**
  * Módulo raiz do Modular Monolith.
@@ -22,6 +23,7 @@ import { BillingModule } from './billing/billing.module';
  * - LgpdModule: Consentimento, LGPD (exclusão/exportação) e Trilha de Auditoria (Core, doc 04 §21).
  * - PerfilModule: Identidade Social — Perfil Público por contexto + Vínculo de Perfis (Core, doc 06).
  * - BillingModule: assinatura única, limites de plano e webhook de pagamento (Core, doc 07).
+ * - NotificacaoModule: serviço único de notificação alimentado por eventos (Core, doc 04 §15).
  * Grow, Med, Comunidade e IA (doc 04) entram em sprints seguintes.
  */
 @Module({
@@ -38,6 +40,7 @@ import { BillingModule } from './billing/billing.module';
     LgpdModule,
     PerfilModule,
     BillingModule,
+    NotificacaoModule,
   ],
 })
 export class AppModule {}

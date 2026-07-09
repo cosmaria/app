@@ -47,3 +47,15 @@ export function redisUrl(): string {
 export function segredoWebhookPagamento(): string {
   return process.env.PAGAMENTO_WEBHOOK_SECRET ?? '';
 }
+
+/**
+ * Despachante de notificação em memória fora de produção (doc 04 §15).
+ *
+ * Push/e-mail/WhatsApp ainda não têm provedor escolhido — decisão de negócio, como o
+ * gateway de pagamento. Em produção usamos o despachante de registro, que **não finge
+ * sucesso de envio**: marcar como ENVIADA uma notificação que ninguém recebeu seria pior
+ * do que registrá-la sem envio.
+ */
+export function usarDespachanteEmMemoria(): boolean {
+  return process.env.NODE_ENV !== 'production';
+}
