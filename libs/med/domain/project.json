@@ -1,0 +1,17 @@
+{
+  "name": "med-domain",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/med/domain/src",
+  "projectType": "library",
+  "tags": ["scope:med", "type:domain"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "libs/med/domain",
+        "command": "tsc --noEmit -p tsconfig.json"
+      }
+    }
+  }
+}

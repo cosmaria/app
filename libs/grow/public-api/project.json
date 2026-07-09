@@ -1,0 +1,17 @@
+{
+  "name": "grow-public-api",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/grow/public-api/src",
+  "projectType": "library",
+  "tags": ["scope:grow", "type:public-api"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "libs/grow/public-api",
+        "command": "tsc --noEmit -p tsconfig.json"
+      }
+    }
+  }
+}

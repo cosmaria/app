@@ -1,0 +1,17 @@
+{
+  "name": "ia-application",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ia/application/src",
+  "projectType": "library",
+  "tags": ["scope:ia", "type:application"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "libs/ia/application",
+        "command": "tsc --noEmit -p tsconfig.json"
+      }
+    }
+  }
+}

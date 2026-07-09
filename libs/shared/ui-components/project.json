@@ -1,0 +1,17 @@
+{
+  "name": "shared-ui-components",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/ui-components/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:shared"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "libs/shared/ui-components",
+        "command": "tsc --noEmit -p tsconfig.json"
+      }
+    }
+  }
+}

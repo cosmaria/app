@@ -1,0 +1,17 @@
+{
+  "name": "ia-infrastructure",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ia/infrastructure/src",
+  "projectType": "library",
+  "tags": ["scope:ia", "type:infrastructure"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "libs/ia/infrastructure",
+        "command": "tsc --noEmit -p tsconfig.json"
+      }
+    }
+  }
+}

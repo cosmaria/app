@@ -1,0 +1,17 @@
+{
+  "name": "shared-design-tokens",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/design-tokens/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:shared"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "libs/shared/design-tokens",
+        "command": "tsc --noEmit -p tsconfig.json"
+      }
+    }
+  }
+}

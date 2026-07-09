@@ -1,0 +1,17 @@
+{
+  "name": "grow-domain",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/grow/domain/src",
+  "projectType": "library",
+  "tags": ["scope:grow", "type:domain"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "libs/grow/domain",
+        "command": "tsc --noEmit -p tsconfig.json"
+      }
+    }
+  }
+}

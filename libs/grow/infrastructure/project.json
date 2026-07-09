@@ -1,0 +1,17 @@
+{
+  "name": "grow-infrastructure",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/grow/infrastructure/src",
+  "projectType": "library",
+  "tags": ["scope:grow", "type:infrastructure"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "libs/grow/infrastructure",
+        "command": "tsc --noEmit -p tsconfig.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "comunidade-infrastructure",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/comunidade/infrastructure/src",
+  "projectType": "library",
+  "tags": ["scope:comunidade", "type:infrastructure"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "libs/comunidade/infrastructure",
+        "command": "tsc --noEmit -p tsconfig.json"
+      }
+    }
+  }
+}

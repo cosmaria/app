@@ -1,0 +1,24 @@
+{
+  "name": "mobile",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/mobile",
+  "projectType": "application",
+  "tags": ["scope:mobile", "type:app"],
+  "targets": {
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/mobile",
+        "command": "expo start"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "apps/mobile",
+        "command": "tsc --noEmit -p tsconfig.json"
+      }
+    }
+  }
+}

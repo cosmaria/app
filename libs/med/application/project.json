@@ -1,0 +1,17 @@
+{
+  "name": "med-application",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/med/application/src",
+  "projectType": "library",
+  "tags": ["scope:med", "type:application"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "libs/med/application",
+        "command": "tsc --noEmit -p tsconfig.json"
+      }
+    }
+  }
+}

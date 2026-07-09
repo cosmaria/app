@@ -1,0 +1,17 @@
+{
+  "name": "grow-application",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/grow/application/src",
+  "projectType": "library",
+  "tags": ["scope:grow", "type:application"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "libs/grow/application",
+        "command": "tsc --noEmit -p tsconfig.json"
+      }
+    }
+  }
+}

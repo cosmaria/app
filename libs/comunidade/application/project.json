@@ -1,0 +1,17 @@
+{
+  "name": "comunidade-application",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/comunidade/application/src",
+  "projectType": "library",
+  "tags": ["scope:comunidade", "type:application"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "libs/comunidade/application",
+        "command": "tsc --noEmit -p tsconfig.json"
+      }
+    }
+  }
+}

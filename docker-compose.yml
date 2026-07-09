@@ -1,0 +1,104 @@
+# Infraestrutura de desenvolvimento local (doc 15 §8).
+# Espelha Cloud SQL (PostgreSQL) e Memorystore (Redis) do GCP (doc 13 §10),
+# permitindo desenvolver sem depender da nuvem a cada iteração.
+# NOTA: em produção esses serviços são gerenciados pelo GCP, não estes containers.
+#
+# `docker compose up -d`            → sobe Postgres + Redis, aplica migrations e seed
+#                                     automaticamente (serviços migrate/seed, one-shot).
+# `docker compose --profile app up` → inclui a API (build do Dockerfile).
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: cosmaria-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cosmaria
+      POSTGRES_PASSWORD: cosmaria_dev
+      POSTGRES_DB: cosmaria
+    ports:
+      - '5432:5432'
+    volumes:
+      - cosmaria_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U cosmaria -d cosmaria']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: cosmaria-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - cosmaria_redisdata:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Migrations AUTOMÁTICAS (node-pg-migrate) — one-shot, roda e sai. Nunca no boot
+  # da API (evita corrida entre instâncias no Cloud Run — doc 09). Idempotente:
+  # re-subir o compose apenas aplica o que estiver pendente.
+  migrate:
+    image: node:22-alpine
+    container_name: cosmaria-migrate
+    working_dir: /workspace
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://cosmaria:cosmaria_dev@postgres:5432/cosmaria
+    volumes:
+      - .:/workspace
+    command: npm run db:migrate
+    restart: 'no'
+
+  # Seed inicial idempotente — roda DEPOIS das migrations concluírem.
+  seed:
+    image: node:22-alpine
+    container_name: cosmaria-seed
+    working_dir: /workspace
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://cosmaria:cosmaria_dev@postgres:5432/cosmaria
+      SEED_DEV_EMAIL: dev@cosmaria.app
+      SEED_DEV_SENHA: cosmaria-dev-123
+    volumes:
+      - .:/workspace
+    command: npm run db:seed
+    restart: 'no'
+
+  # API completa — só no profile `app` (o build do monorepo é mais pesado).
+  # Sobe após Postgres/Redis saudáveis e o seed concluído.
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: cosmaria-api
+    profiles: ['app']
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seed:
+        condition: service_completed_successfully
+    environment:
+      PORT: 8080
+      NODE_ENV: production
+      AUTH_REPO: postgres
+      DATABASE_URL: postgresql://cosmaria:cosmaria_dev@postgres:5432/cosmaria
+      REDIS_URL: redis://redis:6379
+      ACCESS_TOKEN_SECRET: dev-access-secret-troque-em-producao
+      REFRESH_TOKEN_SECRET: dev-refresh-secret-troque-em-producao
+    ports:
+      - '3000:8080'
+
+volumes:
+  cosmaria_pgdata:
+  cosmaria_redisdata:

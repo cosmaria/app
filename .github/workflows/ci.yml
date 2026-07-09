@@ -1,0 +1,44 @@
+name: CI
+
+# Pipeline de integração contínua (doc 13 §14 / doc 14 §15).
+# Roda em todo push e PR. Um PR que viole as fronteiras de módulo
+# (doc 14 §6) FALHA aqui, antes de qualquer revisão humana.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (inclui enforcement de fronteiras de módulo)
+        run: npx nx run-many -t lint
+
+      - name: Typecheck
+        run: npx nx run-many -t typecheck
+
+      - name: Build
+        run: npx nx run-many -t build
+
+      - name: Test
+        run: npm test
+
+      - name: Format check
+        run: npm run format:check

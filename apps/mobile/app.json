@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "COSMARIA",
+    "slug": "cosmaria",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#0B0F14"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.cosmaria.mobile"
+    },
+    "android": {
+      "package": "app.cosmaria.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#0B0F14"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
