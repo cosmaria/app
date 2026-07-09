@@ -11,6 +11,14 @@ export interface CachePort {
   /** Grava o valor; se `ttlSegundos` for informado, expira após esse tempo. */
   set(chave: string, valor: string, ttlSegundos?: number): Promise<void>;
 
+  /**
+   * Grava SOMENTE se a chave ainda não existir, atomicamente, e diz se gravou.
+   * É a primitiva de exclusão mútua (Redis `SET NX`) sobre a qual a idempotência do
+   * webhook é construída: um `get` seguido de `set` seria uma corrida entre duas
+   * entregas simultâneas do mesmo evento — cenário comum em gateway de pagamento.
+   */
+  setSeAusente(chave: string, valor: string, ttlSegundos: number): Promise<boolean>;
+
   /** Remove a chave (no-op se não existir). */
   del(chave: string): Promise<void>;
 

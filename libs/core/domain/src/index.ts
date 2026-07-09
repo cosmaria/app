@@ -27,6 +27,36 @@ export {
   VinculoDePerfisRevogado,
 } from './lib/eventos/vinculo-de-perfis.events';
 
+export {
+  AssinaturaAtualizada,
+  PagamentoRecebido,
+  PagamentoFalhou,
+  LimitePremiumAtingido,
+} from './lib/eventos/billing.events';
+
+// Billing & Premium (doc 07, doc 08 §12.6)
+export {
+  Plano,
+  ehPlanoValido,
+  CicloDeCobranca,
+  ehCicloDeCobrancaValido,
+} from './lib/billing/plano';
+export { StatusAssinatura, ehStatusAssinaturaValido } from './lib/billing/status-assinatura';
+export { AssinaturaPremium } from './lib/billing/assinatura-premium.entity';
+export type { AssinaturaPremiumProps } from './lib/billing/assinatura-premium.entity';
+export { LimiteDePlano, ChavesDeLimite } from './lib/billing/limite-de-plano.entity';
+export type { LimiteDePlanoProps } from './lib/billing/limite-de-plano.entity';
+export { CupomOuPromocao, TipoDeDesconto } from './lib/billing/cupom-ou-promocao.entity';
+export type { CupomOuPromocaoProps } from './lib/billing/cupom-ou-promocao.entity';
+export {
+  PeriodoGratuitoConfiguracao,
+  PrecoRegional,
+} from './lib/billing/catalogo-de-cobranca.entities';
+export type {
+  PeriodoGratuitoConfiguracaoProps,
+  PrecoRegionalProps,
+} from './lib/billing/catalogo-de-cobranca.entities';
+
 // Identidade Social — Perfil Público por contexto (doc 06 §4)
 export { ContextoDeApp, ehContextoDeAppValido } from './lib/perfil/contexto-de-app';
 export { PoliticaDeNomeDePerfil } from './lib/perfil/politica-de-nome-de-perfil';
@@ -63,3 +93,11 @@ export {
   VinculoDePerfisDesabilitadoError,
   VinculoDePerfisInvalidoError,
 } from './lib/errors/perfil.errors';
+export {
+  AssinaturaJaAtivaError,
+  AssinaturaNaoPremiumError,
+  CupomInvalidoError,
+  PrecoNaoConfiguradoError,
+  AssinaturaDePayloadInvalidaError,
+  LimiteDePlanoAtingidoError,
+} from './lib/errors/billing.errors';

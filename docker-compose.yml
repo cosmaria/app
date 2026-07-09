@@ -96,6 +96,11 @@ services:
       REDIS_URL: redis://redis:6379
       ACCESS_TOKEN_SECRET: dev-access-secret-troque-em-producao
       REFRESH_TOKEN_SECRET: dev-refresh-secret-troque-em-producao
+      # Segredo compartilhado com o gateway de pagamento (doc 09, arquétipo API-7).
+      # Sem ele, o webhook rejeita todo payload — falha fechada, nunca aberta.
+      PAGAMENTO_WEBHOOK_SECRET: dev-webhook-secret-troque-em-producao
+      # Vínculo de perfis é Versão 2 (doc 06): modelo pronto, funcionalidade desligada.
+      FEATURE_VINCULO_DE_PERFIS: 'false'
     ports:
       - '3000:8080'
 

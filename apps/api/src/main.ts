@@ -8,7 +8,9 @@ import { DomainExceptionFilter } from './app/auth/domain-exception.filter';
  * Ponto de entrada do Modular Monolith COSMARIA (doc 04 §5, doc 13 §16).
  */
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  // `rawBody` é exigido pelo webhook de pagamento (doc 09, arquétipo API-7): a assinatura
+  // HMAC cobre os bytes originais — reserializar o JSON já parseado a invalidaria.
+  const app = await NestFactory.create(AppModule, { rawBody: true });
 
   const globalPrefix = 'v1';
   app.setGlobalPrefix(globalPrefix);

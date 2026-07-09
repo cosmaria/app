@@ -35,6 +35,12 @@ export class RedisCacheAdapter implements CachePort {
     }
   }
 
+  /** `SET chave valor NX EX ttl` — retorna 'OK' só quando a chave não existia. */
+  async setSeAusente(chave: string, valor: string, ttlSegundos: number): Promise<boolean> {
+    const resultado = await this.client.set(chave, valor, 'EX', ttlSegundos, 'NX');
+    return resultado === 'OK';
+  }
+
   async del(chave: string): Promise<void> {
     await this.client.del(chave);
   }

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ehAmbienteDeTeste } from './infra/infra.config';
 import { PersistenceModule } from './infra/persistence.module';
 import { EventosModule } from './infra/eventos.module';
 import { HealthModule } from './health/health.module';
@@ -8,6 +9,7 @@ import { AutorizacaoModule } from './autorizacao/autorizacao.module';
 import { PrivacidadeModule } from './privacidade/privacidade.module';
 import { LgpdModule } from './lgpd/lgpd.module';
 import { PerfilModule } from './perfil/perfil.module';
+import { BillingModule } from './billing/billing.module';
 
 /**
  * Módulo raiz do Modular Monolith.
@@ -19,11 +21,14 @@ import { PerfilModule } from './perfil/perfil.module';
  * - PrivacidadeModule: Motor de Privacidade Granular (Core, doc 04 §12).
  * - LgpdModule: Consentimento, LGPD (exclusão/exportação) e Trilha de Auditoria (Core, doc 04 §21).
  * - PerfilModule: Identidade Social — Perfil Público por contexto + Vínculo de Perfis (Core, doc 06).
+ * - BillingModule: assinatura única, limites de plano e webhook de pagamento (Core, doc 07).
  * Grow, Med, Comunidade e IA (doc 04) entram em sprints seguintes.
  */
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    // `ignoreEnvFile` em teste: nenhuma suíte deve alcançar o Postgres/Redis do
+    // desenvolvedor por acidente (ver ehAmbienteDeTeste).
+    ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: ehAmbienteDeTeste() }),
     PersistenceModule,
     EventosModule,
     HealthModule,
@@ -32,6 +37,7 @@ import { PerfilModule } from './perfil/perfil.module';
     PrivacidadeModule,
     LgpdModule,
     PerfilModule,
+    BillingModule,
   ],
 })
 export class AppModule {}

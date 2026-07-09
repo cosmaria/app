@@ -30,6 +30,24 @@ export class InMemoryCacheAdapter implements CachePort {
     return Promise.resolve();
   }
 
+  /**
+   * Checa e grava **sem nenhum `await` no meio**: qualquer `await` cederia o controle e
+   * deixaria duas chamadas concorrentes lerem "ausente" antes de qualquer escrita —
+   * ambas se achariam a primeira, e a idempotência do webhook cairia por terra.
+   * O Redis resolve o mesmo problema com `SET NX`.
+   */
+  setSeAusente(chave: string, valor: string, ttlSegundos: number): Promise<boolean> {
+    const entrada = this.store.get(chave);
+    const viva =
+      entrada !== undefined && (entrada.expiraEm === null || entrada.expiraEm > Date.now());
+    if (viva) {
+      return Promise.resolve(false);
+    }
+    const expiraEm = ttlSegundos > 0 ? Date.now() + ttlSegundos * 1000 : null;
+    this.store.set(chave, { valor, expiraEm });
+    return Promise.resolve(true);
+  }
+
   del(chave: string): Promise<void> {
     this.store.delete(chave);
     return Promise.resolve();

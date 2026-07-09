@@ -78,9 +78,15 @@
 | `RecomendacaoAceita` | App (interação do usuário) | IA (Motor de Aprendizado) | Doc 05 |
 | `PagamentoRecebido` | Core (Billing, via webhook) | Core (Billing), TrilhaDeAuditoria | Doc 09 |
 | `PagamentoFalhou` | Core (Billing, via webhook) | Notificações, TrilhaDeAuditoria | Doc 09 |
-| `AssinaturaAtualizada` | Core (Billing) | Notificações, TrilhaDeAuditoria | Doc 09 |
+| `AssinaturaAtualizada` | Core (Billing) | Notificações, **TrilhaDeAuditoria** | Doc 09 |
+
+> **`AssinaturaIniciada`/`AssinaturaCancelada` foram consolidados em `AssinaturaAtualizada`** (Sprint Core-6). O doc 07 os previa como eventos separados, mas ambos são casos particulares de uma transição de status, já descrita pelos campos `statusAnterior`→`statusNovo` do evento único. Publicar os três criaria duas fontes de verdade para o mesmo fato. Mesmo precedente da unificação de `LimitePremiumAtingido`, que era duplicado por app antes do doc 04.
 
 ---
+
+## Log de Correções Aplicadas (implementação — Sprint Core-6, Billing & Premium)
+
+- 2026-07-09 — Implementação de `AssinaturaPremium`, `LimiteDePlano`, `CupomOuPromocao`, `PeriodoGratuitoConfiguracao`, `PrecoRegional` e do webhook de pagamento. Descobertas: (1) **novo status `PENDENTE_PAGAMENTO`** — o doc 08 listava trial/ativa/inadimplente/cancelada, mas sem um estado "quis assinar, aguardando confirmação" o upgrade só teria duas saídas, ambas erradas: conceder Premium antes de o gateway confirmar o dinheiro, ou descartar a intenção de upgrade; (2) **`AssinaturaIniciada`/`AssinaturaCancelada` consolidados** em `AssinaturaAtualizada` (ver nota na tabela de eventos); (3) **novo erro `PRECO_NAO_CONFIGURADO`** — sem `PrecoRegional` para a região, o upgrade recusa em vez de arbitrar um valor em código, o que violaria a separação arquitetura/negócio/comercial do doc 07 §9.1; (4) `RegistroDeIdempotencia` implementado sobre o `CachePort` (Redis `SET NX`) e não como tabela, coerente com "vida curta, expira" do doc 09 §9 — uma tabela exigiria job de expurgo só para não crescer indefinidamente; (5) o **cancelamento é gentil**: `CANCELADA` mantém o Premium até o fim do período já pago, e só então o plano efetivo volta ao gratuito — nenhum dado histórico é perdido (doc 07 §9, caso de teste obrigatório). Confirmado que `LimiteDePlano` rege **apenas capacidade simultânea futura**: chave ausente significa ilimitado, e nenhum caminho de leitura de histórico consulta limite.
 
 ## Log de Correções Aplicadas (implementação — Sprint Core-5, Identidade Social)
 

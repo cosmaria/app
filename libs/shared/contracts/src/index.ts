@@ -17,3 +17,11 @@ export type {
   AutorizarVinculoPerfisRequest,
   VinculoPerfisResponse,
 } from './lib/perfil.dto';
+
+export type {
+  AssinaturaResponse,
+  IniciarUpgradeRequest,
+  UpgradeResponse,
+  AplicarCupomRequest,
+  LimitesResponse,
+} from './lib/billing.dto';

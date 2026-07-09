@@ -31,10 +31,27 @@ export {
   InMemoryPerfilPublicoRepository,
   InMemoryVinculoDePerfisRepository,
 } from './lib/persistence/in-memory-perfil.repositories';
+export {
+  PostgresAssinaturaRepository,
+  PostgresLimiteDePlanoRepository,
+  PostgresCupomRepository,
+  PostgresCatalogoDeCobrancaRepository,
+} from './lib/persistence/postgres-billing.repositories';
+export {
+  InMemoryAssinaturaRepository,
+  InMemoryLimiteDePlanoRepository,
+  InMemoryCupomRepository,
+  InMemoryCatalogoDeCobrancaRepository,
+} from './lib/persistence/in-memory-billing.repositories';
+export { CacheRegistroDeIdempotenciaRepository } from './lib/persistence/cache-idempotencia.repository';
 
 export { RedisCacheAdapter } from './lib/adapters/redis-cache.adapter';
 export { InMemoryCacheAdapter } from './lib/adapters/in-memory-cache.adapter';
 export { EnvFeatureFlags } from './lib/adapters/env-feature-flags';
+export {
+  ProcessadorDePagamentoHmac,
+  assinarPayloadWebhook,
+} from './lib/adapters/processador-de-pagamento-hmac';
 
 export { InProcessEventPublisher } from './lib/events/in-process-event-publisher';
 export type { ManipuladorDeEvento } from './lib/events/in-process-event-publisher';

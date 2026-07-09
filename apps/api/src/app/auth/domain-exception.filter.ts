@@ -2,12 +2,18 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from '@nest
 import type { Response } from 'express';
 import {
   AcessoNegadoError,
+  AssinaturaDePayloadInvalidaError,
+  AssinaturaJaAtivaError,
+  AssinaturaNaoPremiumError,
   ContaInativaError,
   CredenciaisInvalidasError,
+  CupomInvalidoError,
   DomainError,
   EmailInvalidoError,
   EmailJaCadastradoError,
+  LimiteDePlanoAtingidoError,
   PerfilNaoEncontradoError,
+  PrecoNaoConfiguradoError,
   SessaoInvalidaError,
   VinculoDePerfisDesabilitadoError,
   VinculoDePerfisInvalidoError,
@@ -45,6 +51,14 @@ export class DomainExceptionFilter implements ExceptionFilter {
     // Funcionalidade de Versão 2 desligada por flag (doc 06): o recurso ainda não
     // existe para o cliente — 404, não 403, que sugeriria falta de permissão.
     if (erro instanceof VinculoDePerfisDesabilitadoError) return HttpStatus.NOT_FOUND;
+    // Webhook com assinatura inválida: 401, e nenhuma pista sobre o que falhou (doc 09 §7).
+    if (erro instanceof AssinaturaDePayloadInvalidaError) return HttpStatus.UNAUTHORIZED;
+    if (erro instanceof AssinaturaJaAtivaError) return HttpStatus.CONFLICT;
+    if (erro instanceof AssinaturaNaoPremiumError) return HttpStatus.CONFLICT;
+    if (erro instanceof CupomInvalidoError) return HttpStatus.BAD_REQUEST;
+    if (erro instanceof PrecoNaoConfiguradoError) return HttpStatus.BAD_REQUEST;
+    // 402: o recurso existe, o usuário só precisa do plano pago (gatilho do paywall).
+    if (erro instanceof LimiteDePlanoAtingidoError) return HttpStatus.PAYMENT_REQUIRED;
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 }

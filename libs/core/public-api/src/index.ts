@@ -14,3 +14,5 @@ export {
 } from './lib/privacidade.public-api';
 
 export { PERFIL_PUBLIC_API, type PerfilPublicApi } from './lib/perfil.public-api';
+
+export { PREMIUM_PUBLIC_API, type PremiumPublicApi } from './lib/premium.public-api';

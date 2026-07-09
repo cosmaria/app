@@ -1,4 +1,5 @@
 import {
+  AssinaturaAtualizada,
   ConfiguracaoDeCompartilhamentoAlterada,
   ConsentimentoAlterado,
   ContaExclusaoSolicitada,
@@ -25,6 +26,7 @@ export class RegistrarNaTrilhaDeAuditoriaService {
     'ExportacaoDadosSolicitada',
     'VinculoDePerfisAutorizado',
     'VinculoDePerfisRevogado',
+    'AssinaturaAtualizada',
   ];
 
   constructor(
@@ -101,6 +103,17 @@ export class RegistrarNaTrilhaDeAuditoriaService {
         entidadeId: evento.vinculoId,
         acao: 'REVOGADO',
         autorId: evento.usuarioId,
+      });
+    }
+    if (evento instanceof AssinaturaAtualizada) {
+      // Doc 08 §12.6: mudança de status tem implicação financeira — trilha obrigatória.
+      return TrilhaDeAuditoria.registrar({
+        id,
+        entidadeAfetada: 'AssinaturaPremium',
+        entidadeId: evento.assinaturaId,
+        acao: `STATUS_${evento.statusNovo}`,
+        autorId: evento.usuarioId,
+        detalhe: { statusAnterior: evento.statusAnterior, plano: evento.plano },
       });
     }
     return null;

@@ -39,6 +39,30 @@ export { VINCULO_DE_PERFIS_REPOSITORY } from './lib/ports/vinculo-de-perfis.repo
 export type { VinculoDePerfisRepository } from './lib/ports/vinculo-de-perfis.repository';
 export { FEATURE_FLAGS } from './lib/ports/feature-flags.port';
 export type { FeatureFlags } from './lib/ports/feature-flags.port';
+export {
+  ASSINATURA_REPOSITORY,
+  LIMITE_DE_PLANO_REPOSITORY,
+  CUPOM_REPOSITORY,
+  CATALOGO_DE_COBRANCA_REPOSITORY,
+} from './lib/ports/billing.repositories';
+export type {
+  AssinaturaRepository,
+  LimiteDePlanoRepository,
+  CupomRepository,
+  CatalogoDeCobrancaRepository,
+} from './lib/ports/billing.repositories';
+export {
+  REGISTRO_DE_IDEMPOTENCIA_REPOSITORY,
+  TTL_IDEMPOTENCIA_SEGUNDOS,
+} from './lib/ports/idempotencia.port';
+export type { RegistroDeIdempotenciaRepository } from './lib/ports/idempotencia.port';
+export { PROCESSADOR_DE_PAGAMENTO } from './lib/ports/processador-de-pagamento.port';
+export type {
+  ProcessadorDePagamento,
+  EventoDePagamento,
+  TipoDeEventoDePagamento,
+  CheckoutSolicitado,
+} from './lib/ports/processador-de-pagamento.port';
 
 // Use cases
 export { RegistrarUsuarioUseCase } from './lib/use-cases/registrar-usuario.use-case';
@@ -97,3 +121,22 @@ export {
   ListarVinculosDoUsuarioUseCase,
 } from './lib/use-cases/vinculo-de-perfis.use-cases';
 export type { VinculoView } from './lib/use-cases/vinculo-de-perfis.use-cases';
+
+// Billing & Premium (doc 07)
+export {
+  ResolverAssinaturaService,
+  ObterAssinaturaUseCase,
+  IniciarUpgradeUseCase,
+  CancelarAssinaturaUseCase,
+  AplicarCupomUseCase,
+  paraAssinaturaView,
+} from './lib/use-cases/assinatura.use-cases';
+export type {
+  AssinaturaView,
+  IniciarUpgradeInput,
+  UpgradeIniciadoView,
+} from './lib/use-cases/assinatura.use-cases';
+export { ConsultarLimitesUseCase, VerificarLimiteUseCase } from './lib/use-cases/limites.use-cases';
+export type { ResultadoDeLimite, LimiteVigenteView } from './lib/use-cases/limites.use-cases';
+export { ProcessarEventoDePagamentoUseCase } from './lib/use-cases/webhook-pagamento.use-case';
+export type { ResultadoWebhook } from './lib/use-cases/webhook-pagamento.use-case';
