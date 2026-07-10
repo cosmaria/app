@@ -40,6 +40,15 @@ export type { EventoManejoProps } from './lib/eventos-de-cultivo/evento-manejo.e
 export { EventoSanidade } from './lib/eventos-de-cultivo/evento-sanidade.entity';
 export type { EventoSanidadeProps } from './lib/eventos-de-cultivo/evento-sanidade.entity';
 
+export { Colheita } from './lib/pos-colheita/colheita.entity';
+export type { ColheitaProps } from './lib/pos-colheita/colheita.entity';
+export { Secagem } from './lib/pos-colheita/secagem.entity';
+export type { SecagemProps } from './lib/pos-colheita/secagem.entity';
+export { Cura } from './lib/pos-colheita/cura.entity';
+export type { CuraProps } from './lib/pos-colheita/cura.entity';
+export { Lote } from './lib/pos-colheita/lote.entity';
+export type { LoteProps } from './lib/pos-colheita/lote.entity';
+
 export {
   RegistroAmbiental,
   OrigemDoRegistro,
@@ -59,6 +68,7 @@ export {
   PlantaCriada,
   PlantaFaseAlterada,
   RegistroAmbientalCriado,
+  ColheitaRegistrada,
 } from './lib/eventos/grow.events';
 
 export {
@@ -72,4 +82,12 @@ export {
   GeneticaEmUsoError,
   RegistroSemMedicaoError,
   EventoDeCultivoNaoEncontradoError,
+  ColheitaSemPlantasError,
+  ColheitaNaoEncontradaError,
+  SecagemNaoEncontradaError,
+  CuraNaoEncontradaError,
+  LoteNaoEncontradoError,
+  SecagemJaRegistradaError,
+  CuraJaRegistradaError,
+  LoteJaGeradoError,
 } from './lib/errors/grow.errors';

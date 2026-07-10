@@ -1,5 +1,7 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayMinSize,
+  IsArray,
   IsDateString,
   IsIn,
   IsInt,
@@ -350,4 +352,122 @@ export class ResolverSanidadeDto {
   @IsString()
   @MaxLength(2000)
   tratamentoAplicado?: string | null;
+}
+
+// --- Pós-colheita (doc 02 §5.11) ---
+
+/** Corpo de POST /v1/colheitas. `plantaIds` é o subconjunto de plantas colhidas. */
+export class RegistrarColheitaDto {
+  @IsString()
+  @MinLength(1)
+  cicloId!: string;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  plantaIds!: string[];
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  pesoUmidoGramas?: number | null;
+
+  @IsOptional()
+  @IsDateString()
+  colhidoEm?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  observacoes?: string | null;
+}
+
+/** Corpo de POST /v1/secagens. 1—1 com a colheita. */
+export class RegistrarSecagemDto {
+  @IsString()
+  @MinLength(1)
+  colheitaId!: string;
+
+  @IsOptional()
+  @IsDateString()
+  iniciadaEm?: string;
+
+  @IsOptional()
+  @IsDateString()
+  finalizadaEm?: string | null;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(-50)
+  @Max(80)
+  temperaturaC?: number | null;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  umidadeRelativa?: number | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  observacoes?: string | null;
+}
+
+/** Corpo de POST /v1/curas. 1—1 com a secagem. */
+export class RegistrarCuraDto {
+  @IsString()
+  @MinLength(1)
+  secagemId!: string;
+
+  @IsOptional()
+  @IsDateString()
+  iniciadaEm?: string;
+
+  @IsOptional()
+  @IsDateString()
+  finalizadaEm?: string | null;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(-50)
+  @Max(80)
+  temperaturaC?: number | null;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  umidadeRelativa?: number | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  burping?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  observacoes?: string | null;
+}
+
+/** Corpo de POST /v1/lotes. Fecha o fluxo pós-colheita: 1—1 com a cura. */
+export class GerarLoteDto {
+  @IsString()
+  @MinLength(1)
+  curaId!: string;
+
+  @IsString()
+  @MinLength(1)
+  @MaxLength(120)
+  codigo!: string;
+
+  @IsNumber()
+  @Min(0)
+  pesoSecoGramas!: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  observacoes?: string | null;
 }

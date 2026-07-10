@@ -10,6 +10,10 @@ export {
   REGISTRO_AMBIENTAL_REPOSITORY,
   EVENTO_MANEJO_REPOSITORY,
   EVENTO_SANIDADE_REPOSITORY,
+  COLHEITA_REPOSITORY,
+  SECAGEM_REPOSITORY,
+  CURA_REPOSITORY,
+  LOTE_REPOSITORY,
 } from './lib/ports/grow.repositories';
 export type {
   GeneticaRepository,
@@ -20,6 +24,10 @@ export type {
   PaginaDeRegistros,
   EventoManejoRepository,
   EventoSanidadeRepository,
+  ColheitaRepository,
+  SecagemRepository,
+  CuraRepository,
+  LoteRepository,
 } from './lib/ports/grow.repositories';
 
 export {
@@ -96,3 +104,29 @@ export type {
   RegistrarManejoInput,
   RegistrarSanidadeInput,
 } from './lib/use-cases/eventos-de-cultivo.use-cases';
+
+export {
+  RegistrarColheitaUseCase,
+  ObterColheitaUseCase,
+  ListarColheitasDoCicloUseCase,
+  RegistrarSecagemUseCase,
+  FinalizarSecagemUseCase,
+  RegistrarCuraUseCase,
+  FinalizarCuraUseCase,
+  GerarLoteUseCase,
+  ObterLoteUseCase,
+  paraColheitaView,
+  paraSecagemView,
+  paraCuraView,
+  paraLoteView,
+} from './lib/use-cases/pos-colheita.use-cases';
+export type {
+  ColheitaView,
+  SecagemView,
+  CuraView,
+  LoteView,
+  RegistrarColheitaInput,
+  RegistrarSecagemInput,
+  RegistrarCuraInput,
+  GerarLoteInput,
+} from './lib/use-cases/pos-colheita.use-cases';

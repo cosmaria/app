@@ -2,24 +2,32 @@ import type { Pool } from 'pg';
 import type {
   AmbienteRepository,
   CicloRepository,
+  ColheitaRepository,
+  CuraRepository,
   EventoManejoRepository,
   EventoSanidadeRepository,
   GeneticaRepository,
+  LoteRepository,
   PaginaDeRegistros,
   PlantaRepository,
   RegistroAmbientalRepository,
+  SecagemRepository,
 } from '@cosmaria/grow-application';
 import {
   Ambiente,
   CicloCultivo,
+  Colheita,
+  Cura,
   EventoManejo,
   EventoSanidade,
   type FaseDeVida,
   Genetica,
+  Lote,
   type OrigemDoMaterial,
   type OrigemDoRegistro,
   Planta,
   RegistroAmbiental,
+  Secagem,
   type Severidade,
   type TipoDeAmbiente,
   type TipoDeGenetica,
@@ -629,5 +637,267 @@ export class PostgresEventoSanidadeRepository implements EventoSanidadeRepositor
       [cicloId],
     );
     return rows.map(mapearSanidade);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Pós-colheita: Colheita, Secagem, Cura, Lote
+// ---------------------------------------------------------------------------
+
+interface ColheitaRow {
+  id: string;
+  usuario_id: string;
+  ciclo_id: string;
+  plantas: string[];
+  peso_umido_gramas: string | null;
+  colhido_em: Date;
+  observacoes: string | null;
+  criado_em: Date;
+}
+
+const COLUNAS_COLHEITA =
+  'id, usuario_id, ciclo_id, plantas, peso_umido_gramas, colhido_em, observacoes, criado_em';
+
+const mapearColheita = (r: ColheitaRow): Colheita =>
+  Colheita.reconstituir({
+    id: r.id,
+    usuarioId: r.usuario_id,
+    cicloId: r.ciclo_id,
+    plantaIds: r.plantas,
+    pesoUmidoGramas: numeroOuNulo(r.peso_umido_gramas),
+    colhidoEm: r.colhido_em,
+    observacoes: r.observacoes,
+    criadoEm: r.criado_em,
+  });
+
+/** Colheita — histórico imutável: só `INSERT` (Arquétipo B). */
+export class PostgresColheitaRepository implements ColheitaRepository {
+  constructor(private readonly pool: Pool) {}
+
+  async salvar(c: Colheita): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO grow.colheita (${COLUNAS_COLHEITA}) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [
+        c.id,
+        c.usuarioId,
+        c.cicloId,
+        c.plantaIds,
+        c.pesoUmidoGramas,
+        c.colhidoEm,
+        c.observacoes,
+        c.criadoEm,
+      ],
+    );
+  }
+
+  async buscarPorId(id: string): Promise<Colheita | null> {
+    const { rows } = await this.pool.query<ColheitaRow>(
+      `SELECT ${COLUNAS_COLHEITA} FROM grow.colheita WHERE id = $1`,
+      [id],
+    );
+    return rows[0] ? mapearColheita(rows[0]) : null;
+  }
+
+  async listarPorCiclo(cicloId: string): Promise<Colheita[]> {
+    const { rows } = await this.pool.query<ColheitaRow>(
+      `SELECT ${COLUNAS_COLHEITA} FROM grow.colheita WHERE ciclo_id = $1 ORDER BY colhido_em DESC`,
+      [cicloId],
+    );
+    return rows.map(mapearColheita);
+  }
+}
+
+interface SecagemRow {
+  id: string;
+  usuario_id: string;
+  colheita_id: string;
+  iniciada_em: Date;
+  finalizada_em: Date | null;
+  temperatura_c: string | null;
+  umidade_relativa: string | null;
+  observacoes: string | null;
+  criado_em: Date;
+}
+
+const COLUNAS_SECAGEM =
+  'id, usuario_id, colheita_id, iniciada_em, finalizada_em, temperatura_c, umidade_relativa, observacoes, criado_em';
+
+const mapearSecagem = (r: SecagemRow): Secagem =>
+  Secagem.reconstituir({
+    id: r.id,
+    usuarioId: r.usuario_id,
+    colheitaId: r.colheita_id,
+    iniciadaEm: r.iniciada_em,
+    finalizadaEm: r.finalizada_em,
+    temperaturaC: numeroOuNulo(r.temperatura_c),
+    umidadeRelativa: numeroOuNulo(r.umidade_relativa),
+    observacoes: r.observacoes,
+    criadoEm: r.criado_em,
+  });
+
+/** Secagem — 1—1 com a Colheita. O `ON CONFLICT` grava só a finalização (única mutação). */
+export class PostgresSecagemRepository implements SecagemRepository {
+  constructor(private readonly pool: Pool) {}
+
+  async salvar(s: Secagem): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO grow.secagem (${COLUNAS_SECAGEM})
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+       ON CONFLICT (id) DO UPDATE SET finalizada_em = EXCLUDED.finalizada_em`,
+      [
+        s.id,
+        s.usuarioId,
+        s.colheitaId,
+        s.iniciadaEm,
+        s.finalizadaEm,
+        s.temperaturaC,
+        s.umidadeRelativa,
+        s.observacoes,
+        s.criadoEm,
+      ],
+    );
+  }
+
+  async buscarPorId(id: string): Promise<Secagem | null> {
+    const { rows } = await this.pool.query<SecagemRow>(
+      `SELECT ${COLUNAS_SECAGEM} FROM grow.secagem WHERE id = $1`,
+      [id],
+    );
+    return rows[0] ? mapearSecagem(rows[0]) : null;
+  }
+
+  async buscarPorColheita(colheitaId: string): Promise<Secagem | null> {
+    const { rows } = await this.pool.query<SecagemRow>(
+      `SELECT ${COLUNAS_SECAGEM} FROM grow.secagem WHERE colheita_id = $1`,
+      [colheitaId],
+    );
+    return rows[0] ? mapearSecagem(rows[0]) : null;
+  }
+}
+
+interface CuraRow {
+  id: string;
+  usuario_id: string;
+  secagem_id: string;
+  iniciada_em: Date;
+  finalizada_em: Date | null;
+  temperatura_c: string | null;
+  umidade_relativa: string | null;
+  burping: string | null;
+  observacoes: string | null;
+  criado_em: Date;
+}
+
+const COLUNAS_CURA =
+  'id, usuario_id, secagem_id, iniciada_em, finalizada_em, temperatura_c, umidade_relativa, burping, observacoes, criado_em';
+
+const mapearCura = (r: CuraRow): Cura =>
+  Cura.reconstituir({
+    id: r.id,
+    usuarioId: r.usuario_id,
+    secagemId: r.secagem_id,
+    iniciadaEm: r.iniciada_em,
+    finalizadaEm: r.finalizada_em,
+    temperaturaC: numeroOuNulo(r.temperatura_c),
+    umidadeRelativa: numeroOuNulo(r.umidade_relativa),
+    burping: r.burping,
+    observacoes: r.observacoes,
+    criadoEm: r.criado_em,
+  });
+
+/** Cura — 1—1 com a Secagem. Mesma forma da secagem. */
+export class PostgresCuraRepository implements CuraRepository {
+  constructor(private readonly pool: Pool) {}
+
+  async salvar(c: Cura): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO grow.cura (${COLUNAS_CURA})
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+       ON CONFLICT (id) DO UPDATE SET finalizada_em = EXCLUDED.finalizada_em`,
+      [
+        c.id,
+        c.usuarioId,
+        c.secagemId,
+        c.iniciadaEm,
+        c.finalizadaEm,
+        c.temperaturaC,
+        c.umidadeRelativa,
+        c.burping,
+        c.observacoes,
+        c.criadoEm,
+      ],
+    );
+  }
+
+  async buscarPorId(id: string): Promise<Cura | null> {
+    const { rows } = await this.pool.query<CuraRow>(
+      `SELECT ${COLUNAS_CURA} FROM grow.cura WHERE id = $1`,
+      [id],
+    );
+    return rows[0] ? mapearCura(rows[0]) : null;
+  }
+
+  async buscarPorSecagem(secagemId: string): Promise<Cura | null> {
+    const { rows } = await this.pool.query<CuraRow>(
+      `SELECT ${COLUNAS_CURA} FROM grow.cura WHERE secagem_id = $1`,
+      [secagemId],
+    );
+    return rows[0] ? mapearCura(rows[0]) : null;
+  }
+}
+
+interface LoteRow {
+  id: string;
+  usuario_id: string;
+  cura_id: string;
+  codigo: string;
+  peso_seco_gramas: string;
+  observacoes: string | null;
+  gerado_em: Date;
+}
+
+const COLUNAS_LOTE = 'id, usuario_id, cura_id, codigo, peso_seco_gramas, observacoes, gerado_em';
+
+const mapearLote = (r: LoteRow): Lote =>
+  Lote.reconstituir({
+    id: r.id,
+    usuarioId: r.usuario_id,
+    curaId: r.cura_id,
+    codigo: r.codigo,
+    pesoSecoGramas: Number(r.peso_seco_gramas),
+    observacoes: r.observacoes,
+    geradoEm: r.gerado_em,
+  });
+
+/** Lote — unidade terminal, 1—1 com a Cura. Só `INSERT`: um lote gerado não se reescreve. */
+export class PostgresLoteRepository implements LoteRepository {
+  constructor(private readonly pool: Pool) {}
+
+  async salvar(l: Lote): Promise<void> {
+    await this.pool.query(`INSERT INTO grow.lote (${COLUNAS_LOTE}) VALUES ($1,$2,$3,$4,$5,$6,$7)`, [
+      l.id,
+      l.usuarioId,
+      l.curaId,
+      l.codigo,
+      l.pesoSecoGramas,
+      l.observacoes,
+      l.geradoEm,
+    ]);
+  }
+
+  async buscarPorId(id: string): Promise<Lote | null> {
+    const { rows } = await this.pool.query<LoteRow>(
+      `SELECT ${COLUNAS_LOTE} FROM grow.lote WHERE id = $1`,
+      [id],
+    );
+    return rows[0] ? mapearLote(rows[0]) : null;
+  }
+
+  async buscarPorCura(curaId: string): Promise<Lote | null> {
+    const { rows } = await this.pool.query<LoteRow>(
+      `SELECT ${COLUNAS_LOTE} FROM grow.lote WHERE cura_id = $1`,
+      [curaId],
+    );
+    return rows[0] ? mapearLote(rows[0]) : null;
   }
 }

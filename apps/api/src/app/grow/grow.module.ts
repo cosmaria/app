@@ -24,9 +24,16 @@ import {
   AvancarFaseDoCicloUseCase,
   CICLO_REPOSITORY,
   type CicloRepository,
+  COLHEITA_REPOSITORY,
+  type ColheitaRepository,
   CriarAmbienteUseCase,
   CriarGeneticaUseCase,
+  CURA_REPOSITORY,
+  type CuraRepository,
   EncerrarCicloUseCase,
+  FinalizarCuraUseCase,
+  FinalizarSecagemUseCase,
+  GerarLoteUseCase,
   GENETICA_REPOSITORY,
   type GeneticaRepository,
   IniciarCicloUseCase,
@@ -36,40 +43,58 @@ import {
   type EventoSanidadeRepository,
   ListarAmbientesUseCase,
   ListarCiclosUseCase,
+  ListarColheitasDoCicloUseCase,
   ListarGeneticasUseCase,
   ListarManejosDoCicloUseCase,
   ListarPlantasDoCicloUseCase,
   ListarSanidadeDoCicloUseCase,
   ListarSerieTemporalUseCase,
+  LOTE_REPOSITORY,
+  type LoteRepository,
   ObterCamposDoCheckInUseCase,
   ObterCicloUseCase,
+  ObterColheitaUseCase,
+  ObterLoteUseCase,
   PLANTA_REPOSITORY,
   type PlantaRepository,
   REGISTRO_AMBIENTAL_REPOSITORY,
   RegistrarCheckInUseCase,
+  RegistrarColheitaUseCase,
+  RegistrarCuraUseCase,
   RegistrarManejoUseCase,
   RegistrarSanidadeUseCase,
+  RegistrarSecagemUseCase,
   type RegistroAmbientalRepository,
   RemoverAmbienteUseCase,
   RemoverGeneticaUseCase,
   RenomearCicloUseCase,
   ResolverSanidadeUseCase,
+  SECAGEM_REPOSITORY,
+  type SecagemRepository,
 } from '@cosmaria/grow-application';
 import {
   InMemoryAmbienteRepository,
   InMemoryCicloRepository,
+  InMemoryColheitaRepository,
+  InMemoryCuraRepository,
   InMemoryEventoManejoRepository,
   InMemoryEventoSanidadeRepository,
   InMemoryGeneticaRepository,
+  InMemoryLoteRepository,
   InMemoryPlantaRepository,
   InMemoryRegistroAmbientalRepository,
+  InMemorySecagemRepository,
   PostgresAmbienteRepository,
   PostgresCicloRepository,
+  PostgresColheitaRepository,
+  PostgresCuraRepository,
   PostgresEventoManejoRepository,
   PostgresEventoSanidadeRepository,
   PostgresGeneticaRepository,
+  PostgresLoteRepository,
   PostgresPlantaRepository,
   PostgresRegistroAmbientalRepository,
+  PostgresSecagemRepository,
 } from '@cosmaria/grow-infrastructure';
 import { PG_POOL } from '../infra/infra.tokens';
 import { AuthModule } from '../auth/auth.module';
@@ -90,6 +115,13 @@ import {
   EventoSanidadeController,
   EventosDoCicloController,
 } from './eventos-de-cultivo.controller';
+import {
+  ColheitaController,
+  ColheitasDoCicloController,
+  CuraController,
+  LoteController,
+  SecagemController,
+} from './pos-colheita.controller';
 
 /**
  * Composition root do COSMARIA Grow (doc 02 / doc 14 §10).
@@ -110,9 +142,25 @@ const emMemoria = () => {
   const registros = new InMemoryRegistroAmbientalRepository();
   const manejos = new InMemoryEventoManejoRepository();
   const sanidades = new InMemoryEventoSanidadeRepository();
+  const colheitas = new InMemoryColheitaRepository();
+  const secagens = new InMemorySecagemRepository();
+  const curas = new InMemoryCuraRepository();
+  const lotes = new InMemoryLoteRepository();
   geneticas.conectarPlantas(plantas);
   ambientes.conectarCiclos(ciclos);
-  return { geneticas, ambientes, ciclos, plantas, registros, manejos, sanidades };
+  return {
+    geneticas,
+    ambientes,
+    ciclos,
+    plantas,
+    registros,
+    manejos,
+    sanidades,
+    colheitas,
+    secagens,
+    curas,
+    lotes,
+  };
 };
 
 /**
@@ -367,6 +415,109 @@ const providers: Provider[] = [
       new ListarSanidadeDoCicloUseCase(eventos, ciclos),
     inject: [EVENTO_SANIDADE_REPOSITORY, CICLO_REPOSITORY],
   },
+
+  // Pós-colheita: Colheita, Secagem, Cura, Lote
+  {
+    provide: COLHEITA_REPOSITORY,
+    useFactory: (pool: Pool | null, memoria: ReturnType<typeof emMemoria>): ColheitaRepository =>
+      pool ? new PostgresColheitaRepository(pool) : memoria.colheitas,
+    inject: [PG_POOL, REPOSITORIOS_EM_MEMORIA],
+  },
+  {
+    provide: SECAGEM_REPOSITORY,
+    useFactory: (pool: Pool | null, memoria: ReturnType<typeof emMemoria>): SecagemRepository =>
+      pool ? new PostgresSecagemRepository(pool) : memoria.secagens,
+    inject: [PG_POOL, REPOSITORIOS_EM_MEMORIA],
+  },
+  {
+    provide: CURA_REPOSITORY,
+    useFactory: (pool: Pool | null, memoria: ReturnType<typeof emMemoria>): CuraRepository =>
+      pool ? new PostgresCuraRepository(pool) : memoria.curas,
+    inject: [PG_POOL, REPOSITORIOS_EM_MEMORIA],
+  },
+  {
+    provide: LOTE_REPOSITORY,
+    useFactory: (pool: Pool | null, memoria: ReturnType<typeof emMemoria>): LoteRepository =>
+      pool ? new PostgresLoteRepository(pool) : memoria.lotes,
+    inject: [PG_POOL, REPOSITORIOS_EM_MEMORIA],
+  },
+  {
+    provide: RegistrarColheitaUseCase,
+    useFactory: (
+      colheitas: ColheitaRepository,
+      ciclos: CicloRepository,
+      plantas: PlantaRepository,
+      idGen: IdGenerator,
+      eventos: EventPublisher,
+    ) => new RegistrarColheitaUseCase(colheitas, ciclos, plantas, idGen, eventos),
+    inject: [
+      COLHEITA_REPOSITORY,
+      CICLO_REPOSITORY,
+      PLANTA_REPOSITORY,
+      ID_GENERATOR,
+      EVENT_PUBLISHER,
+    ],
+  },
+  {
+    provide: ObterColheitaUseCase,
+    useFactory: (colheitas: ColheitaRepository) => new ObterColheitaUseCase(colheitas),
+    inject: [COLHEITA_REPOSITORY],
+  },
+  {
+    provide: ListarColheitasDoCicloUseCase,
+    useFactory: (colheitas: ColheitaRepository, ciclos: CicloRepository) =>
+      new ListarColheitasDoCicloUseCase(colheitas, ciclos),
+    inject: [COLHEITA_REPOSITORY, CICLO_REPOSITORY],
+  },
+  {
+    provide: RegistrarSecagemUseCase,
+    useFactory: (secagens: SecagemRepository, colheitas: ColheitaRepository, idGen: IdGenerator) =>
+      new RegistrarSecagemUseCase(secagens, colheitas, idGen),
+    inject: [SECAGEM_REPOSITORY, COLHEITA_REPOSITORY, ID_GENERATOR],
+  },
+  {
+    provide: FinalizarSecagemUseCase,
+    useFactory: (secagens: SecagemRepository) => new FinalizarSecagemUseCase(secagens),
+    inject: [SECAGEM_REPOSITORY],
+  },
+  {
+    provide: RegistrarCuraUseCase,
+    useFactory: (curas: CuraRepository, secagens: SecagemRepository, idGen: IdGenerator) =>
+      new RegistrarCuraUseCase(curas, secagens, idGen),
+    inject: [CURA_REPOSITORY, SECAGEM_REPOSITORY, ID_GENERATOR],
+  },
+  {
+    provide: FinalizarCuraUseCase,
+    useFactory: (curas: CuraRepository) => new FinalizarCuraUseCase(curas),
+    inject: [CURA_REPOSITORY],
+  },
+  {
+    provide: GerarLoteUseCase,
+    useFactory: (
+      lotes: LoteRepository,
+      curas: CuraRepository,
+      secagens: SecagemRepository,
+      colheitas: ColheitaRepository,
+      idGen: IdGenerator,
+    ) => new GerarLoteUseCase(lotes, curas, secagens, colheitas, idGen),
+    inject: [
+      LOTE_REPOSITORY,
+      CURA_REPOSITORY,
+      SECAGEM_REPOSITORY,
+      COLHEITA_REPOSITORY,
+      ID_GENERATOR,
+    ],
+  },
+  {
+    provide: ObterLoteUseCase,
+    useFactory: (
+      lotes: LoteRepository,
+      curas: CuraRepository,
+      secagens: SecagemRepository,
+      colheitas: ColheitaRepository,
+    ) => new ObterLoteUseCase(lotes, curas, secagens, colheitas),
+    inject: [LOTE_REPOSITORY, CURA_REPOSITORY, SECAGEM_REPOSITORY, COLHEITA_REPOSITORY],
+  },
 ];
 
 @Module({
@@ -381,6 +532,11 @@ const providers: Provider[] = [
     EventoManejoController,
     EventoSanidadeController,
     EventosDoCicloController,
+    ColheitaController,
+    ColheitasDoCicloController,
+    SecagemController,
+    CuraController,
+    LoteController,
   ],
   providers,
 })

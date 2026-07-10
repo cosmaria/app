@@ -91,3 +91,63 @@ export class GeneticaEmUsoError extends DomainError {
     super('Esta genética está em uso por plantas registradas e não pode ser excluída.');
   }
 }
+
+// --- Pós-colheita: Colheita, Secagem, Cura, Lote (doc 02 §5.11) ---
+
+/** Uma colheita sem plantas seria um registro sobre o nada. */
+export class ColheitaSemPlantasError extends DomainError {
+  readonly code = 'COLHEITA_SEM_PLANTAS';
+  constructor() {
+    super('Informe ao menos uma planta para registrar a colheita.');
+  }
+}
+
+export class ColheitaNaoEncontradaError extends DomainError {
+  readonly code = 'COLHEITA_NAO_ENCONTRADA';
+  constructor() {
+    super('Colheita não encontrada.');
+  }
+}
+
+export class SecagemNaoEncontradaError extends DomainError {
+  readonly code = 'SECAGEM_NAO_ENCONTRADA';
+  constructor() {
+    super('Secagem não encontrada.');
+  }
+}
+
+export class CuraNaoEncontradaError extends DomainError {
+  readonly code = 'CURA_NAO_ENCONTRADA';
+  constructor() {
+    super('Cura não encontrada.');
+  }
+}
+
+export class LoteNaoEncontradoError extends DomainError {
+  readonly code = 'LOTE_NAO_ENCONTRADO';
+  constructor() {
+    super('Lote não encontrado.');
+  }
+}
+
+/** Cada etapa é 1—1 com a anterior: a colheita seca uma única vez. */
+export class SecagemJaRegistradaError extends DomainError {
+  readonly code = 'SECAGEM_JA_REGISTRADA';
+  constructor() {
+    super('Esta colheita já possui uma secagem registrada.');
+  }
+}
+
+export class CuraJaRegistradaError extends DomainError {
+  readonly code = 'CURA_JA_REGISTRADA';
+  constructor() {
+    super('Esta secagem já possui uma cura registrada.');
+  }
+}
+
+export class LoteJaGeradoError extends DomainError {
+  readonly code = 'LOTE_JA_GERADO';
+  constructor() {
+    super('Esta cura já gerou um lote.');
+  }
+}

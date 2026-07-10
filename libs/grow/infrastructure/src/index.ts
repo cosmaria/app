@@ -9,6 +9,10 @@ export {
   PostgresRegistroAmbientalRepository,
   PostgresEventoManejoRepository,
   PostgresEventoSanidadeRepository,
+  PostgresColheitaRepository,
+  PostgresSecagemRepository,
+  PostgresCuraRepository,
+  PostgresLoteRepository,
 } from './lib/postgres-grow.repositories';
 
 export {
@@ -19,4 +23,8 @@ export {
   InMemoryRegistroAmbientalRepository,
   InMemoryEventoManejoRepository,
   InMemoryEventoSanidadeRepository,
+  InMemoryColheitaRepository,
+  InMemorySecagemRepository,
+  InMemoryCuraRepository,
+  InMemoryLoteRepository,
 } from './lib/in-memory-grow.repositories';

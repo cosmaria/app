@@ -26,11 +26,19 @@ import {
   AmbienteNaoEncontradoError,
   CicloEncerradoError,
   CicloNaoEncontradoError,
+  ColheitaNaoEncontradaError,
+  ColheitaSemPlantasError,
+  CuraJaRegistradaError,
+  CuraNaoEncontradaError,
   EventoDeCultivoNaoEncontradoError,
   GeneticaEmUsoError,
   GeneticaNaoEncontradaError,
+  LoteJaGeradoError,
+  LoteNaoEncontradoError,
   PlantaNaoEncontradaError,
   RegistroSemMedicaoError,
+  SecagemJaRegistradaError,
+  SecagemNaoEncontradaError,
   TransicaoDeFaseInvalidaError,
 } from '@cosmaria/grow-domain';
 
@@ -90,12 +98,21 @@ export class DomainExceptionFilter implements ExceptionFilter {
     if (erro instanceof CicloNaoEncontradoError) return HttpStatus.NOT_FOUND;
     if (erro instanceof PlantaNaoEncontradaError) return HttpStatus.NOT_FOUND;
     if (erro instanceof EventoDeCultivoNaoEncontradoError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof ColheitaNaoEncontradaError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof SecagemNaoEncontradaError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof CuraNaoEncontradaError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof LoteNaoEncontradoError) return HttpStatus.NOT_FOUND;
     // 409: o recurso existe, mas seu estado atual impede a operação.
     if (erro instanceof CicloEncerradoError) return HttpStatus.CONFLICT;
     if (erro instanceof AmbienteComCiclosError) return HttpStatus.CONFLICT;
     if (erro instanceof GeneticaEmUsoError) return HttpStatus.CONFLICT;
+    // Cada etapa pós-colheita é 1—1 com a anterior: repetir é conflito de estado.
+    if (erro instanceof SecagemJaRegistradaError) return HttpStatus.CONFLICT;
+    if (erro instanceof CuraJaRegistradaError) return HttpStatus.CONFLICT;
+    if (erro instanceof LoteJaGeradoError) return HttpStatus.CONFLICT;
     if (erro instanceof TransicaoDeFaseInvalidaError) return HttpStatus.BAD_REQUEST;
     if (erro instanceof RegistroSemMedicaoError) return HttpStatus.BAD_REQUEST;
+    if (erro instanceof ColheitaSemPlantasError) return HttpStatus.BAD_REQUEST;
 
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }

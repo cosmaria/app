@@ -79,6 +79,27 @@ export class RegistroAmbientalCriado implements DomainEvent {
   }
 }
 
+/**
+ * `ColheitaRegistrada` — consumido por IA e Notificações (Catálogo de Domínio, doc 02/04).
+ * Carrega a quantidade de plantas e o peso úmido para que o consumidor não precise reabrir
+ * a colheita só para calcular rendimento ou disparar o guia de secagem/cura.
+ */
+export class ColheitaRegistrada implements DomainEvent {
+  readonly nome = 'ColheitaRegistrada';
+  readonly ocorridoEm: Date;
+
+  constructor(
+    readonly colheitaId: string,
+    readonly usuarioId: string,
+    readonly cicloId: string,
+    readonly quantidadeDePlantas: number,
+    readonly pesoUmidoGramas: number | null,
+    ocorridoEm?: Date,
+  ) {
+    this.ocorridoEm = ocorridoEm ?? new Date();
+  }
+}
+
 /** `PlantaFaseAlterada` — consumido por IA e Notificações. */
 export class PlantaFaseAlterada implements DomainEvent {
   readonly nome = 'PlantaFaseAlterada';

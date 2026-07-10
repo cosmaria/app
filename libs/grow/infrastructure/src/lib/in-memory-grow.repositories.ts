@@ -1,21 +1,29 @@
 import type {
   AmbienteRepository,
   CicloRepository,
+  ColheitaRepository,
+  CuraRepository,
   EventoManejoRepository,
   EventoSanidadeRepository,
   GeneticaRepository,
+  LoteRepository,
   PaginaDeRegistros,
   PlantaRepository,
   RegistroAmbientalRepository,
+  SecagemRepository,
 } from '@cosmaria/grow-application';
 import type {
   Ambiente,
   CicloCultivo,
+  Colheita,
+  Cura,
   EventoManejo,
   EventoSanidade,
   Genetica,
+  Lote,
   Planta,
   RegistroAmbiental,
+  Secagem,
 } from '@cosmaria/grow-domain';
 
 /**
@@ -197,5 +205,75 @@ export class InMemoryEventoSanidadeRepository implements EventoSanidadeRepositor
         .filter((e) => e.cicloId === cicloId && (!apenasAbertos || !e.estaResolvido()))
         .sort((a, b) => b.ocorridoEm.getTime() - a.ocorridoEm.getTime()),
     );
+  }
+}
+
+/** Colheita em memória. Histórico imutável, 0—N por ciclo. */
+export class InMemoryColheitaRepository implements ColheitaRepository {
+  private readonly porId = new Map<string, Colheita>();
+
+  salvar(colheita: Colheita): Promise<void> {
+    this.porId.set(colheita.id, colheita);
+    return Promise.resolve();
+  }
+  buscarPorId(id: string): Promise<Colheita | null> {
+    return Promise.resolve(this.porId.get(id) ?? null);
+  }
+  listarPorCiclo(cicloId: string): Promise<Colheita[]> {
+    return Promise.resolve(
+      [...this.porId.values()]
+        .filter((c) => c.cicloId === cicloId)
+        .sort((a, b) => b.colhidoEm.getTime() - a.colhidoEm.getTime()),
+    );
+  }
+}
+
+/** Secagem em memória. 1—1 com a Colheita. */
+export class InMemorySecagemRepository implements SecagemRepository {
+  private readonly porId = new Map<string, Secagem>();
+
+  salvar(secagem: Secagem): Promise<void> {
+    this.porId.set(secagem.id, secagem);
+    return Promise.resolve();
+  }
+  buscarPorId(id: string): Promise<Secagem | null> {
+    return Promise.resolve(this.porId.get(id) ?? null);
+  }
+  buscarPorColheita(colheitaId: string): Promise<Secagem | null> {
+    return Promise.resolve(
+      [...this.porId.values()].find((s) => s.colheitaId === colheitaId) ?? null,
+    );
+  }
+}
+
+/** Cura em memória. 1—1 com a Secagem. */
+export class InMemoryCuraRepository implements CuraRepository {
+  private readonly porId = new Map<string, Cura>();
+
+  salvar(cura: Cura): Promise<void> {
+    this.porId.set(cura.id, cura);
+    return Promise.resolve();
+  }
+  buscarPorId(id: string): Promise<Cura | null> {
+    return Promise.resolve(this.porId.get(id) ?? null);
+  }
+  buscarPorSecagem(secagemId: string): Promise<Cura | null> {
+    return Promise.resolve([...this.porId.values()].find((c) => c.secagemId === secagemId) ?? null);
+  }
+}
+
+/** Lote em memória. 1—1 com a Cura. Puro do Grow. */
+export class InMemoryLoteRepository implements LoteRepository {
+  private readonly porId = new Map<string, Lote>();
+
+  salvar(lote: Lote): Promise<void> {
+    this.porId.set(lote.id, lote);
+    return Promise.resolve();
+  }
+  buscarPorId(id: string): Promise<Lote | null> {
+    return Promise.resolve(this.porId.get(id) ?? null);
+  }
+  buscarPorCura(curaId: string): Promise<Lote | null> {
+    return Promise.resolve([...this.porId.values()].find((l) => l.curaId === curaId) ?? null);
   }
 }

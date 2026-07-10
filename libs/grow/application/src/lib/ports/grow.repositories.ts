@@ -1,11 +1,15 @@
 import type {
   Ambiente,
   CicloCultivo,
+  Colheita,
+  Cura,
   EventoManejo,
   EventoSanidade,
   Genetica,
+  Lote,
   Planta,
   RegistroAmbiental,
+  Secagem,
 } from '@cosmaria/grow-domain';
 
 /**
@@ -98,3 +102,46 @@ export interface EventoSanidadeRepository {
 }
 
 export const EVENTO_SANIDADE_REPOSITORY = Symbol('EventoSanidadeRepository');
+
+/**
+ * Colheita (Arquétipo B — fato histórico). Sem `atualizar` nem `remover`: uma colheita
+ * que aconteceu não deixa de ter acontecido. 0—N por ciclo (colheita escalonada).
+ */
+export interface ColheitaRepository {
+  salvar(colheita: Colheita): Promise<void>;
+  buscarPorId(id: string): Promise<Colheita | null>;
+  listarPorCiclo(cicloId: string): Promise<Colheita[]>;
+}
+
+export const COLHEITA_REPOSITORY = Symbol('ColheitaRepository');
+
+/**
+ * Secagem (1—1 com Colheita). `salvar` também persiste a finalização — a única mutação,
+ * monotônica. `buscarPorColheita` sustenta a regra 1—1 antes do INSERT (o UNIQUE do banco
+ * é a rede de segurança).
+ */
+export interface SecagemRepository {
+  salvar(secagem: Secagem): Promise<void>;
+  buscarPorId(id: string): Promise<Secagem | null>;
+  buscarPorColheita(colheitaId: string): Promise<Secagem | null>;
+}
+
+export const SECAGEM_REPOSITORY = Symbol('SecagemRepository');
+
+/** Cura (1—1 com Secagem). Mesma forma da secagem. */
+export interface CuraRepository {
+  salvar(cura: Cura): Promise<void>;
+  buscarPorId(id: string): Promise<Cura | null>;
+  buscarPorSecagem(secagemId: string): Promise<Cura | null>;
+}
+
+export const CURA_REPOSITORY = Symbol('CuraRepository');
+
+/** Lote (1—1 com Cura). Unidade terminal, pura do Grow (sem gancho Med). */
+export interface LoteRepository {
+  salvar(lote: Lote): Promise<void>;
+  buscarPorId(id: string): Promise<Lote | null>;
+  buscarPorCura(curaId: string): Promise<Lote | null>;
+}
+
+export const LOTE_REPOSITORY = Symbol('LoteRepository');
