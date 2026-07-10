@@ -52,6 +52,8 @@ export {
   InMemoryPreferenciaDeNotificacaoRepository,
   InMemoryNotificacaoRepository,
 } from './lib/persistence/in-memory-notificacao.repositories';
+export { PostgresPreferenciaDeComplexidadeRepository } from './lib/persistence/postgres-complexidade.repository';
+export { InMemoryPreferenciaDeComplexidadeRepository } from './lib/persistence/in-memory-complexidade.repository';
 export { PostgresMidiaRepository } from './lib/persistence/postgres-midia.repository';
 export {
   InMemoryMidiaRepository,

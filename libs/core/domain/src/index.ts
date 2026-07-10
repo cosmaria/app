@@ -57,6 +57,16 @@ export type {
   PrecoRegionalProps,
 } from './lib/billing/catalogo-de-cobranca.entities';
 
+// Complexidade Progressiva (doc 02 §5.0 — módulo transversal do Core)
+export {
+  NivelDeComplexidade,
+  ehNivelDeComplexidadeValido,
+  ordemDoNivel,
+  nivelAlcanca,
+} from './lib/complexidade/nivel-de-complexidade';
+export { PreferenciaDeComplexidade } from './lib/complexidade/preferencia-de-complexidade.entity';
+export type { PreferenciaDeComplexidadeProps } from './lib/complexidade/preferencia-de-complexidade.entity';
+
 // Armazenamento de Mídia (doc 04 §7.1/§16, doc 08 §12.1 — capacidade do Core)
 export { Midia, TipoDeMidia, tipoDeMidiaDoMime } from './lib/midia/midia.entity';
 export type { MidiaProps } from './lib/midia/midia.entity';

@@ -18,3 +18,5 @@ export { PERFIL_PUBLIC_API, type PerfilPublicApi } from './lib/perfil.public-api
 export { PREMIUM_PUBLIC_API, type PremiumPublicApi } from './lib/premium.public-api';
 
 export { MIDIA_PUBLIC_API, type MidiaPublicApi } from './lib/midia.public-api';
+
+export { COMPLEXIDADE_PUBLIC_API, type ComplexidadePublicApi } from './lib/complexidade.public-api';

@@ -32,3 +32,8 @@ export type {
   NotificacaoItemResponse,
   CentralDeNotificacoesResponse,
 } from './lib/notificacao.dto';
+
+export type {
+  PreferenciaComplexidadeResponse,
+  AtualizarPreferenciaComplexidadeRequest,
+} from './lib/complexidade.dto';

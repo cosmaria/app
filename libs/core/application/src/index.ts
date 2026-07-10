@@ -72,6 +72,8 @@ export {
 export type { ArmazenamentoDeObjetos } from './lib/ports/armazenamento-de-objetos.port';
 export { MIDIA_REPOSITORY } from './lib/ports/midia.repository';
 export type { MidiaRepository } from './lib/ports/midia.repository';
+export { PREFERENCIA_DE_COMPLEXIDADE_REPOSITORY } from './lib/ports/preferencia-de-complexidade.repository';
+export type { PreferenciaDeComplexidadeRepository } from './lib/ports/preferencia-de-complexidade.repository';
 export { DESPACHANTE_DE_NOTIFICACAO } from './lib/ports/despachante-de-notificacao.port';
 export type {
   DespachanteDeNotificacao,
@@ -186,6 +188,19 @@ export type {
   CentralDeNotificacoesView,
 } from './lib/use-cases/central-de-notificacoes.use-cases';
 export { NotificarSobreEventosService } from './lib/use-cases/notificar-sobre-eventos.service';
+
+// Complexidade Progressiva (doc 02 §5.0)
+export {
+  ResolverPreferenciaDeComplexidadeService,
+  ObterPreferenciaDeComplexidadeUseCase,
+  AtualizarPreferenciaDeComplexidadeUseCase,
+  FiltrarCamposPorComplexidadeUseCase,
+} from './lib/use-cases/complexidade.use-cases';
+export type {
+  ComplexidadeView,
+  AtualizarComplexidadeInput,
+  CampoDeComplexidade,
+} from './lib/use-cases/complexidade.use-cases';
 
 // Armazenamento de Mídia (doc 04 §16)
 export {

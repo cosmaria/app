@@ -12,6 +12,7 @@ import { PerfilModule } from './perfil/perfil.module';
 import { BillingModule } from './billing/billing.module';
 import { NotificacaoModule } from './notificacao/notificacao.module';
 import { MidiaModule } from './midia/midia.module';
+import { ComplexidadeModule } from './complexidade/complexidade.module';
 
 /**
  * Módulo raiz do Modular Monolith.
@@ -26,6 +27,7 @@ import { MidiaModule } from './midia/midia.module';
  * - BillingModule: assinatura única, limites de plano e webhook de pagamento (Core, doc 07).
  * - NotificacaoModule: serviço único de notificação alimentado por eventos (Core, doc 04 §15).
  * - MidiaModule: armazenamento de mídia compartilhado por Grow e Med (Core, doc 04 §16).
+ * - ComplexidadeModule: complexidade progressiva e Modo Especialista (Core, doc 02 §5.0).
  * Grow, Med, Comunidade e IA (doc 04) entram em sprints seguintes.
  */
 @Module({
@@ -44,6 +46,7 @@ import { MidiaModule } from './midia/midia.module';
     BillingModule,
     NotificacaoModule,
     MidiaModule,
+    ComplexidadeModule,
   ],
 })
 export class AppModule {}

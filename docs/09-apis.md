@@ -90,7 +90,7 @@ Classificação obrigatória: **Pública** (exposta a apps cliente) · **Interna
 | `DELETE /v1/consentimento/{tipo}` | Pública | API-1 | Revogar consentimento |
 | `GET /v1/conta/exportacao/{solicitacaoId}` | Pública | API-3 | *(adicionado na revisão 00-09 — sem isso, o usuário não tinha como saber quando/como baixar a exportação solicitada)* Status e link de download da exportação |
 | `GET /v1/admin/trilha-auditoria` | Administrativa | API-6 | *(adicionado na revisão 00-09 — `TrilhaDeAuditoria` era escrita mas nunca lida por nenhum endpoint)* Consultar trilha de auditoria |
-| `GET/PUT /v1/preferencia-complexidade` | Pública | API-1 | Nível essencial/avançado/especialista |
+| `GET/PUT /v1/preferencia-complexidade` | Pública | API-1 | Nível essencial/avançado/especialista, Modo Especialista e **habilitação progressiva por campo** (doc 02 §5.0). Uma preferência por Conta, compartilhada por Grow e Med |
 | `GET/PUT /v1/preferencia-notificacao` | Pública | API-1 | Preferências (canais por categoria), horário de silêncio, fuso e Modo Discreto |
 | `GET /v1/notificacoes` | Pública | API-3 | *(adicionado na Sprint Core-7 — o doc 04 §15 exige que a notificação silenciada seja "registrada sem envio", mas nenhum endpoint permitia lê-la, e a Central de Notificações do doc 10 não teria como existir)* Central de Notificações, paginada |
 | `POST /v1/notificacoes/{id}/ler` | Pública | API-4 | *(adicionado na Sprint Core-7, mesma lacuna)* Marcar notificação como lida (idempotente) |
