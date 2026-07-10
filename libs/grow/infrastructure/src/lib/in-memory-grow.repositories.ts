@@ -1,6 +1,8 @@
 import type {
   AmbienteRepository,
   CicloRepository,
+  EventoManejoRepository,
+  EventoSanidadeRepository,
   GeneticaRepository,
   PaginaDeRegistros,
   PlantaRepository,
@@ -9,6 +11,8 @@ import type {
 import type {
   Ambiente,
   CicloCultivo,
+  EventoManejo,
+  EventoSanidade,
   Genetica,
   Planta,
   RegistroAmbiental,
@@ -154,5 +158,44 @@ export class InMemoryRegistroAmbientalRepository implements RegistroAmbientalRep
       itens: doCiclo.slice(parametros.deslocamento, parametros.deslocamento + parametros.limite),
       total: doCiclo.length,
     });
+  }
+}
+
+/** Histórico imutável de manejo em memória. */
+export class InMemoryEventoManejoRepository implements EventoManejoRepository {
+  private readonly porId = new Map<string, EventoManejo>();
+
+  salvar(evento: EventoManejo): Promise<void> {
+    this.porId.set(evento.id, evento);
+    return Promise.resolve();
+  }
+
+  listarPorCiclo(cicloId: string): Promise<EventoManejo[]> {
+    return Promise.resolve(
+      [...this.porId.values()]
+        .filter((e) => e.cicloId === cicloId)
+        .sort((a, b) => b.ocorridoEm.getTime() - a.ocorridoEm.getTime()),
+    );
+  }
+}
+
+export class InMemoryEventoSanidadeRepository implements EventoSanidadeRepository {
+  private readonly porId = new Map<string, EventoSanidade>();
+
+  salvar(evento: EventoSanidade): Promise<void> {
+    this.porId.set(evento.id, evento);
+    return Promise.resolve();
+  }
+
+  buscarPorId(id: string): Promise<EventoSanidade | null> {
+    return Promise.resolve(this.porId.get(id) ?? null);
+  }
+
+  listarPorCiclo(cicloId: string, apenasAbertos = false): Promise<EventoSanidade[]> {
+    return Promise.resolve(
+      [...this.porId.values()]
+        .filter((e) => e.cicloId === cicloId && (!apenasAbertos || !e.estaResolvido()))
+        .sort((a, b) => b.ocorridoEm.getTime() - a.ocorridoEm.getTime()),
+    );
   }
 }

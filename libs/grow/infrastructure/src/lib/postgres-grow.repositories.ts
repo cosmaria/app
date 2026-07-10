@@ -2,6 +2,8 @@ import type { Pool } from 'pg';
 import type {
   AmbienteRepository,
   CicloRepository,
+  EventoManejoRepository,
+  EventoSanidadeRepository,
   GeneticaRepository,
   PaginaDeRegistros,
   PlantaRepository,
@@ -10,14 +12,19 @@ import type {
 import {
   Ambiente,
   CicloCultivo,
+  EventoManejo,
+  EventoSanidade,
   type FaseDeVida,
   Genetica,
   type OrigemDoMaterial,
   type OrigemDoRegistro,
   Planta,
   RegistroAmbiental,
+  type Severidade,
   type TipoDeAmbiente,
   type TipoDeGenetica,
+  type TipoDeManejo,
+  type TipoDeSanidade,
 } from '@cosmaria/grow-domain';
 
 /**
@@ -490,5 +497,137 @@ export class PostgresRegistroAmbientalRepository implements RegistroAmbientalRep
       [cicloId],
     );
     return { itens: rows.map(mapearRegistro), total: Number(contagem.rows[0].total) };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Eventos de cultivo: Manejo e Sanidade
+// ---------------------------------------------------------------------------
+
+interface ManejoRow {
+  id: string;
+  usuario_id: string;
+  ciclo_id: string;
+  planta_id: string | null;
+  tipo: string;
+  ocorrido_em: Date;
+  observacoes: string | null;
+  criado_em: Date;
+}
+
+const COLUNAS_MANEJO =
+  'id, usuario_id, ciclo_id, planta_id, tipo, ocorrido_em, observacoes, criado_em';
+
+const mapearManejo = (r: ManejoRow): EventoManejo =>
+  EventoManejo.reconstituir({
+    id: r.id,
+    usuarioId: r.usuario_id,
+    cicloId: r.ciclo_id,
+    plantaId: r.planta_id,
+    tipo: r.tipo as TipoDeManejo,
+    ocorridoEm: r.ocorrido_em,
+    observacoes: r.observacoes,
+    criadoEm: r.criado_em,
+  });
+
+/** Histórico imutável: só `INSERT`. A ausência de `UPDATE` é a garantia. */
+export class PostgresEventoManejoRepository implements EventoManejoRepository {
+  constructor(private readonly pool: Pool) {}
+
+  async salvar(e: EventoManejo): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO grow.evento_manejo (${COLUNAS_MANEJO}) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [e.id, e.usuarioId, e.cicloId, e.plantaId, e.tipo, e.ocorridoEm, e.observacoes, e.criadoEm],
+    );
+  }
+
+  async listarPorCiclo(cicloId: string): Promise<EventoManejo[]> {
+    const { rows } = await this.pool.query<ManejoRow>(
+      `SELECT ${COLUNAS_MANEJO} FROM grow.evento_manejo
+        WHERE ciclo_id = $1 ORDER BY ocorrido_em DESC`,
+      [cicloId],
+    );
+    return rows.map(mapearManejo);
+  }
+}
+
+interface SanidadeRow {
+  id: string;
+  usuario_id: string;
+  ciclo_id: string;
+  planta_id: string | null;
+  tipo: string;
+  severidade: string;
+  descricao: string | null;
+  tratamento_aplicado: string | null;
+  ocorrido_em: Date;
+  resolvido_em: Date | null;
+  criado_em: Date;
+}
+
+const COLUNAS_SANIDADE =
+  'id, usuario_id, ciclo_id, planta_id, tipo, severidade, descricao, tratamento_aplicado, ocorrido_em, resolvido_em, criado_em';
+
+const mapearSanidade = (r: SanidadeRow): EventoSanidade =>
+  EventoSanidade.reconstituir({
+    id: r.id,
+    usuarioId: r.usuario_id,
+    cicloId: r.ciclo_id,
+    plantaId: r.planta_id,
+    tipo: r.tipo as TipoDeSanidade,
+    severidade: r.severidade as Severidade,
+    descricao: r.descricao,
+    tratamentoAplicado: r.tratamento_aplicado,
+    ocorridoEm: r.ocorrido_em,
+    resolvidoEm: r.resolvido_em,
+    criadoEm: r.criado_em,
+  });
+
+/**
+ * O `ON CONFLICT` atualiza SÓ a resolução e o tratamento — as únicas mutações permitidas.
+ * Tipo, severidade e descrição jamais mudam: uma observação revista é um novo evento.
+ */
+export class PostgresEventoSanidadeRepository implements EventoSanidadeRepository {
+  constructor(private readonly pool: Pool) {}
+
+  async salvar(e: EventoSanidade): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO grow.evento_sanidade (${COLUNAS_SANIDADE})
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+       ON CONFLICT (id) DO UPDATE
+         SET resolvido_em = EXCLUDED.resolvido_em,
+             tratamento_aplicado = EXCLUDED.tratamento_aplicado`,
+      [
+        e.id,
+        e.usuarioId,
+        e.cicloId,
+        e.plantaId,
+        e.tipo,
+        e.severidade,
+        e.descricao,
+        e.tratamentoAplicado,
+        e.ocorridoEm,
+        e.resolvidoEm,
+        e.criadoEm,
+      ],
+    );
+  }
+
+  async buscarPorId(id: string): Promise<EventoSanidade | null> {
+    const { rows } = await this.pool.query<SanidadeRow>(
+      `SELECT ${COLUNAS_SANIDADE} FROM grow.evento_sanidade WHERE id = $1`,
+      [id],
+    );
+    return rows[0] ? mapearSanidade(rows[0]) : null;
+  }
+
+  async listarPorCiclo(cicloId: string, apenasAbertos = false): Promise<EventoSanidade[]> {
+    const { rows } = await this.pool.query<SanidadeRow>(
+      `SELECT ${COLUNAS_SANIDADE} FROM grow.evento_sanidade
+        WHERE ciclo_id = $1 ${apenasAbertos ? 'AND resolvido_em IS NULL' : ''}
+        ORDER BY ocorrido_em DESC`,
+      [cicloId],
+    );
+    return rows.map(mapearSanidade);
   }
 }

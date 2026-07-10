@@ -68,6 +68,14 @@ export class AmbienteComCiclosError extends DomainError {
   }
 }
 
+/** Evento de manejo/sanidade inexistente — ou de outro usuário. */
+export class EventoDeCultivoNaoEncontradoError extends DomainError {
+  readonly code = 'EVENTO_DE_CULTIVO_NAO_ENCONTRADO';
+  constructor() {
+    super('Evento de cultivo não encontrado.');
+  }
+}
+
 /** Um check-in sem nenhuma medição não é um registro — é ruído na série temporal. */
 export class RegistroSemMedicaoError extends DomainError {
   readonly code = 'REGISTRO_SEM_MEDICAO';

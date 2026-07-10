@@ -7,6 +7,8 @@ export {
   PostgresCicloRepository,
   PostgresPlantaRepository,
   PostgresRegistroAmbientalRepository,
+  PostgresEventoManejoRepository,
+  PostgresEventoSanidadeRepository,
 } from './lib/postgres-grow.repositories';
 
 export {
@@ -15,4 +17,6 @@ export {
   InMemoryCicloRepository,
   InMemoryPlantaRepository,
   InMemoryRegistroAmbientalRepository,
+  InMemoryEventoManejoRepository,
+  InMemoryEventoSanidadeRepository,
 } from './lib/in-memory-grow.repositories';

@@ -129,7 +129,9 @@ Classificação obrigatória: **Pública** (exposta a apps cliente) · **Interna
 | `POST /v1/registros-ambientais` | Pública | API-2 | Check-in diário / série temporal. VPD e DLI vêm calculados; sem os insumos, vêm nulos. Append-only: não existe `PUT` nem `DELETE` |
 | `GET /v1/registros-ambientais/campos` | Pública | API-3 | *(adicionado na Sprint Grow-2)* Campos do check-in visíveis para o nível do usuário (Complexidade Progressiva). A **escrita** nunca é filtrada por nível — um sensor não tem nível |
 | `GET /v1/ciclos/{id}/registros-ambientais` | Pública | API-3 | *(adicionado na Sprint Grow-2)* Série temporal do ciclo, paginada. Legível mesmo após o encerramento |
-| `POST /v1/eventos-manejo`, `POST /v1/eventos-sanidade` | Pública | API-2 | Registro de manejo/sanidade |
+| `POST /v1/eventos-manejo`, `POST /v1/eventos-sanidade` | Pública | API-2 | Registro de manejo/sanidade (histórico imutável). |
+| `POST /v1/eventos-sanidade/{id}/resolver` | Pública | API-4 | *(adicionado na Sprint Grow-3)* Marca a resolução — transição monotônica e única, não uma edição. Funciona mesmo com o ciclo encerrado |
+| `GET /v1/ciclos/{id}/eventos-manejo`, `GET /v1/ciclos/{id}/eventos-sanidade` | Pública | API-3 | *(adicionado na Sprint Grow-3)* Eventos do ciclo. Sanidade aceita `?abertos=true` |
 | `GET/POST/PUT /v1/tarefas` | Pública | API-1 | Tarefas e lembretes |
 | `POST /v1/colheitas` | Pública | API-2 | Registrar colheita (0—N por ciclo, doc 04 §25) |
 | `POST /v1/secagens`, `POST /v1/curas` | Pública | API-2 | Etapas pós-colheita → gera `/v1/lotes` |

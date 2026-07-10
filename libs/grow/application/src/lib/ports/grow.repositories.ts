@@ -1,6 +1,8 @@
 import type {
   Ambiente,
   CicloCultivo,
+  EventoManejo,
+  EventoSanidade,
   Genetica,
   Planta,
   RegistroAmbiental,
@@ -73,3 +75,26 @@ export interface RegistroAmbientalRepository {
 }
 
 export const REGISTRO_AMBIENTAL_REPOSITORY = Symbol('RegistroAmbientalRepository');
+
+/**
+ * Histórico imutável de manejo (Arquétipo B). Sem `atualizar` nem `remover`: uma poda
+ * que aconteceu não deixa de ter acontecido.
+ */
+export interface EventoManejoRepository {
+  salvar(evento: EventoManejo): Promise<void>;
+  listarPorCiclo(cicloId: string): Promise<EventoManejo[]>;
+}
+
+export const EVENTO_MANEJO_REPOSITORY = Symbol('EventoManejoRepository');
+
+/**
+ * Sanidade. `salvar` também persiste a resolução — a única mutação permitida, monotônica
+ * e única (ver `EventoSanidade.resolver`). Não existe `remover`.
+ */
+export interface EventoSanidadeRepository {
+  salvar(evento: EventoSanidade): Promise<void>;
+  buscarPorId(id: string): Promise<EventoSanidade | null>;
+  listarPorCiclo(cicloId: string, apenasAbertos?: boolean): Promise<EventoSanidade[]>;
+}
+
+export const EVENTO_SANIDADE_REPOSITORY = Symbol('EventoSanidadeRepository');

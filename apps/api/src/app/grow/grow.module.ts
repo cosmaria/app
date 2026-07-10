@@ -30,10 +30,16 @@ import {
   GENETICA_REPOSITORY,
   type GeneticaRepository,
   IniciarCicloUseCase,
+  EVENTO_MANEJO_REPOSITORY,
+  EVENTO_SANIDADE_REPOSITORY,
+  type EventoManejoRepository,
+  type EventoSanidadeRepository,
   ListarAmbientesUseCase,
   ListarCiclosUseCase,
   ListarGeneticasUseCase,
+  ListarManejosDoCicloUseCase,
   ListarPlantasDoCicloUseCase,
+  ListarSanidadeDoCicloUseCase,
   ListarSerieTemporalUseCase,
   ObterCamposDoCheckInUseCase,
   ObterCicloUseCase,
@@ -41,19 +47,26 @@ import {
   type PlantaRepository,
   REGISTRO_AMBIENTAL_REPOSITORY,
   RegistrarCheckInUseCase,
+  RegistrarManejoUseCase,
+  RegistrarSanidadeUseCase,
   type RegistroAmbientalRepository,
   RemoverAmbienteUseCase,
   RemoverGeneticaUseCase,
   RenomearCicloUseCase,
+  ResolverSanidadeUseCase,
 } from '@cosmaria/grow-application';
 import {
   InMemoryAmbienteRepository,
   InMemoryCicloRepository,
+  InMemoryEventoManejoRepository,
+  InMemoryEventoSanidadeRepository,
   InMemoryGeneticaRepository,
   InMemoryPlantaRepository,
   InMemoryRegistroAmbientalRepository,
   PostgresAmbienteRepository,
   PostgresCicloRepository,
+  PostgresEventoManejoRepository,
+  PostgresEventoSanidadeRepository,
   PostgresGeneticaRepository,
   PostgresPlantaRepository,
   PostgresRegistroAmbientalRepository,
@@ -72,6 +85,11 @@ import {
   RegistroAmbientalController,
   SerieTemporalController,
 } from './registro-ambiental.controller';
+import {
+  EventoManejoController,
+  EventoSanidadeController,
+  EventosDoCicloController,
+} from './eventos-de-cultivo.controller';
 
 /**
  * Composition root do COSMARIA Grow (doc 02 / doc 14 §10).
@@ -90,9 +108,11 @@ const emMemoria = () => {
   const ciclos = new InMemoryCicloRepository();
   const plantas = new InMemoryPlantaRepository();
   const registros = new InMemoryRegistroAmbientalRepository();
+  const manejos = new InMemoryEventoManejoRepository();
+  const sanidades = new InMemoryEventoSanidadeRepository();
   geneticas.conectarPlantas(plantas);
   ambientes.conectarCiclos(ciclos);
-  return { geneticas, ambientes, ciclos, plantas, registros };
+  return { geneticas, ambientes, ciclos, plantas, registros, manejos, sanidades };
 };
 
 /**
@@ -290,6 +310,63 @@ const providers: Provider[] = [
       new ObterCamposDoCheckInUseCase(complexidade),
     inject: [COMPLEXIDADE_PUBLIC_API],
   },
+
+  // Manejo e Sanidade
+  {
+    provide: EVENTO_MANEJO_REPOSITORY,
+    useFactory: (
+      pool: Pool | null,
+      memoria: ReturnType<typeof emMemoria>,
+    ): EventoManejoRepository =>
+      pool ? new PostgresEventoManejoRepository(pool) : memoria.manejos,
+    inject: [PG_POOL, REPOSITORIOS_EM_MEMORIA],
+  },
+  {
+    provide: EVENTO_SANIDADE_REPOSITORY,
+    useFactory: (
+      pool: Pool | null,
+      memoria: ReturnType<typeof emMemoria>,
+    ): EventoSanidadeRepository =>
+      pool ? new PostgresEventoSanidadeRepository(pool) : memoria.sanidades,
+    inject: [PG_POOL, REPOSITORIOS_EM_MEMORIA],
+  },
+  {
+    provide: RegistrarManejoUseCase,
+    useFactory: (
+      eventos: EventoManejoRepository,
+      ciclos: CicloRepository,
+      plantas: PlantaRepository,
+      idGen: IdGenerator,
+    ) => new RegistrarManejoUseCase(eventos, ciclos, plantas, idGen),
+    inject: [EVENTO_MANEJO_REPOSITORY, CICLO_REPOSITORY, PLANTA_REPOSITORY, ID_GENERATOR],
+  },
+  {
+    provide: ListarManejosDoCicloUseCase,
+    useFactory: (eventos: EventoManejoRepository, ciclos: CicloRepository) =>
+      new ListarManejosDoCicloUseCase(eventos, ciclos),
+    inject: [EVENTO_MANEJO_REPOSITORY, CICLO_REPOSITORY],
+  },
+  {
+    provide: RegistrarSanidadeUseCase,
+    useFactory: (
+      eventos: EventoSanidadeRepository,
+      ciclos: CicloRepository,
+      plantas: PlantaRepository,
+      idGen: IdGenerator,
+    ) => new RegistrarSanidadeUseCase(eventos, ciclos, plantas, idGen),
+    inject: [EVENTO_SANIDADE_REPOSITORY, CICLO_REPOSITORY, PLANTA_REPOSITORY, ID_GENERATOR],
+  },
+  {
+    provide: ResolverSanidadeUseCase,
+    useFactory: (eventos: EventoSanidadeRepository) => new ResolverSanidadeUseCase(eventos),
+    inject: [EVENTO_SANIDADE_REPOSITORY],
+  },
+  {
+    provide: ListarSanidadeDoCicloUseCase,
+    useFactory: (eventos: EventoSanidadeRepository, ciclos: CicloRepository) =>
+      new ListarSanidadeDoCicloUseCase(eventos, ciclos),
+    inject: [EVENTO_SANIDADE_REPOSITORY, CICLO_REPOSITORY],
+  },
 ];
 
 @Module({
@@ -301,6 +378,9 @@ const providers: Provider[] = [
     PlantaController,
     RegistroAmbientalController,
     SerieTemporalController,
+    EventoManejoController,
+    EventoSanidadeController,
+    EventosDoCicloController,
   ],
   providers,
 })

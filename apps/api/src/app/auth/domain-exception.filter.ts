@@ -26,6 +26,7 @@ import {
   AmbienteNaoEncontradoError,
   CicloEncerradoError,
   CicloNaoEncontradoError,
+  EventoDeCultivoNaoEncontradoError,
   GeneticaEmUsoError,
   GeneticaNaoEncontradaError,
   PlantaNaoEncontradaError,
@@ -88,6 +89,7 @@ export class DomainExceptionFilter implements ExceptionFilter {
     if (erro instanceof AmbienteNaoEncontradoError) return HttpStatus.NOT_FOUND;
     if (erro instanceof CicloNaoEncontradoError) return HttpStatus.NOT_FOUND;
     if (erro instanceof PlantaNaoEncontradaError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof EventoDeCultivoNaoEncontradoError) return HttpStatus.NOT_FOUND;
     // 409: o recurso existe, mas seu estado atual impede a operação.
     if (erro instanceof CicloEncerradoError) return HttpStatus.CONFLICT;
     if (erro instanceof AmbienteComCiclosError) return HttpStatus.CONFLICT;

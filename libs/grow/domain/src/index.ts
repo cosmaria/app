@@ -28,6 +28,19 @@ export { Planta } from './lib/planta.entity';
 export type { PlantaProps } from './lib/planta.entity';
 
 export {
+  TipoDeManejo,
+  ehTipoDeManejoValido,
+  TipoDeSanidade,
+  ehTipoDeSanidadeValido,
+  Severidade,
+  ehSeveridadeValida,
+} from './lib/eventos-de-cultivo/catalogos-de-evento';
+export { EventoManejo } from './lib/eventos-de-cultivo/evento-manejo.entity';
+export type { EventoManejoProps } from './lib/eventos-de-cultivo/evento-manejo.entity';
+export { EventoSanidade } from './lib/eventos-de-cultivo/evento-sanidade.entity';
+export type { EventoSanidadeProps } from './lib/eventos-de-cultivo/evento-sanidade.entity';
+
+export {
   RegistroAmbiental,
   OrigemDoRegistro,
   ehOrigemDoRegistroValida,
@@ -58,4 +71,5 @@ export {
   AmbienteComCiclosError,
   GeneticaEmUsoError,
   RegistroSemMedicaoError,
+  EventoDeCultivoNaoEncontradoError,
 } from './lib/errors/grow.errors';

@@ -15,8 +15,11 @@ import {
   FaseDeVida,
   OrigemDoMaterial,
   OrigemDoRegistro,
+  Severidade,
   TipoDeAmbiente,
   TipoDeGenetica,
+  TipoDeManejo,
+  TipoDeSanidade,
 } from '@cosmaria/grow-domain';
 
 const FASES = Object.values(FaseDeVida);
@@ -24,6 +27,9 @@ const ORIGENS_DO_REGISTRO = Object.values(OrigemDoRegistro);
 const TIPOS_GENETICA = Object.values(TipoDeGenetica);
 const TIPOS_AMBIENTE = Object.values(TipoDeAmbiente);
 const ORIGENS = Object.values(OrigemDoMaterial);
+const TIPOS_DE_MANEJO = Object.values(TipoDeManejo);
+const TIPOS_DE_SANIDADE = Object.values(TipoDeSanidade);
+const SEVERIDADES = Object.values(Severidade);
 
 export class CriarGeneticaDto {
   @IsString()
@@ -282,4 +288,66 @@ export class RegistrarCheckInDto {
   @IsString()
   @MaxLength(2000)
   observacoes?: string | null;
+}
+
+/** Corpo de POST /v1/eventos-manejo (doc 02 §5.7). */
+export class RegistrarManejoDto {
+  @IsString()
+  @MinLength(1)
+  cicloId!: string;
+
+  @IsOptional()
+  @IsString()
+  plantaId?: string | null;
+
+  @IsIn(TIPOS_DE_MANEJO)
+  tipo!: TipoDeManejo;
+
+  @IsOptional()
+  @IsDateString()
+  ocorridoEm?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  observacoes?: string | null;
+}
+
+/** Corpo de POST /v1/eventos-sanidade (doc 02 §5.8). */
+export class RegistrarSanidadeDto {
+  @IsString()
+  @MinLength(1)
+  cicloId!: string;
+
+  @IsOptional()
+  @IsString()
+  plantaId?: string | null;
+
+  @IsIn(TIPOS_DE_SANIDADE)
+  tipo!: TipoDeSanidade;
+
+  @IsIn(SEVERIDADES)
+  severidade!: Severidade;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  descricao?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  tratamentoAplicado?: string | null;
+
+  @IsOptional()
+  @IsDateString()
+  ocorridoEm?: string;
+}
+
+/** Corpo de POST /v1/eventos-sanidade/{id}/resolver. */
+export class ResolverSanidadeDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  tratamentoAplicado?: string | null;
 }

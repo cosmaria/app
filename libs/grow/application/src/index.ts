@@ -8,6 +8,8 @@ export {
   CICLO_REPOSITORY,
   PLANTA_REPOSITORY,
   REGISTRO_AMBIENTAL_REPOSITORY,
+  EVENTO_MANEJO_REPOSITORY,
+  EVENTO_SANIDADE_REPOSITORY,
 } from './lib/ports/grow.repositories';
 export type {
   GeneticaRepository,
@@ -16,6 +18,8 @@ export type {
   PlantaRepository,
   RegistroAmbientalRepository,
   PaginaDeRegistros,
+  EventoManejoRepository,
+  EventoSanidadeRepository,
 } from './lib/ports/grow.repositories';
 
 export {
@@ -76,3 +80,19 @@ export type {
   RegistrarCheckInInput,
   SerieTemporalView,
 } from './lib/use-cases/registro-ambiental.use-cases';
+
+export {
+  RegistrarManejoUseCase,
+  ListarManejosDoCicloUseCase,
+  RegistrarSanidadeUseCase,
+  ResolverSanidadeUseCase,
+  ListarSanidadeDoCicloUseCase,
+  paraManejoView,
+  paraSanidadeView,
+} from './lib/use-cases/eventos-de-cultivo.use-cases';
+export type {
+  EventoManejoView,
+  EventoSanidadeView,
+  RegistrarManejoInput,
+  RegistrarSanidadeInput,
+} from './lib/use-cases/eventos-de-cultivo.use-cases';
