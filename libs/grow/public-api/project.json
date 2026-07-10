@@ -8,10 +8,13 @@
     "typecheck": {
       "executor": "nx:run-commands",
       "cache": true,
-      "options": {
-        "cwd": "libs/grow/public-api",
-        "command": "tsc --noEmit -p tsconfig.json"
-      }
+      "options": { "cwd": "libs/grow/public-api", "command": "tsc --noEmit -p tsconfig.json" }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "outputs": ["{projectRoot}/dist"],
+      "options": { "cwd": "libs/grow/public-api", "command": "tsc -p tsconfig.lib.json" }
     }
   }
 }

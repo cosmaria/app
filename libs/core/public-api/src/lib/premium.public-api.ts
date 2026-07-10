@@ -1,6 +1,14 @@
 import type { ResultadoDeLimite } from '@cosmaria/core-application';
 
 /**
+ * Reexportados como parte do CONTRATO de Premium: quem consome `verificarLimite` precisa
+ * nomear a chave e reagir ao bloqueio. Sem isto, Grow e Med teriam que importar o
+ * interior do Core (`core-domain`) só para citar uma chave — ou, pior, repetir a string
+ * literal em cada módulo.
+ */
+export { ChavesDeLimite, LimiteDePlanoAtingidoError } from '@cosmaria/core-domain';
+
+/**
  * Interface pública de Billing/Premium (doc 07 / doc 14 §10).
  *
  * É o ÚNICO ponto pelo qual Grow, Med e Comunidade perguntam ao Core se algo é

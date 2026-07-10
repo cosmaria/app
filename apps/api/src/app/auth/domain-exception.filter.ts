@@ -21,11 +21,25 @@ import {
   VinculoDePerfisDesabilitadoError,
   VinculoDePerfisInvalidoError,
 } from '@cosmaria/core-domain';
+import {
+  AmbienteComCiclosError,
+  AmbienteNaoEncontradoError,
+  CicloEncerradoError,
+  CicloNaoEncontradoError,
+  GeneticaEmUsoError,
+  GeneticaNaoEncontradaError,
+  PlantaNaoEncontradaError,
+  TransicaoDeFaseInvalidaError,
+} from '@cosmaria/grow-domain';
 
 /**
  * Traduz erros de domínio para o formato de erro único da API (doc 09 §5):
  * { code, message } estáveis, sem vazar detalhe interno. Correlation ID entra
  * em sprint de observabilidade futura (doc 09 princípio 3).
+ *
+ * É um filtro **global do composition root**, e por isso conhece os erros de todos os
+ * módulos. Mora sob `auth/` por razão histórica (foi a primeira épica); nada aqui
+ * pertence à autenticação.
  */
 @Catch(DomainError)
 export class DomainExceptionFilter implements ExceptionFilter {
@@ -66,6 +80,19 @@ export class DomainExceptionFilter implements ExceptionFilter {
     if (erro instanceof MidiaNaoEncontradaError) return HttpStatus.NOT_FOUND;
     // 415: o servidor entendeu a requisição, mas não aceita este tipo de arquivo.
     if (erro instanceof TipoDeMidiaNaoSuportadoError) return HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+
+    // --- Grow (doc 02) ---
+    // Recurso de outro usuário responde igual a inexistente: não confirmamos existência.
+    if (erro instanceof GeneticaNaoEncontradaError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof AmbienteNaoEncontradoError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof CicloNaoEncontradoError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof PlantaNaoEncontradaError) return HttpStatus.NOT_FOUND;
+    // 409: o recurso existe, mas seu estado atual impede a operação.
+    if (erro instanceof CicloEncerradoError) return HttpStatus.CONFLICT;
+    if (erro instanceof AmbienteComCiclosError) return HttpStatus.CONFLICT;
+    if (erro instanceof GeneticaEmUsoError) return HttpStatus.CONFLICT;
+    if (erro instanceof TransicaoDeFaseInvalidaError) return HttpStatus.BAD_REQUEST;
+
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 }

@@ -1,3 +1,16 @@
-// @cosmaria/grow-infrastructure — placeholder do bootstrap (Sprint 01). Sem regra de negócio.
-// Ver docs/14-estrutura-do-codigo.md
-export const grow_infrastructure_placeholder = 'grow-infrastructure';
+// @cosmaria/grow-infrastructure — Adaptadores do Grow (doc 14).
+// ÚNICA camada do Grow autorizada a importar SDK externo (pg) — doc 13 §16.1.
+
+export {
+  PostgresGeneticaRepository,
+  PostgresAmbienteRepository,
+  PostgresCicloRepository,
+  PostgresPlantaRepository,
+} from './lib/postgres-grow.repositories';
+
+export {
+  InMemoryGeneticaRepository,
+  InMemoryAmbienteRepository,
+  InMemoryCicloRepository,
+  InMemoryPlantaRepository,
+} from './lib/in-memory-grow.repositories';

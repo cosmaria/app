@@ -1,0 +1,122 @@
+import type {
+  AmbienteRepository,
+  CicloRepository,
+  GeneticaRepository,
+  PlantaRepository,
+} from '@cosmaria/grow-application';
+import type { Ambiente, CicloCultivo, Genetica, Planta } from '@cosmaria/grow-domain';
+
+/**
+ * Repositórios do Grow em memória — mesmas portas do Postgres (LSP, doc 04 §4).
+ *
+ * `possuiPlantas`/`possuiCiclos` cruzam agregados, então os repositórios precisam
+ * enxergar uns aos outros. Em vez de um singleton global, o composition root injeta os
+ * "vizinhos" explicitamente — o mesmo que o Postgres faz com um `EXISTS`.
+ */
+export class InMemoryGeneticaRepository implements GeneticaRepository {
+  private readonly porId = new Map<string, Genetica>();
+  private plantas: InMemoryPlantaRepository | null = null;
+
+  /** Ligação tardia: o repositório de plantas é criado depois deste. */
+  conectarPlantas(plantas: InMemoryPlantaRepository): void {
+    this.plantas = plantas;
+  }
+
+  salvar(g: Genetica): Promise<void> {
+    this.porId.set(g.id, g);
+    return Promise.resolve();
+  }
+  buscarPorId(id: string): Promise<Genetica | null> {
+    return Promise.resolve(this.porId.get(id) ?? null);
+  }
+  listarPorUsuario(usuarioId: string): Promise<Genetica[]> {
+    return Promise.resolve([...this.porId.values()].filter((g) => g.usuarioId === usuarioId));
+  }
+  remover(id: string): Promise<void> {
+    this.porId.delete(id);
+    return Promise.resolve();
+  }
+  possuiPlantas(geneticaId: string): Promise<boolean> {
+    return Promise.resolve(this.plantas?.existeComGenetica(geneticaId) ?? false);
+  }
+}
+
+export class InMemoryAmbienteRepository implements AmbienteRepository {
+  private readonly porId = new Map<string, Ambiente>();
+  private ciclos: InMemoryCicloRepository | null = null;
+
+  conectarCiclos(ciclos: InMemoryCicloRepository): void {
+    this.ciclos = ciclos;
+  }
+
+  salvar(a: Ambiente): Promise<void> {
+    this.porId.set(a.id, a);
+    return Promise.resolve();
+  }
+  buscarPorId(id: string): Promise<Ambiente | null> {
+    return Promise.resolve(this.porId.get(id) ?? null);
+  }
+  listarPorUsuario(usuarioId: string): Promise<Ambiente[]> {
+    return Promise.resolve([...this.porId.values()].filter((a) => a.usuarioId === usuarioId));
+  }
+  remover(id: string): Promise<void> {
+    this.porId.delete(id);
+    return Promise.resolve();
+  }
+  contarPorUsuario(usuarioId: string): Promise<number> {
+    return Promise.resolve(
+      [...this.porId.values()].filter((a) => a.usuarioId === usuarioId).length,
+    );
+  }
+  possuiCiclos(ambienteId: string): Promise<boolean> {
+    return Promise.resolve(this.ciclos?.existeNoAmbiente(ambienteId) ?? false);
+  }
+}
+
+export class InMemoryCicloRepository implements CicloRepository {
+  private readonly porId = new Map<string, CicloCultivo>();
+
+  salvar(c: CicloCultivo): Promise<void> {
+    this.porId.set(c.id, c);
+    return Promise.resolve();
+  }
+  buscarPorId(id: string): Promise<CicloCultivo | null> {
+    return Promise.resolve(this.porId.get(id) ?? null);
+  }
+  listarPorUsuario(usuarioId: string, apenasAtivos = false): Promise<CicloCultivo[]> {
+    return Promise.resolve(
+      [...this.porId.values()]
+        .filter((c) => c.usuarioId === usuarioId && (!apenasAtivos || c.estaAtivo()))
+        .sort((a, b) => b.iniciadoEm.getTime() - a.iniciadoEm.getTime()),
+    );
+  }
+
+  /** Consulta interna usada pelo repositório de ambientes. */
+  existeNoAmbiente(ambienteId: string): boolean {
+    return [...this.porId.values()].some((c) => c.ambienteId === ambienteId);
+  }
+}
+
+export class InMemoryPlantaRepository implements PlantaRepository {
+  private readonly porId = new Map<string, Planta>();
+
+  salvar(p: Planta): Promise<void> {
+    this.porId.set(p.id, p);
+    return Promise.resolve();
+  }
+  buscarPorId(id: string): Promise<Planta | null> {
+    return Promise.resolve(this.porId.get(id) ?? null);
+  }
+  listarPorCiclo(cicloId: string): Promise<Planta[]> {
+    return Promise.resolve(
+      [...this.porId.values()]
+        .filter((p) => p.cicloId === cicloId)
+        .sort((a, b) => a.criadoEm.getTime() - b.criadoEm.getTime()),
+    );
+  }
+
+  /** Consulta interna usada pelo repositório de genéticas. */
+  existeComGenetica(geneticaId: string): boolean {
+    return [...this.porId.values()].some((p) => p.geneticaId === geneticaId);
+  }
+}

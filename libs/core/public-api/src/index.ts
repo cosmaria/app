@@ -15,7 +15,12 @@ export {
 
 export { PERFIL_PUBLIC_API, type PerfilPublicApi } from './lib/perfil.public-api';
 
-export { PREMIUM_PUBLIC_API, type PremiumPublicApi } from './lib/premium.public-api';
+export {
+  PREMIUM_PUBLIC_API,
+  type PremiumPublicApi,
+  ChavesDeLimite,
+  LimiteDePlanoAtingidoError,
+} from './lib/premium.public-api';
 
 export { MIDIA_PUBLIC_API, type MidiaPublicApi } from './lib/midia.public-api';
 

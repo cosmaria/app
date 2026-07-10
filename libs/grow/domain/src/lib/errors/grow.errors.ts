@@ -1,0 +1,77 @@
+import { DomainError } from '@cosmaria/core-domain';
+
+/**
+ * Erros de domínio do Grow.
+ *
+ * Estendem o `DomainError` do Core — que, junto com `DomainEvent`, é **shared kernel**
+ * (DDD): um contrato técnico comum a todos os bounded contexts, não uma entidade do
+ * Core. O Grow nunca importa entidade nem caso de uso do Core: capacidades do Core
+ * chegam sempre pelas interfaces públicas (doc 14 §6/§10).
+ */
+
+/** Genética inexistente — ou de outro usuário; nunca revelamos qual dos dois. */
+export class GeneticaNaoEncontradaError extends DomainError {
+  readonly code = 'GENETICA_NAO_ENCONTRADA';
+  constructor() {
+    super('Genética não encontrada.');
+  }
+}
+
+export class AmbienteNaoEncontradoError extends DomainError {
+  readonly code = 'AMBIENTE_NAO_ENCONTRADO';
+  constructor() {
+    super('Ambiente não encontrado.');
+  }
+}
+
+export class CicloNaoEncontradoError extends DomainError {
+  readonly code = 'CICLO_NAO_ENCONTRADO';
+  constructor() {
+    super('Ciclo de cultivo não encontrado.');
+  }
+}
+
+export class PlantaNaoEncontradaError extends DomainError {
+  readonly code = 'PLANTA_NAO_ENCONTRADA';
+  constructor() {
+    super('Planta não encontrada.');
+  }
+}
+
+/** Nenhuma escrita é aceita num ciclo já encerrado — o histórico é imutável. */
+export class CicloEncerradoError extends DomainError {
+  readonly code = 'CICLO_ENCERRADO';
+  constructor() {
+    super('Este ciclo de cultivo já foi encerrado.');
+  }
+}
+
+/**
+ * Retroceder de fase corromperia as métricas de duração de fase (doc 02 §5.12), que são
+ * calculadas a partir das transições datadas. Avançar pulando fases é permitido.
+ */
+export class TransicaoDeFaseInvalidaError extends DomainError {
+  readonly code = 'TRANSICAO_DE_FASE_INVALIDA';
+  constructor(
+    readonly faseAtual: string,
+    readonly faseSolicitada: string,
+  ) {
+    super(`Não é possível voltar de "${faseAtual}" para "${faseSolicitada}".`);
+  }
+}
+
+/** O ambiente ainda hospeda ciclos: excluí-lo apagaria o histórico do próprio espaço. */
+export class AmbienteComCiclosError extends DomainError {
+  readonly code = 'AMBIENTE_COM_CICLOS';
+  constructor() {
+    super('Este ambiente possui ciclos registrados e não pode ser excluído.');
+  }
+}
+
+/** A genética ainda origina plantas: excluí-la quebraria a comparação entre cultivos. */
+export class GeneticaEmUsoError extends DomainError {
+  readonly code = 'GENETICA_EM_USO';
+  constructor() {
+    super('Esta genética está em uso por plantas registradas e não pode ser excluída.');
+  }
+}

@@ -117,11 +117,14 @@ Classificação obrigatória: **Pública** (exposta a apps cliente) · **Interna
 
 | Endpoint | Classificação | Arquétipo | Objetivo |
 |---|---|---|---|
-| `POST/GET/PUT/DELETE /v1/ambientes` | Pública | API-1 | CRUD de Ambiente |
+| `POST/GET/PUT/DELETE /v1/ambientes` | Pública | API-1 | CRUD de Ambiente. O `POST` consulta a `PREMIUM_PUBLIC_API` (chave `grow.ambientes_simultaneos`) e responde `402` ao barrar — o Grow nunca reimplementa regra de cobrança |
 | `POST/GET/PUT/DELETE /v1/geneticas` | Pública | API-1 | *(adicionado na revisão 00-09 — lacuna crítica: `Planta` referencia `Genética`, mas não existia nenhum endpoint para criá-la)* CRUD de Genética/Strain |
 | `POST/GET/DELETE /v1/ciclos/modelos` | Pública (Premium) | API-1 | *(adicionado na revisão 00-09)* Gestão de `ModeloDeCiclo` — templates nomeados e reutilizáveis |
 | `POST/GET/PUT/DELETE /v1/plantas` | Pública | API-1 | CRUD de Planta |
 | `POST/GET/PUT/DELETE /v1/ciclos` | Pública | API-1 | CRUD de Ciclo de Cultivo |
+| `GET /v1/ciclos/{id}/plantas` | Pública | API-3 | *(adicionado na Sprint Grow-1)* Plantas de um ciclo, com a fase própria de cada uma |
+| `POST /v1/ciclos/{id}/fase`, `POST /v1/plantas/{id}/fase` | Pública | API-4 | *(adicionado na Sprint Grow-1)* Avança a fase, sempre com timestamp. Retroceder responde `400`: corromperia as durações de fase (doc 02 §5.12) |
+| `POST /v1/ciclos/{id}/encerrar` | Pública | API-4 | *(adicionado na Sprint Grow-1)* Encerra o ciclo. Irreversível: nenhuma escrita é aceita depois (`409`), a leitura do histórico continua livre |
 | `POST /v1/ciclos/{id}/clonar` | Pública | API-4 | Clonar ciclo anterior |
 | `POST /v1/registros-ambientais` | Pública | API-2 | Check-in diário / série temporal |
 | `POST /v1/eventos-manejo`, `POST /v1/eventos-sanidade` | Pública | API-2 | Registro de manejo/sanidade |

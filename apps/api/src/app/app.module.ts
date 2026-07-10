@@ -13,6 +13,7 @@ import { BillingModule } from './billing/billing.module';
 import { NotificacaoModule } from './notificacao/notificacao.module';
 import { MidiaModule } from './midia/midia.module';
 import { ComplexidadeModule } from './complexidade/complexidade.module';
+import { GrowModule } from './grow/grow.module';
 
 /**
  * Módulo raiz do Modular Monolith.
@@ -28,7 +29,8 @@ import { ComplexidadeModule } from './complexidade/complexidade.module';
  * - NotificacaoModule: serviço único de notificação alimentado por eventos (Core, doc 04 §15).
  * - MidiaModule: armazenamento de mídia compartilhado por Grow e Med (Core, doc 04 §16).
  * - ComplexidadeModule: complexidade progressiva e Modo Especialista (Core, doc 02 §5.0).
- * Grow, Med, Comunidade e IA (doc 04) entram em sprints seguintes.
+ * - GrowModule: núcleo do COSMARIA Grow — Genética, Ambiente, Ciclo, Planta (doc 02).
+ * Med, Comunidade e IA (doc 04) entram em sprints seguintes.
  */
 @Module({
   imports: [
@@ -47,6 +49,7 @@ import { ComplexidadeModule } from './complexidade/complexidade.module';
     NotificacaoModule,
     MidiaModule,
     ComplexidadeModule,
+    GrowModule,
   ],
 })
 export class AppModule {}
