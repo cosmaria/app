@@ -14,6 +14,7 @@ export {
   SECAGEM_REPOSITORY,
   CURA_REPOSITORY,
   LOTE_REPOSITORY,
+  TAREFA_REPOSITORY,
 } from './lib/ports/grow.repositories';
 export type {
   GeneticaRepository,
@@ -28,6 +29,8 @@ export type {
   SecagemRepository,
   CuraRepository,
   LoteRepository,
+  TarefaRepository,
+  FiltroDeTarefas,
 } from './lib/ports/grow.repositories';
 
 export {
@@ -130,3 +133,17 @@ export type {
   RegistrarCuraInput,
   GerarLoteInput,
 } from './lib/use-cases/pos-colheita.use-cases';
+
+export {
+  CriarTarefaUseCase,
+  ListarTarefasUseCase,
+  AtualizarTarefaUseCase,
+  ConcluirTarefaUseCase,
+  paraTarefaView,
+} from './lib/use-cases/tarefa.use-cases';
+export type {
+  TarefaView,
+  CriarTarefaInput,
+  AtualizarTarefaInput,
+  ConcluirTarefaResult,
+} from './lib/use-cases/tarefa.use-cases';

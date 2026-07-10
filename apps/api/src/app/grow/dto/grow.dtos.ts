@@ -22,6 +22,7 @@ import {
   TipoDeGenetica,
   TipoDeManejo,
   TipoDeSanidade,
+  TipoDeTarefa,
 } from '@cosmaria/grow-domain';
 
 const FASES = Object.values(FaseDeVida);
@@ -32,6 +33,7 @@ const ORIGENS = Object.values(OrigemDoMaterial);
 const TIPOS_DE_MANEJO = Object.values(TipoDeManejo);
 const TIPOS_DE_SANIDADE = Object.values(TipoDeSanidade);
 const SEVERIDADES = Object.values(Severidade);
+const TIPOS_DE_TAREFA = Object.values(TipoDeTarefa);
 
 export class CriarGeneticaDto {
   @IsString()
@@ -470,4 +472,56 @@ export class GerarLoteDto {
   @IsString()
   @MaxLength(2000)
   observacoes?: string | null;
+}
+
+// --- Tarefas (doc 02 §5.10) ---
+
+/** Corpo de POST /v1/tarefas. `recorrenciaDias` ausente/nulo = tarefa pontual. */
+export class CriarTarefaDto {
+  @IsString()
+  @MinLength(1)
+  cicloId!: string;
+
+  @IsOptional()
+  @IsString()
+  plantaId?: string | null;
+
+  @IsString()
+  @MinLength(1)
+  @MaxLength(200)
+  titulo!: string;
+
+  @IsIn(TIPOS_DE_TAREFA)
+  tipo!: TipoDeTarefa;
+
+  @IsOptional()
+  @IsDateString()
+  previstaPara?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  recorrenciaDias?: number | null;
+}
+
+/** Corpo de PUT /v1/tarefas/{id}. Campo ausente não muda; `null` limpa data/recorrência. */
+export class AtualizarTarefaDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(200)
+  titulo?: string;
+
+  @IsOptional()
+  @IsIn(TIPOS_DE_TAREFA)
+  tipo?: TipoDeTarefa;
+
+  @IsOptional()
+  @IsDateString()
+  previstaPara?: string | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  recorrenciaDias?: number | null;
 }

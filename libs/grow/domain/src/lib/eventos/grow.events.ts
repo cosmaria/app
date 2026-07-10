@@ -100,6 +100,39 @@ export class ColheitaRegistrada implements DomainEvent {
   }
 }
 
+/** `TarefaCriada` — consumido por Notificações (agenda o lembrete). */
+export class TarefaCriada implements DomainEvent {
+  readonly nome = 'TarefaCriada';
+  readonly ocorridoEm: Date;
+
+  constructor(
+    readonly tarefaId: string,
+    readonly usuarioId: string,
+    readonly cicloId: string,
+    readonly titulo: string,
+    /** Quando a tarefa deve ser feita — o lembrete se ancora nela. Nulo = sem data. */
+    readonly previstaPara: Date | null,
+    ocorridoEm?: Date,
+  ) {
+    this.ocorridoEm = ocorridoEm ?? new Date();
+  }
+}
+
+/** `TarefaConcluida` — consumido pela IA (fecha o loop de aderência às ações). */
+export class TarefaConcluida implements DomainEvent {
+  readonly nome = 'TarefaConcluida';
+  readonly ocorridoEm: Date;
+
+  constructor(
+    readonly tarefaId: string,
+    readonly usuarioId: string,
+    readonly cicloId: string,
+    ocorridoEm?: Date,
+  ) {
+    this.ocorridoEm = ocorridoEm ?? new Date();
+  }
+}
+
 /** `PlantaFaseAlterada` — consumido por IA e Notificações. */
 export class PlantaFaseAlterada implements DomainEvent {
   readonly nome = 'PlantaFaseAlterada';

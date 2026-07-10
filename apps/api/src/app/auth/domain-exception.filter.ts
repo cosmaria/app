@@ -39,6 +39,7 @@ import {
   RegistroSemMedicaoError,
   SecagemJaRegistradaError,
   SecagemNaoEncontradaError,
+  TarefaNaoEncontradaError,
   TransicaoDeFaseInvalidaError,
 } from '@cosmaria/grow-domain';
 
@@ -102,6 +103,7 @@ export class DomainExceptionFilter implements ExceptionFilter {
     if (erro instanceof SecagemNaoEncontradaError) return HttpStatus.NOT_FOUND;
     if (erro instanceof CuraNaoEncontradaError) return HttpStatus.NOT_FOUND;
     if (erro instanceof LoteNaoEncontradoError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof TarefaNaoEncontradaError) return HttpStatus.NOT_FOUND;
     // 409: o recurso existe, mas seu estado atual impede a operação.
     if (erro instanceof CicloEncerradoError) return HttpStatus.CONFLICT;
     if (erro instanceof AmbienteComCiclosError) return HttpStatus.CONFLICT;

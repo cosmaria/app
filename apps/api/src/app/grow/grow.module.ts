@@ -71,6 +71,12 @@ import {
   ResolverSanidadeUseCase,
   SECAGEM_REPOSITORY,
   type SecagemRepository,
+  AtualizarTarefaUseCase,
+  ConcluirTarefaUseCase,
+  CriarTarefaUseCase,
+  ListarTarefasUseCase,
+  TAREFA_REPOSITORY,
+  type TarefaRepository,
 } from '@cosmaria/grow-application';
 import {
   InMemoryAmbienteRepository,
@@ -84,6 +90,7 @@ import {
   InMemoryPlantaRepository,
   InMemoryRegistroAmbientalRepository,
   InMemorySecagemRepository,
+  InMemoryTarefaRepository,
   PostgresAmbienteRepository,
   PostgresCicloRepository,
   PostgresColheitaRepository,
@@ -95,6 +102,7 @@ import {
   PostgresPlantaRepository,
   PostgresRegistroAmbientalRepository,
   PostgresSecagemRepository,
+  PostgresTarefaRepository,
 } from '@cosmaria/grow-infrastructure';
 import { PG_POOL } from '../infra/infra.tokens';
 import { AuthModule } from '../auth/auth.module';
@@ -122,6 +130,7 @@ import {
   LoteController,
   SecagemController,
 } from './pos-colheita.controller';
+import { TarefaController } from './tarefa.controller';
 
 /**
  * Composition root do COSMARIA Grow (doc 02 / doc 14 §10).
@@ -146,6 +155,7 @@ const emMemoria = () => {
   const secagens = new InMemorySecagemRepository();
   const curas = new InMemoryCuraRepository();
   const lotes = new InMemoryLoteRepository();
+  const tarefas = new InMemoryTarefaRepository();
   geneticas.conectarPlantas(plantas);
   ambientes.conectarCiclos(ciclos);
   return {
@@ -160,6 +170,7 @@ const emMemoria = () => {
     secagens,
     curas,
     lotes,
+    tarefas,
   };
 };
 
@@ -518,6 +529,45 @@ const providers: Provider[] = [
     ) => new ObterLoteUseCase(lotes, curas, secagens, colheitas),
     inject: [LOTE_REPOSITORY, CURA_REPOSITORY, SECAGEM_REPOSITORY, COLHEITA_REPOSITORY],
   },
+
+  // Tarefas
+  {
+    provide: TAREFA_REPOSITORY,
+    useFactory: (pool: Pool | null, memoria: ReturnType<typeof emMemoria>): TarefaRepository =>
+      pool ? new PostgresTarefaRepository(pool) : memoria.tarefas,
+    inject: [PG_POOL, REPOSITORIOS_EM_MEMORIA],
+  },
+  {
+    provide: CriarTarefaUseCase,
+    useFactory: (
+      tarefas: TarefaRepository,
+      ciclos: CicloRepository,
+      plantas: PlantaRepository,
+      idGen: IdGenerator,
+      eventos: EventPublisher,
+    ) => new CriarTarefaUseCase(tarefas, ciclos, plantas, idGen, eventos),
+    inject: [TAREFA_REPOSITORY, CICLO_REPOSITORY, PLANTA_REPOSITORY, ID_GENERATOR, EVENT_PUBLISHER],
+  },
+  {
+    provide: ListarTarefasUseCase,
+    useFactory: (tarefas: TarefaRepository) => new ListarTarefasUseCase(tarefas),
+    inject: [TAREFA_REPOSITORY],
+  },
+  {
+    provide: AtualizarTarefaUseCase,
+    useFactory: (tarefas: TarefaRepository) => new AtualizarTarefaUseCase(tarefas),
+    inject: [TAREFA_REPOSITORY],
+  },
+  {
+    provide: ConcluirTarefaUseCase,
+    useFactory: (
+      tarefas: TarefaRepository,
+      ciclos: CicloRepository,
+      idGen: IdGenerator,
+      eventos: EventPublisher,
+    ) => new ConcluirTarefaUseCase(tarefas, ciclos, idGen, eventos),
+    inject: [TAREFA_REPOSITORY, CICLO_REPOSITORY, ID_GENERATOR, EVENT_PUBLISHER],
+  },
 ];
 
 @Module({
@@ -537,6 +587,7 @@ const providers: Provider[] = [
     SecagemController,
     CuraController,
     LoteController,
+    TarefaController,
   ],
   providers,
 })

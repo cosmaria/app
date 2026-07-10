@@ -151,3 +151,13 @@ export class LoteJaGeradoError extends DomainError {
     super('Esta cura já gerou um lote.');
   }
 }
+
+// --- Tarefas (doc 02 §5.10) ---
+
+/** Tarefa inexistente — ou de outro usuário; nunca revelamos qual dos dois. */
+export class TarefaNaoEncontradaError extends DomainError {
+  readonly code = 'TAREFA_NAO_ENCONTRADA';
+  constructor() {
+    super('Tarefa não encontrada.');
+  }
+}

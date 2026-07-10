@@ -10,6 +10,7 @@ import type {
   Planta,
   RegistroAmbiental,
   Secagem,
+  Tarefa,
 } from '@cosmaria/grow-domain';
 
 /**
@@ -145,3 +146,20 @@ export interface LoteRepository {
 }
 
 export const LOTE_REPOSITORY = Symbol('LoteRepository');
+
+export interface FiltroDeTarefas {
+  cicloId?: string;
+  apenasPendentes?: boolean;
+}
+
+/**
+ * Tarefa (Arquétipo A — operacional, mutável). `salvar` faz upsert (a tarefa é editada e
+ * concluída ao longo da vida). A listagem é sempre escopada ao dono.
+ */
+export interface TarefaRepository {
+  salvar(tarefa: Tarefa): Promise<void>;
+  buscarPorId(id: string): Promise<Tarefa | null>;
+  listarPorUsuario(usuarioId: string, filtro?: FiltroDeTarefas): Promise<Tarefa[]>;
+}
+
+export const TAREFA_REPOSITORY = Symbol('TarefaRepository');

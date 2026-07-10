@@ -5,12 +5,14 @@ import type {
   CuraRepository,
   EventoManejoRepository,
   EventoSanidadeRepository,
+  FiltroDeTarefas,
   GeneticaRepository,
   LoteRepository,
   PaginaDeRegistros,
   PlantaRepository,
   RegistroAmbientalRepository,
   SecagemRepository,
+  TarefaRepository,
 } from '@cosmaria/grow-application';
 import type {
   Ambiente,
@@ -24,6 +26,7 @@ import type {
   Planta,
   RegistroAmbiental,
   Secagem,
+  Tarefa,
 } from '@cosmaria/grow-domain';
 
 /**
@@ -275,5 +278,28 @@ export class InMemoryLoteRepository implements LoteRepository {
   }
   buscarPorCura(curaId: string): Promise<Lote | null> {
     return Promise.resolve([...this.porId.values()].find((l) => l.curaId === curaId) ?? null);
+  }
+}
+
+/** Tarefa em memória. Operacional, mutável (upsert por id). */
+export class InMemoryTarefaRepository implements TarefaRepository {
+  private readonly porId = new Map<string, Tarefa>();
+
+  salvar(tarefa: Tarefa): Promise<void> {
+    this.porId.set(tarefa.id, tarefa);
+    return Promise.resolve();
+  }
+  buscarPorId(id: string): Promise<Tarefa | null> {
+    return Promise.resolve(this.porId.get(id) ?? null);
+  }
+  listarPorUsuario(usuarioId: string, filtro?: FiltroDeTarefas): Promise<Tarefa[]> {
+    return Promise.resolve(
+      [...this.porId.values()].filter(
+        (t) =>
+          t.pertenceA(usuarioId) &&
+          (!filtro?.cicloId || t.cicloId === filtro.cicloId) &&
+          (!filtro?.apenasPendentes || !t.estaConcluida()),
+      ),
+    );
   }
 }

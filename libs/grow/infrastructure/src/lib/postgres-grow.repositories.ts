@@ -6,12 +6,14 @@ import type {
   CuraRepository,
   EventoManejoRepository,
   EventoSanidadeRepository,
+  FiltroDeTarefas,
   GeneticaRepository,
   LoteRepository,
   PaginaDeRegistros,
   PlantaRepository,
   RegistroAmbientalRepository,
   SecagemRepository,
+  TarefaRepository,
 } from '@cosmaria/grow-application';
 import {
   Ambiente,
@@ -23,16 +25,20 @@ import {
   type FaseDeVida,
   Genetica,
   Lote,
+  type OrigemDaTarefa,
   type OrigemDoMaterial,
   type OrigemDoRegistro,
   Planta,
   RegistroAmbiental,
   Secagem,
   type Severidade,
+  type StatusDaTarefa,
+  Tarefa,
   type TipoDeAmbiente,
   type TipoDeGenetica,
   type TipoDeManejo,
   type TipoDeSanidade,
+  type TipoDeTarefa,
 } from '@cosmaria/grow-domain';
 
 /**
@@ -899,5 +905,115 @@ export class PostgresLoteRepository implements LoteRepository {
       [curaId],
     );
     return rows[0] ? mapearLote(rows[0]) : null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Tarefa
+// ---------------------------------------------------------------------------
+
+interface TarefaRow {
+  id: string;
+  usuario_id: string;
+  ciclo_id: string;
+  planta_id: string | null;
+  titulo: string;
+  tipo: string;
+  origem: string;
+  status: string;
+  prevista_para: Date | null;
+  recorrencia_dias: number | null;
+  concluida_em: Date | null;
+  alerta_id: string | null;
+  criado_em: Date;
+  atualizado_em: Date;
+}
+
+const COLUNAS_TAREFA =
+  'id, usuario_id, ciclo_id, planta_id, titulo, tipo, origem, status, prevista_para, recorrencia_dias, concluida_em, alerta_id, criado_em, atualizado_em';
+
+const mapearTarefa = (r: TarefaRow): Tarefa =>
+  Tarefa.reconstituir({
+    id: r.id,
+    usuarioId: r.usuario_id,
+    cicloId: r.ciclo_id,
+    plantaId: r.planta_id,
+    titulo: r.titulo,
+    tipo: r.tipo as TipoDeTarefa,
+    origem: r.origem as OrigemDaTarefa,
+    status: r.status as StatusDaTarefa,
+    previstaPara: r.prevista_para,
+    recorrenciaDias: r.recorrencia_dias,
+    concluidaEm: r.concluida_em,
+    alertaId: r.alerta_id,
+    criadoEm: r.criado_em,
+    atualizadoEm: r.atualizado_em,
+  });
+
+/**
+ * Tarefa — operacional (Arquétipo A). O `ON CONFLICT` atualiza os campos mutáveis: título,
+ * tipo, status, data prevista, recorrência e conclusão. Origem, ciclo e alerta de origem
+ * nunca mudam.
+ */
+export class PostgresTarefaRepository implements TarefaRepository {
+  constructor(private readonly pool: Pool) {}
+
+  async salvar(t: Tarefa): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO grow.tarefa (${COLUNAS_TAREFA})
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+       ON CONFLICT (id) DO UPDATE
+         SET titulo = EXCLUDED.titulo,
+             tipo = EXCLUDED.tipo,
+             status = EXCLUDED.status,
+             prevista_para = EXCLUDED.prevista_para,
+             recorrencia_dias = EXCLUDED.recorrencia_dias,
+             concluida_em = EXCLUDED.concluida_em,
+             atualizado_em = EXCLUDED.atualizado_em`,
+      [
+        t.id,
+        t.usuarioId,
+        t.cicloId,
+        t.plantaId,
+        t.titulo,
+        t.tipo,
+        t.origem,
+        t.status,
+        t.previstaPara,
+        t.recorrenciaDias,
+        t.concluidaEm,
+        t.alertaId,
+        t.criadoEm,
+        t.atualizadoEm,
+      ],
+    );
+  }
+
+  async buscarPorId(id: string): Promise<Tarefa | null> {
+    const { rows } = await this.pool.query<TarefaRow>(
+      `SELECT ${COLUNAS_TAREFA} FROM grow.tarefa WHERE id = $1`,
+      [id],
+    );
+    return rows[0] ? mapearTarefa(rows[0]) : null;
+  }
+
+  async listarPorUsuario(usuarioId: string, filtro?: FiltroDeTarefas): Promise<Tarefa[]> {
+    const condicoes = ['usuario_id = $1'];
+    const params: unknown[] = [usuarioId];
+    if (filtro?.cicloId) {
+      params.push(filtro.cicloId);
+      condicoes.push(`ciclo_id = $${params.length}`);
+    }
+    if (filtro?.apenasPendentes) {
+      condicoes.push(`status = 'PENDENTE'`);
+    }
+    // Pendentes com data mais próxima primeiro; sem data ao fim; concluídas por último critério.
+    const { rows } = await this.pool.query<TarefaRow>(
+      `SELECT ${COLUNAS_TAREFA} FROM grow.tarefa
+        WHERE ${condicoes.join(' AND ')}
+        ORDER BY prevista_para ASC NULLS LAST, criado_em DESC`,
+      params,
+    );
+    return rows.map(mapearTarefa);
   }
 }

@@ -13,6 +13,7 @@ export {
   PostgresSecagemRepository,
   PostgresCuraRepository,
   PostgresLoteRepository,
+  PostgresTarefaRepository,
 } from './lib/postgres-grow.repositories';
 
 export {
@@ -27,4 +28,5 @@ export {
   InMemorySecagemRepository,
   InMemoryCuraRepository,
   InMemoryLoteRepository,
+  InMemoryTarefaRepository,
 } from './lib/in-memory-grow.repositories';

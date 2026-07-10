@@ -50,6 +50,17 @@ export { Lote } from './lib/pos-colheita/lote.entity';
 export type { LoteProps } from './lib/pos-colheita/lote.entity';
 
 export {
+  TipoDeTarefa,
+  ehTipoDeTarefaValido,
+  StatusDaTarefa,
+  ehStatusDaTarefaValido,
+  OrigemDaTarefa,
+  ehOrigemDaTarefaValida,
+} from './lib/tarefas/catalogos-de-tarefa';
+export { Tarefa } from './lib/tarefas/tarefa.entity';
+export type { TarefaProps } from './lib/tarefas/tarefa.entity';
+
+export {
   RegistroAmbiental,
   OrigemDoRegistro,
   ehOrigemDoRegistroValida,
@@ -69,6 +80,8 @@ export {
   PlantaFaseAlterada,
   RegistroAmbientalCriado,
   ColheitaRegistrada,
+  TarefaCriada,
+  TarefaConcluida,
 } from './lib/eventos/grow.events';
 
 export {
@@ -90,4 +103,5 @@ export {
   SecagemJaRegistradaError,
   CuraJaRegistradaError,
   LoteJaGeradoError,
+  TarefaNaoEncontradaError,
 } from './lib/errors/grow.errors';
