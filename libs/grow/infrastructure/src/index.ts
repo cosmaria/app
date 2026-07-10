@@ -6,6 +6,7 @@ export {
   PostgresAmbienteRepository,
   PostgresCicloRepository,
   PostgresPlantaRepository,
+  PostgresRegistroAmbientalRepository,
 } from './lib/postgres-grow.repositories';
 
 export {
@@ -13,4 +14,5 @@ export {
   InMemoryAmbienteRepository,
   InMemoryCicloRepository,
   InMemoryPlantaRepository,
+  InMemoryRegistroAmbientalRepository,
 } from './lib/in-memory-grow.repositories';

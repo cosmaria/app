@@ -126,7 +126,9 @@ Classificação obrigatória: **Pública** (exposta a apps cliente) · **Interna
 | `POST /v1/ciclos/{id}/fase`, `POST /v1/plantas/{id}/fase` | Pública | API-4 | *(adicionado na Sprint Grow-1)* Avança a fase, sempre com timestamp. Retroceder responde `400`: corromperia as durações de fase (doc 02 §5.12) |
 | `POST /v1/ciclos/{id}/encerrar` | Pública | API-4 | *(adicionado na Sprint Grow-1)* Encerra o ciclo. Irreversível: nenhuma escrita é aceita depois (`409`), a leitura do histórico continua livre |
 | `POST /v1/ciclos/{id}/clonar` | Pública | API-4 | Clonar ciclo anterior |
-| `POST /v1/registros-ambientais` | Pública | API-2 | Check-in diário / série temporal |
+| `POST /v1/registros-ambientais` | Pública | API-2 | Check-in diário / série temporal. VPD e DLI vêm calculados; sem os insumos, vêm nulos. Append-only: não existe `PUT` nem `DELETE` |
+| `GET /v1/registros-ambientais/campos` | Pública | API-3 | *(adicionado na Sprint Grow-2)* Campos do check-in visíveis para o nível do usuário (Complexidade Progressiva). A **escrita** nunca é filtrada por nível — um sensor não tem nível |
+| `GET /v1/ciclos/{id}/registros-ambientais` | Pública | API-3 | *(adicionado na Sprint Grow-2)* Série temporal do ciclo, paginada. Legível mesmo após o encerramento |
 | `POST /v1/eventos-manejo`, `POST /v1/eventos-sanidade` | Pública | API-2 | Registro de manejo/sanidade |
 | `GET/POST/PUT /v1/tarefas` | Pública | API-1 | Tarefas e lembretes |
 | `POST /v1/colheitas` | Pública | API-2 | Registrar colheita (0—N por ciclo, doc 04 §25) |

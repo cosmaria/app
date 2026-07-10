@@ -2,9 +2,17 @@ import type {
   AmbienteRepository,
   CicloRepository,
   GeneticaRepository,
+  PaginaDeRegistros,
   PlantaRepository,
+  RegistroAmbientalRepository,
 } from '@cosmaria/grow-application';
-import type { Ambiente, CicloCultivo, Genetica, Planta } from '@cosmaria/grow-domain';
+import type {
+  Ambiente,
+  CicloCultivo,
+  Genetica,
+  Planta,
+  RegistroAmbiental,
+} from '@cosmaria/grow-domain';
 
 /**
  * Repositórios do Grow em memória — mesmas portas do Postgres (LSP, doc 04 §4).
@@ -118,5 +126,33 @@ export class InMemoryPlantaRepository implements PlantaRepository {
   /** Consulta interna usada pelo repositório de genéticas. */
   existeComGenetica(geneticaId: string): boolean {
     return [...this.porId.values()].some((p) => p.geneticaId === geneticaId);
+  }
+}
+
+/** Série temporal em memória. Append-only, como a porta exige. */
+export class InMemoryRegistroAmbientalRepository implements RegistroAmbientalRepository {
+  private readonly porId = new Map<string, RegistroAmbiental>();
+
+  salvar(registro: RegistroAmbiental): Promise<void> {
+    this.porId.set(registro.id, registro);
+    return Promise.resolve();
+  }
+
+  buscarPorId(id: string): Promise<RegistroAmbiental | null> {
+    return Promise.resolve(this.porId.get(id) ?? null);
+  }
+
+  listarPorCiclo(
+    cicloId: string,
+    parametros: { limite: number; deslocamento: number },
+  ): Promise<PaginaDeRegistros> {
+    const doCiclo = [...this.porId.values()]
+      .filter((r) => r.cicloId === cicloId)
+      .sort((a, b) => b.registradoEm.getTime() - a.registradoEm.getTime());
+
+    return Promise.resolve({
+      itens: doCiclo.slice(parametros.deslocamento, parametros.deslocamento + parametros.limite),
+      total: doCiclo.length,
+    });
   }
 }

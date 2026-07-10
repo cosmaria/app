@@ -68,6 +68,14 @@ export class AmbienteComCiclosError extends DomainError {
   }
 }
 
+/** Um check-in sem nenhuma medição não é um registro — é ruído na série temporal. */
+export class RegistroSemMedicaoError extends DomainError {
+  readonly code = 'REGISTRO_SEM_MEDICAO';
+  constructor() {
+    super('Informe ao menos uma medição para registrar o check-in.');
+  }
+}
+
 /** A genética ainda origina plantas: excluí-la quebraria a comparação entre cultivos. */
 export class GeneticaEmUsoError extends DomainError {
   readonly code = 'GENETICA_EM_USO';

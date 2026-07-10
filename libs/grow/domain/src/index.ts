@@ -28,10 +28,24 @@ export { Planta } from './lib/planta.entity';
 export type { PlantaProps } from './lib/planta.entity';
 
 export {
+  RegistroAmbiental,
+  OrigemDoRegistro,
+  ehOrigemDoRegistroValida,
+} from './lib/clima/registro-ambiental.entity';
+export type { RegistroAmbientalProps } from './lib/clima/registro-ambiental.entity';
+export {
+  calcularVpdKpa,
+  calcularDli,
+  pressaoDeVaporDeSaturacaoKpa,
+  arredondar,
+} from './lib/clima/calculos-ambientais';
+
+export {
   CicloCriado,
   CicloFinalizado,
   PlantaCriada,
   PlantaFaseAlterada,
+  RegistroAmbientalCriado,
 } from './lib/eventos/grow.events';
 
 export {
@@ -43,4 +57,5 @@ export {
   TransicaoDeFaseInvalidaError,
   AmbienteComCiclosError,
   GeneticaEmUsoError,
+  RegistroSemMedicaoError,
 } from './lib/errors/grow.errors';

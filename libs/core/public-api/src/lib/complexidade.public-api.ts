@@ -1,6 +1,14 @@
 import type { CampoDeComplexidade, ComplexidadeView } from '@cosmaria/core-application';
 
 /**
+ * Reexportado como parte do CONTRATO: quem consome `filtrarCampos` precisa declarar o
+ * nível de cada campo. Sem isto, Grow e Med importariam o interior do Core só para
+ * nomear um nível.
+ */
+export { NivelDeComplexidade } from '@cosmaria/core-domain';
+export type { CampoDeComplexidade } from '@cosmaria/core-application';
+
+/**
  * Interface pública da Complexidade Progressiva (doc 02 §5.0/§6 / doc 14 §10).
  *
  * O Módulo de Complexidade Progressiva é **transversal**: Grow e Med declaram o nível de

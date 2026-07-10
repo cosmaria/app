@@ -57,6 +57,28 @@ export class PlantaCriada implements DomainEvent {
   }
 }
 
+/**
+ * `RegistroAmbientalCriado` — consumido pelo Motor de Correlação da IA (doc 05).
+ * Carrega os derivados já calculados: a IA não precisa reaplicar as fórmulas do Grow,
+ * o que criaria duas implementações do mesmo cálculo, livres para divergir.
+ */
+export class RegistroAmbientalCriado implements DomainEvent {
+  readonly nome = 'RegistroAmbientalCriado';
+  readonly ocorridoEm: Date;
+
+  constructor(
+    readonly registroId: string,
+    readonly usuarioId: string,
+    readonly cicloId: string,
+    readonly plantaId: string | null,
+    readonly vpdKpa: number | null,
+    readonly dli: number | null,
+    ocorridoEm?: Date,
+  ) {
+    this.ocorridoEm = ocorridoEm ?? new Date();
+  }
+}
+
 /** `PlantaFaseAlterada` — consumido por IA e Notificações. */
 export class PlantaFaseAlterada implements DomainEvent {
   readonly nome = 'PlantaFaseAlterada';

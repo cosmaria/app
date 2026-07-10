@@ -1,4 +1,10 @@
-import type { Ambiente, CicloCultivo, Genetica, Planta } from '@cosmaria/grow-domain';
+import type {
+  Ambiente,
+  CicloCultivo,
+  Genetica,
+  Planta,
+  RegistroAmbiental,
+} from '@cosmaria/grow-domain';
 
 /**
  * Repositórios do Grow (schema `grow`, doc 04 §16 — schema por módulo).
@@ -45,3 +51,25 @@ export interface PlantaRepository {
 }
 
 export const PLANTA_REPOSITORY = Symbol('PlantaRepository');
+
+export interface PaginaDeRegistros {
+  itens: RegistroAmbiental[];
+  total: number;
+}
+
+/**
+ * Série temporal (Arquétipo B, doc 08 §6). **Append-only**: não existe `atualizar` nem
+ * `remover` — corrigir uma medição é registrar outra. A porta não oferece a operação
+ * justamente para que nenhum caso de uso futuro possa reescrever o histórico por engano.
+ */
+export interface RegistroAmbientalRepository {
+  salvar(registro: RegistroAmbiental): Promise<void>;
+  buscarPorId(id: string): Promise<RegistroAmbiental | null>;
+  /** Mais recentes primeiro, paginado (doc 09 §5). */
+  listarPorCiclo(
+    cicloId: string,
+    parametros: { limite: number; deslocamento: number },
+  ): Promise<PaginaDeRegistros>;
+}
+
+export const REGISTRO_AMBIENTAL_REPOSITORY = Symbol('RegistroAmbientalRepository');

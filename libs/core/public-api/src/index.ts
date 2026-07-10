@@ -24,4 +24,9 @@ export {
 
 export { MIDIA_PUBLIC_API, type MidiaPublicApi } from './lib/midia.public-api';
 
-export { COMPLEXIDADE_PUBLIC_API, type ComplexidadePublicApi } from './lib/complexidade.public-api';
+export {
+  COMPLEXIDADE_PUBLIC_API,
+  type ComplexidadePublicApi,
+  type CampoDeComplexidade,
+  NivelDeComplexidade,
+} from './lib/complexidade.public-api';

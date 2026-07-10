@@ -29,6 +29,7 @@ import {
   GeneticaEmUsoError,
   GeneticaNaoEncontradaError,
   PlantaNaoEncontradaError,
+  RegistroSemMedicaoError,
   TransicaoDeFaseInvalidaError,
 } from '@cosmaria/grow-domain';
 
@@ -92,6 +93,7 @@ export class DomainExceptionFilter implements ExceptionFilter {
     if (erro instanceof AmbienteComCiclosError) return HttpStatus.CONFLICT;
     if (erro instanceof GeneticaEmUsoError) return HttpStatus.CONFLICT;
     if (erro instanceof TransicaoDeFaseInvalidaError) return HttpStatus.BAD_REQUEST;
+    if (erro instanceof RegistroSemMedicaoError) return HttpStatus.BAD_REQUEST;
 
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }

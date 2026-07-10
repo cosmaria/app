@@ -7,12 +7,15 @@ export {
   AMBIENTE_REPOSITORY,
   CICLO_REPOSITORY,
   PLANTA_REPOSITORY,
+  REGISTRO_AMBIENTAL_REPOSITORY,
 } from './lib/ports/grow.repositories';
 export type {
   GeneticaRepository,
   AmbienteRepository,
   CicloRepository,
   PlantaRepository,
+  RegistroAmbientalRepository,
+  PaginaDeRegistros,
 } from './lib/ports/grow.repositories';
 
 export {
@@ -60,3 +63,16 @@ export {
   paraPlantaView,
 } from './lib/use-cases/planta.use-cases';
 export type { PlantaView, AdicionarPlantaInput } from './lib/use-cases/planta.use-cases';
+
+export {
+  RegistrarCheckInUseCase,
+  ListarSerieTemporalUseCase,
+  ObterCamposDoCheckInUseCase,
+  CAMPOS_DO_CHECKIN,
+  paraRegistroView,
+} from './lib/use-cases/registro-ambiental.use-cases';
+export type {
+  RegistroAmbientalView,
+  RegistrarCheckInInput,
+  SerieTemporalView,
+} from './lib/use-cases/registro-ambiental.use-cases';

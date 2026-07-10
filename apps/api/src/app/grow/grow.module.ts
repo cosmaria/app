@@ -7,7 +7,12 @@ import {
   type IdGenerator,
 } from '@cosmaria/core-application';
 import { CryptoIdGenerator } from '@cosmaria/core-infrastructure';
-import { PREMIUM_PUBLIC_API, type PremiumPublicApi } from '@cosmaria/core-public-api';
+import {
+  COMPLEXIDADE_PUBLIC_API,
+  type ComplexidadePublicApi,
+  PREMIUM_PUBLIC_API,
+  type PremiumPublicApi,
+} from '@cosmaria/core-public-api';
 import {
   AdicionarPlantaUseCase,
   AMBIENTE_REPOSITORY,
@@ -29,9 +34,14 @@ import {
   ListarCiclosUseCase,
   ListarGeneticasUseCase,
   ListarPlantasDoCicloUseCase,
+  ListarSerieTemporalUseCase,
+  ObterCamposDoCheckInUseCase,
   ObterCicloUseCase,
   PLANTA_REPOSITORY,
   type PlantaRepository,
+  REGISTRO_AMBIENTAL_REPOSITORY,
+  RegistrarCheckInUseCase,
+  type RegistroAmbientalRepository,
   RemoverAmbienteUseCase,
   RemoverGeneticaUseCase,
   RenomearCicloUseCase,
@@ -41,20 +51,27 @@ import {
   InMemoryCicloRepository,
   InMemoryGeneticaRepository,
   InMemoryPlantaRepository,
+  InMemoryRegistroAmbientalRepository,
   PostgresAmbienteRepository,
   PostgresCicloRepository,
   PostgresGeneticaRepository,
   PostgresPlantaRepository,
+  PostgresRegistroAmbientalRepository,
 } from '@cosmaria/grow-infrastructure';
 import { PG_POOL } from '../infra/infra.tokens';
 import { AuthModule } from '../auth/auth.module';
 import { BillingModule } from '../billing/billing.module';
+import { ComplexidadeModule } from '../complexidade/complexidade.module';
 import {
   AmbienteController,
   CicloController,
   GeneticaController,
   PlantaController,
 } from './grow.controller';
+import {
+  RegistroAmbientalController,
+  SerieTemporalController,
+} from './registro-ambiental.controller';
 
 /**
  * Composition root do COSMARIA Grow (doc 02 / doc 14 §10).
@@ -72,9 +89,10 @@ const emMemoria = () => {
   const ambientes = new InMemoryAmbienteRepository();
   const ciclos = new InMemoryCicloRepository();
   const plantas = new InMemoryPlantaRepository();
+  const registros = new InMemoryRegistroAmbientalRepository();
   geneticas.conectarPlantas(plantas);
   ambientes.conectarCiclos(ciclos);
-  return { geneticas, ambientes, ciclos, plantas };
+  return { geneticas, ambientes, ciclos, plantas, registros };
 };
 
 /**
@@ -110,6 +128,15 @@ const providers: Provider[] = [
     provide: PLANTA_REPOSITORY,
     useFactory: (pool: Pool | null, memoria: ReturnType<typeof emMemoria>): PlantaRepository =>
       pool ? new PostgresPlantaRepository(pool) : memoria.plantas,
+    inject: [PG_POOL, REPOSITORIOS_EM_MEMORIA],
+  },
+  {
+    provide: REGISTRO_AMBIENTAL_REPOSITORY,
+    useFactory: (
+      pool: Pool | null,
+      memoria: ReturnType<typeof emMemoria>,
+    ): RegistroAmbientalRepository =>
+      pool ? new PostgresRegistroAmbientalRepository(pool) : memoria.registros,
     inject: [PG_POOL, REPOSITORIOS_EM_MEMORIA],
   },
 
@@ -232,11 +259,49 @@ const providers: Provider[] = [
     useFactory: (repo: PlantaRepository) => new AtualizarPlantaUseCase(repo),
     inject: [PLANTA_REPOSITORY],
   },
+
+  // Registro Ambiental (série temporal)
+  {
+    provide: RegistrarCheckInUseCase,
+    useFactory: (
+      registros: RegistroAmbientalRepository,
+      ciclos: CicloRepository,
+      plantas: PlantaRepository,
+      idGen: IdGenerator,
+      eventos: EventPublisher,
+    ) => new RegistrarCheckInUseCase(registros, ciclos, plantas, idGen, eventos),
+    inject: [
+      REGISTRO_AMBIENTAL_REPOSITORY,
+      CICLO_REPOSITORY,
+      PLANTA_REPOSITORY,
+      ID_GENERATOR,
+      EVENT_PUBLISHER,
+    ],
+  },
+  {
+    provide: ListarSerieTemporalUseCase,
+    useFactory: (registros: RegistroAmbientalRepository, ciclos: CicloRepository) =>
+      new ListarSerieTemporalUseCase(registros, ciclos),
+    inject: [REGISTRO_AMBIENTAL_REPOSITORY, CICLO_REPOSITORY],
+  },
+  {
+    provide: ObterCamposDoCheckInUseCase,
+    useFactory: (complexidade: ComplexidadePublicApi) =>
+      new ObterCamposDoCheckInUseCase(complexidade),
+    inject: [COMPLEXIDADE_PUBLIC_API],
+  },
 ];
 
 @Module({
-  imports: [AuthModule, BillingModule],
-  controllers: [GeneticaController, AmbienteController, CicloController, PlantaController],
+  imports: [AuthModule, BillingModule, ComplexidadeModule],
+  controllers: [
+    GeneticaController,
+    AmbienteController,
+    CicloController,
+    PlantaController,
+    RegistroAmbientalController,
+    SerieTemporalController,
+  ],
   providers,
 })
 export class GrowModule {}

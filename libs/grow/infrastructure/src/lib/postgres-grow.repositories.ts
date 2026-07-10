@@ -3,7 +3,9 @@ import type {
   AmbienteRepository,
   CicloRepository,
   GeneticaRepository,
+  PaginaDeRegistros,
   PlantaRepository,
+  RegistroAmbientalRepository,
 } from '@cosmaria/grow-application';
 import {
   Ambiente,
@@ -11,10 +13,20 @@ import {
   type FaseDeVida,
   Genetica,
   type OrigemDoMaterial,
+  type OrigemDoRegistro,
   Planta,
+  RegistroAmbiental,
   type TipoDeAmbiente,
   type TipoDeGenetica,
 } from '@cosmaria/grow-domain';
+
+/**
+ * `NUMERIC` volta do driver `pg` como **string**, para não perder precisão. Converter
+ * aqui, na fronteira, evita que o domínio receba `"25.00"` onde espera `25` — e que uma
+ * comparação numérica vire comparação de texto lá dentro.
+ */
+const numeroOuNulo = (valor: string | number | null): number | null =>
+  valor === null ? null : Number(valor);
 
 // ---------------------------------------------------------------------------
 // Genética
@@ -377,5 +389,106 @@ export class PostgresPlantaRepository implements PlantaRepository {
       [cicloId],
     );
     return rows.map(mapearPlanta);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Registro Ambiental (série temporal, append-only)
+// ---------------------------------------------------------------------------
+
+interface RegistroRow {
+  id: string;
+  usuario_id: string;
+  ciclo_id: string;
+  planta_id: string | null;
+  registrado_em: Date;
+  origem: string;
+  temperatura_c: string | null;
+  umidade_relativa: string | null;
+  ph: string | null;
+  ec: string | null;
+  ppfd: string | null;
+  horas_de_luz: string | null;
+  vpd_kpa: string | null;
+  dli: string | null;
+  observacoes: string | null;
+}
+
+const COLUNAS_REGISTRO =
+  'id, usuario_id, ciclo_id, planta_id, registrado_em, origem, temperatura_c, umidade_relativa, ph, ec, ppfd, horas_de_luz, vpd_kpa, dli, observacoes';
+
+const mapearRegistro = (r: RegistroRow): RegistroAmbiental =>
+  RegistroAmbiental.reconstituir({
+    id: r.id,
+    usuarioId: r.usuario_id,
+    cicloId: r.ciclo_id,
+    plantaId: r.planta_id,
+    registradoEm: r.registrado_em,
+    origem: r.origem as OrigemDoRegistro,
+    temperaturaC: numeroOuNulo(r.temperatura_c),
+    umidadeRelativa: numeroOuNulo(r.umidade_relativa),
+    ph: numeroOuNulo(r.ph),
+    ec: numeroOuNulo(r.ec),
+    ppfd: numeroOuNulo(r.ppfd),
+    horasDeLuz: numeroOuNulo(r.horas_de_luz),
+    vpdKpa: numeroOuNulo(r.vpd_kpa),
+    dli: numeroOuNulo(r.dli),
+    observacoes: r.observacoes,
+  });
+
+/**
+ * Série temporal no schema `grow`. **Append-only**: só `INSERT`. Não há `ON CONFLICT`
+ * nem `UPDATE` — a ausência dessas operações é a garantia de que o histórico não é
+ * reescrito, e não apenas uma convenção da camada de aplicação.
+ */
+export class PostgresRegistroAmbientalRepository implements RegistroAmbientalRepository {
+  constructor(private readonly pool: Pool) {}
+
+  async salvar(r: RegistroAmbiental): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO grow.registro_ambiental (${COLUNAS_REGISTRO})
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
+      [
+        r.id,
+        r.usuarioId,
+        r.cicloId,
+        r.plantaId,
+        r.registradoEm,
+        r.origem,
+        r.temperaturaC,
+        r.umidadeRelativa,
+        r.ph,
+        r.ec,
+        r.ppfd,
+        r.horasDeLuz,
+        r.vpdKpa,
+        r.dli,
+        r.observacoes,
+      ],
+    );
+  }
+
+  async buscarPorId(id: string): Promise<RegistroAmbiental | null> {
+    const { rows } = await this.pool.query<RegistroRow>(
+      `SELECT ${COLUNAS_REGISTRO} FROM grow.registro_ambiental WHERE id = $1`,
+      [id],
+    );
+    return rows[0] ? mapearRegistro(rows[0]) : null;
+  }
+
+  async listarPorCiclo(
+    cicloId: string,
+    parametros: { limite: number; deslocamento: number },
+  ): Promise<PaginaDeRegistros> {
+    const { rows } = await this.pool.query<RegistroRow>(
+      `SELECT ${COLUNAS_REGISTRO} FROM grow.registro_ambiental
+        WHERE ciclo_id = $1 ORDER BY registrado_em DESC LIMIT $2 OFFSET $3`,
+      [cicloId, parametros.limite, parametros.deslocamento],
+    );
+    const contagem = await this.pool.query<{ total: string }>(
+      `SELECT count(*) AS total FROM grow.registro_ambiental WHERE ciclo_id = $1`,
+      [cicloId],
+    );
+    return { itens: rows.map(mapearRegistro), total: Number(contagem.rows[0].total) };
   }
 }

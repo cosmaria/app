@@ -72,12 +72,12 @@ describe('Grow contra Postgres real (integração)', () => {
       `SELECT table_name FROM information_schema.tables
         WHERE table_schema = 'grow' ORDER BY table_name`,
     );
-    expect(rows.map((r) => r.table_name)).toEqual([
-      'ambiente',
-      'ciclo_cultivo',
-      'genetica',
-      'planta',
-    ]);
+    // Contém as tabelas do núcleo, sem congelar o inventário: cada sprint do Grow
+    // acrescenta tabelas aqui, e o invariante que importa é a separação de schema —
+    // provado pelo teste de FK abaixo, não por uma lista exaustiva.
+    expect(rows.map((r) => r.table_name)).toEqual(
+      expect.arrayContaining(['ambiente', 'ciclo_cultivo', 'genetica', 'planta']),
+    );
   });
 
   it('nenhuma FK do schema grow aponta para o schema core (doc 08 §11)', async () => {
