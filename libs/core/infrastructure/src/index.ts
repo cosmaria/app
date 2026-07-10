@@ -52,6 +52,11 @@ export {
   InMemoryPreferenciaDeNotificacaoRepository,
   InMemoryNotificacaoRepository,
 } from './lib/persistence/in-memory-notificacao.repositories';
+export { PostgresMidiaRepository } from './lib/persistence/postgres-midia.repository';
+export {
+  InMemoryMidiaRepository,
+  InMemoryArmazenamentoDeObjetos,
+} from './lib/persistence/in-memory-midia.repository';
 
 export { RedisCacheAdapter } from './lib/adapters/redis-cache.adapter';
 export { InMemoryCacheAdapter } from './lib/adapters/in-memory-cache.adapter';
@@ -64,6 +69,11 @@ export {
   DespachanteDeRegistro,
   DespachanteEmMemoria,
 } from './lib/adapters/despachante-de-notificacao.adapter';
+export {
+  ArmazenamentoLocalDeObjetos,
+  assinarChaveDeMidia,
+  urlDeMidiaEhValida,
+} from './lib/adapters/armazenamento-local.adapter';
 
 export { InProcessEventPublisher } from './lib/events/in-process-event-publisher';
 export type { ManipuladorDeEvento } from './lib/events/in-process-event-publisher';

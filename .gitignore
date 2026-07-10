@@ -53,3 +53,6 @@ gcp-key.json
 # Stray compiled artifacts that must never live in src/
 libs/**/src/**/*.js
 libs/**/src/**/*.js.map
+
+# Mídia enviada em dev (adaptador local de armazenamento de objetos, doc 04 §16)
+.midia/

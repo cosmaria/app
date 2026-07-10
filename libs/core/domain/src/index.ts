@@ -57,6 +57,10 @@ export type {
   PrecoRegionalProps,
 } from './lib/billing/catalogo-de-cobranca.entities';
 
+// Armazenamento de Mídia (doc 04 §7.1/§16, doc 08 §12.1 — capacidade do Core)
+export { Midia, TipoDeMidia, tipoDeMidiaDoMime } from './lib/midia/midia.entity';
+export type { MidiaProps } from './lib/midia/midia.entity';
+
 // Notificações (doc 04 §15)
 export {
   CategoriaDeNotificacao,
@@ -116,3 +120,8 @@ export {
   AssinaturaDePayloadInvalidaError,
   LimiteDePlanoAtingidoError,
 } from './lib/errors/billing.errors';
+export {
+  MidiaNaoEncontradaError,
+  TipoDeMidiaNaoSuportadoError,
+  MidiaAcimaDoLimiteError,
+} from './lib/errors/midia.errors';

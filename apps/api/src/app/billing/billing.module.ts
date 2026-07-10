@@ -201,6 +201,8 @@ const providers: Provider[] = [
   imports: [AuthModule],
   controllers: [AssinaturaController, LimitesController, WebhookPagamentoController],
   providers,
-  exports: [PREMIUM_PUBLIC_API],
+  // VerificarLimiteUseCase é exportado para que outros módulos do Core (ex.: Mídia)
+  // apliquem o MESMO gate de LimiteDePlano, em vez de reimplementar a regra.
+  exports: [PREMIUM_PUBLIC_API, VerificarLimiteUseCase],
 })
 export class BillingModule {}

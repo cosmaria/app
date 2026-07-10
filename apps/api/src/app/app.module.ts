@@ -11,6 +11,7 @@ import { LgpdModule } from './lgpd/lgpd.module';
 import { PerfilModule } from './perfil/perfil.module';
 import { BillingModule } from './billing/billing.module';
 import { NotificacaoModule } from './notificacao/notificacao.module';
+import { MidiaModule } from './midia/midia.module';
 
 /**
  * Módulo raiz do Modular Monolith.
@@ -24,6 +25,7 @@ import { NotificacaoModule } from './notificacao/notificacao.module';
  * - PerfilModule: Identidade Social — Perfil Público por contexto + Vínculo de Perfis (Core, doc 06).
  * - BillingModule: assinatura única, limites de plano e webhook de pagamento (Core, doc 07).
  * - NotificacaoModule: serviço único de notificação alimentado por eventos (Core, doc 04 §15).
+ * - MidiaModule: armazenamento de mídia compartilhado por Grow e Med (Core, doc 04 §16).
  * Grow, Med, Comunidade e IA (doc 04) entram em sprints seguintes.
  */
 @Module({
@@ -41,6 +43,7 @@ import { NotificacaoModule } from './notificacao/notificacao.module';
     PerfilModule,
     BillingModule,
     NotificacaoModule,
+    MidiaModule,
   ],
 })
 export class AppModule {}

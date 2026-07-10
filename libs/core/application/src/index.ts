@@ -65,6 +65,13 @@ export type {
   NotificacaoRepository,
   PaginaDeNotificacoes,
 } from './lib/ports/notificacao.repositories';
+export {
+  ARMAZENAMENTO_DE_OBJETOS,
+  TTL_URL_ASSINADA_SEGUNDOS,
+} from './lib/ports/armazenamento-de-objetos.port';
+export type { ArmazenamentoDeObjetos } from './lib/ports/armazenamento-de-objetos.port';
+export { MIDIA_REPOSITORY } from './lib/ports/midia.repository';
+export type { MidiaRepository } from './lib/ports/midia.repository';
 export { DESPACHANTE_DE_NOTIFICACAO } from './lib/ports/despachante-de-notificacao.port';
 export type {
   DespachanteDeNotificacao,
@@ -179,3 +186,16 @@ export type {
   CentralDeNotificacoesView,
 } from './lib/use-cases/central-de-notificacoes.use-cases';
 export { NotificarSobreEventosService } from './lib/use-cases/notificar-sobre-eventos.service';
+
+// Armazenamento de Mídia (doc 04 §16)
+export {
+  RegistrarMidiaUseCase,
+  ObterUrlDeMidiaUseCase,
+  ListarMidiaDaEntidadeUseCase,
+  RemoverMidiaUseCase,
+} from './lib/use-cases/midia.use-cases';
+export type {
+  MidiaView,
+  UrlDeMidiaView,
+  RegistrarMidiaInput,
+} from './lib/use-cases/midia.use-cases';

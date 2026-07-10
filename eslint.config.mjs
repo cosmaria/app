@@ -20,6 +20,13 @@ export default [
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     rules: {
+      // Um adaptador pode legitimamente ignorar um parâmetro que a PORTA exige — o
+      // armazenamento local não usa o tipo de conteúdo, mas o Cloud Storage usa.
+      // Prefixar com `_` declara a omissão como intencional, sem distorcer a interface.
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
       '@nx/enforce-module-boundaries': [
         'error',
         {

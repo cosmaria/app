@@ -11,6 +11,13 @@ import type { Plano } from './plano';
 export const ChavesDeLimite = {
   /** Capacidade simultânea de ambientes no Grow. Histórico NUNCA é limitado. */
   GROW_AMBIENTES_SIMULTANEOS: 'grow.ambientes_simultaneos',
+  /**
+   * Tamanho máximo de um arquivo de mídia. É a tradução aplicável do que o doc 07 §8
+   * descreve como "resolução padrão" no gratuito e "alta resolução sem limite" no
+   * Premium — resolução não é verificável no servidor sem decodificar a imagem, tamanho é.
+   * Limita o arquivo NOVO, nunca o acesso à mídia já enviada (doc 07 §9).
+   */
+  MIDIA_TAMANHO_MAXIMO_BYTES: 'core.midia_tamanho_maximo_bytes',
 } as const;
 
 export interface LimiteDePlanoProps {

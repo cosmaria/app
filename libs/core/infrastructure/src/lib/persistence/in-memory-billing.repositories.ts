@@ -53,6 +53,20 @@ export class InMemoryLimiteDePlanoRepository implements LimiteDePlanoRepository 
       valor: null,
       vigenteDe: new Date(0),
     }),
+    LimiteDePlano.definir({
+      id: 'limite-midia-gratuito',
+      chave: 'core.midia_tamanho_maximo_bytes',
+      plano: Plano.GRATUITO,
+      valor: 5_242_880,
+      vigenteDe: new Date(0),
+    }),
+    LimiteDePlano.definir({
+      id: 'limite-midia-premium',
+      chave: 'core.midia_tamanho_maximo_bytes',
+      plano: Plano.PREMIUM,
+      valor: null,
+      vigenteDe: new Date(0),
+    }),
   ];
 
   buscar(plano: Plano, chave: string): Promise<LimiteDePlano | null> {

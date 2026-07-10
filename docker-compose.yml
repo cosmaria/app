@@ -101,6 +101,10 @@ services:
       PAGAMENTO_WEBHOOK_SECRET: dev-webhook-secret-troque-em-producao
       # Vínculo de perfis é Versão 2 (doc 06): modelo pronto, funcionalidade desligada.
       FEATURE_VINCULO_DE_PERFIS: 'false'
+      # Mídia: adaptador local até existir o bucket (doc 13). Segredo vazio ⇒ nenhum link é aceito.
+      MIDIA_DIRETORIO: /app/.midia
+      MIDIA_URL_SECRET: dev-midia-secret-troque-em-producao
+      MIDIA_URL_BASE: http://localhost:3000/v1/arquivos
     ports:
       - '3000:8080'
 

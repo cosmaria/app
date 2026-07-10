@@ -59,3 +59,21 @@ export function segredoWebhookPagamento(): string {
 export function usarDespachanteEmMemoria(): boolean {
   return process.env.NODE_ENV !== 'production';
 }
+
+/**
+ * Armazenamento de Mídia (doc 04 §16). O adaptador oficial planejado é o Cloud Storage
+ * (doc 13); até existir, o adaptador local em disco implementa a mesma porta.
+ */
+export function diretorioDeMidia(): string {
+  return process.env.MIDIA_DIRETORIO ?? './.midia';
+}
+
+/** Segredo que assina as URLs temporárias de mídia. Vazio ⇒ nenhum link é aceito. */
+export function segredoUrlDeMidia(): string {
+  return process.env.MIDIA_URL_SECRET ?? '';
+}
+
+/** Base pública da rota que serve os bytes assinados (só usada pelo adaptador local). */
+export function urlBaseDeMidia(): string {
+  return process.env.MIDIA_URL_BASE ?? 'http://localhost:3000/v1/arquivos';
+}
