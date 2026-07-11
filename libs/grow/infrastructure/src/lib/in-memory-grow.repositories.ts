@@ -9,6 +9,7 @@ import type {
   FiltroDeTarefas,
   GeneticaRepository,
   LoteRepository,
+  ModeloDeCicloRepository,
   PaginaDeRegistros,
   PlantaRepository,
   RegistroAmbientalRepository,
@@ -26,6 +27,7 @@ import type {
   EventoSanidade,
   Genetica,
   Lote,
+  ModeloDeCiclo,
   Planta,
   RegistroAmbiental,
   ResumoAmbiental,
@@ -341,6 +343,26 @@ export class InMemoryDadosClimaticosRepository implements DadosClimaticosReposit
   }
   remover(ambienteId: string): Promise<void> {
     this.porAmbiente.delete(ambienteId);
+    return Promise.resolve();
+  }
+}
+
+/** ModeloDeCiclo em memória (templates Premium). */
+export class InMemoryModeloDeCicloRepository implements ModeloDeCicloRepository {
+  private readonly porId = new Map<string, ModeloDeCiclo>();
+
+  salvar(modelo: ModeloDeCiclo): Promise<void> {
+    this.porId.set(modelo.id, modelo);
+    return Promise.resolve();
+  }
+  buscarPorId(id: string): Promise<ModeloDeCiclo | null> {
+    return Promise.resolve(this.porId.get(id) ?? null);
+  }
+  listarPorUsuario(usuarioId: string): Promise<ModeloDeCiclo[]> {
+    return Promise.resolve([...this.porId.values()].filter((m) => m.pertenceA(usuarioId)));
+  }
+  remover(id: string): Promise<void> {
+    this.porId.delete(id);
     return Promise.resolve();
   }
 }

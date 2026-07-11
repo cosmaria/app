@@ -8,6 +8,7 @@ import type {
   EventoSanidade,
   Genetica,
   Lote,
+  ModeloDeCiclo,
   Planta,
   RegistroAmbiental,
   ResumoAmbiental,
@@ -183,3 +184,13 @@ export interface DadosClimaticosRepository {
 }
 
 export const DADOS_CLIMATICOS_REPOSITORY = Symbol('DadosClimaticosRepository');
+
+/** ModeloDeCiclo (templates Premium). Escopo por dono; CRUD sem update (doc 09). */
+export interface ModeloDeCicloRepository {
+  salvar(modelo: ModeloDeCiclo): Promise<void>;
+  buscarPorId(id: string): Promise<ModeloDeCiclo | null>;
+  listarPorUsuario(usuarioId: string): Promise<ModeloDeCiclo[]>;
+  remover(id: string): Promise<void>;
+}
+
+export const MODELO_DE_CICLO_REPOSITORY = Symbol('ModeloDeCicloRepository');

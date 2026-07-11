@@ -189,3 +189,24 @@ export class DadosClimaticosNaoEncontradosError extends DomainError {
     super('Este ambiente não possui dados climáticos configurados.');
   }
 }
+
+// --- Modelos de Ciclo (doc 02 §7, Premium) ---
+
+/** Modelo de ciclo inexistente — ou de outro usuário. */
+export class ModeloDeCicloNaoEncontradoError extends DomainError {
+  readonly code = 'MODELO_DE_CICLO_NAO_ENCONTRADO';
+  constructor() {
+    super('Modelo de ciclo não encontrado.');
+  }
+}
+
+/**
+ * Recurso exclusivo do Premium (doc 07 §8). Dispara o paywall no cliente (HTTP 402). O
+ * acesso ao que já existe nunca é limitado — só a criação de novos modelos é gated.
+ */
+export class RecursoExclusivoPremiumError extends DomainError {
+  readonly code = 'RECURSO_EXCLUSIVO_PREMIUM';
+  constructor(recurso: string) {
+    super(`"${recurso}" é um recurso exclusivo do Premium.`);
+  }
+}

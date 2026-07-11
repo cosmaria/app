@@ -16,6 +16,7 @@ export {
   LOTE_REPOSITORY,
   TAREFA_REPOSITORY,
   DADOS_CLIMATICOS_REPOSITORY,
+  MODELO_DE_CICLO_REPOSITORY,
 } from './lib/ports/grow.repositories';
 export type {
   GeneticaRepository,
@@ -33,6 +34,7 @@ export type {
   TarefaRepository,
   FiltroDeTarefas,
   DadosClimaticosRepository,
+  ModeloDeCicloRepository,
 } from './lib/ports/grow.repositories';
 
 export {
@@ -170,3 +172,14 @@ export type {
   DadosClimaticosView,
   DefinirDadosClimaticosInput,
 } from './lib/use-cases/outdoor.use-cases';
+
+export {
+  CriarModeloDeCicloUseCase,
+  ListarModelosDeCicloUseCase,
+  RemoverModeloDeCicloUseCase,
+  paraModeloDeCicloView,
+} from './lib/use-cases/modelo-de-ciclo.use-cases';
+export type {
+  ModeloDeCicloView,
+  CriarModeloDeCicloInput,
+} from './lib/use-cases/modelo-de-ciclo.use-cases';

@@ -10,6 +10,7 @@ import type {
   FiltroDeTarefas,
   GeneticaRepository,
   LoteRepository,
+  ModeloDeCicloRepository,
   PaginaDeRegistros,
   PlantaRepository,
   RegistroAmbientalRepository,
@@ -29,6 +30,7 @@ import {
   type FonteDeDadosClimaticos,
   Genetica,
   Lote,
+  ModeloDeCiclo,
   type OrigemDaTarefa,
   type OrigemDoMaterial,
   type OrigemDoRegistro,
@@ -1134,5 +1136,87 @@ export class PostgresDadosClimaticosRepository implements DadosClimaticosReposit
 
   async remover(ambienteId: string): Promise<void> {
     await this.pool.query(`DELETE FROM grow.dados_climaticos WHERE ambiente_id = $1`, [ambienteId]);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// ModeloDeCiclo (Premium)
+// ---------------------------------------------------------------------------
+
+interface ModeloDeCicloRow {
+  id: string;
+  usuario_id: string;
+  nome: string;
+  ambiente_id: string | null;
+  genetica_id: string | null;
+  fase_inicial: string | null;
+  rotina_padrao: string | null;
+  criado_em: Date;
+  atualizado_em: Date;
+}
+
+const COLUNAS_MODELO =
+  'id, usuario_id, nome, ambiente_id, genetica_id, fase_inicial, rotina_padrao, criado_em, atualizado_em';
+
+const mapearModelo = (r: ModeloDeCicloRow): ModeloDeCiclo =>
+  ModeloDeCiclo.reconstituir({
+    id: r.id,
+    usuarioId: r.usuario_id,
+    nome: r.nome,
+    ambienteId: r.ambiente_id,
+    geneticaId: r.genetica_id,
+    faseInicial: r.fase_inicial as FaseDeVida | null,
+    rotinaPadrao: r.rotina_padrao,
+    criadoEm: r.criado_em,
+    atualizadoEm: r.atualizado_em,
+  });
+
+/** ModeloDeCiclo — template Premium. Referências de ambiente/genética são SET NULL (fracas). */
+export class PostgresModeloDeCicloRepository implements ModeloDeCicloRepository {
+  constructor(private readonly pool: Pool) {}
+
+  async salvar(m: ModeloDeCiclo): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO grow.modelo_de_ciclo (${COLUNAS_MODELO})
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+       ON CONFLICT (id) DO UPDATE
+         SET nome = EXCLUDED.nome,
+             ambiente_id = EXCLUDED.ambiente_id,
+             genetica_id = EXCLUDED.genetica_id,
+             fase_inicial = EXCLUDED.fase_inicial,
+             rotina_padrao = EXCLUDED.rotina_padrao,
+             atualizado_em = EXCLUDED.atualizado_em`,
+      [
+        m.id,
+        m.usuarioId,
+        m.nome,
+        m.ambienteId,
+        m.geneticaId,
+        m.faseInicial,
+        m.rotinaPadrao,
+        m.criadoEm,
+        m.atualizadoEm,
+      ],
+    );
+  }
+
+  async buscarPorId(id: string): Promise<ModeloDeCiclo | null> {
+    const { rows } = await this.pool.query<ModeloDeCicloRow>(
+      `SELECT ${COLUNAS_MODELO} FROM grow.modelo_de_ciclo WHERE id = $1`,
+      [id],
+    );
+    return rows[0] ? mapearModelo(rows[0]) : null;
+  }
+
+  async listarPorUsuario(usuarioId: string): Promise<ModeloDeCiclo[]> {
+    const { rows } = await this.pool.query<ModeloDeCicloRow>(
+      `SELECT ${COLUNAS_MODELO} FROM grow.modelo_de_ciclo WHERE usuario_id = $1 ORDER BY nome`,
+      [usuarioId],
+    );
+    return rows.map(mapearModelo);
+  }
+
+  async remover(id: string): Promise<void> {
+    await this.pool.query(`DELETE FROM grow.modelo_de_ciclo WHERE id = $1`, [id]);
   }
 }

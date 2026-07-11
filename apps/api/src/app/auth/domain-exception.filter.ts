@@ -31,6 +31,8 @@ import {
   ColheitaSemPlantasError,
   ComparacaoSemCiclosError,
   DadosClimaticosNaoEncontradosError,
+  ModeloDeCicloNaoEncontradoError,
+  RecursoExclusivoPremiumError,
   CuraJaRegistradaError,
   CuraNaoEncontradaError,
   EventoDeCultivoNaoEncontradoError,
@@ -91,6 +93,7 @@ export class DomainExceptionFilter implements ExceptionFilter {
     // 402: o recurso existe, o usuário só precisa do plano pago (gatilho do paywall).
     if (erro instanceof LimiteDePlanoAtingidoError) return HttpStatus.PAYMENT_REQUIRED;
     if (erro instanceof MidiaAcimaDoLimiteError) return HttpStatus.PAYMENT_REQUIRED;
+    if (erro instanceof RecursoExclusivoPremiumError) return HttpStatus.PAYMENT_REQUIRED;
     if (erro instanceof MidiaNaoEncontradaError) return HttpStatus.NOT_FOUND;
     // 415: o servidor entendeu a requisição, mas não aceita este tipo de arquivo.
     if (erro instanceof TipoDeMidiaNaoSuportadoError) return HttpStatus.UNSUPPORTED_MEDIA_TYPE;
@@ -108,6 +111,7 @@ export class DomainExceptionFilter implements ExceptionFilter {
     if (erro instanceof LoteNaoEncontradoError) return HttpStatus.NOT_FOUND;
     if (erro instanceof TarefaNaoEncontradaError) return HttpStatus.NOT_FOUND;
     if (erro instanceof DadosClimaticosNaoEncontradosError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof ModeloDeCicloNaoEncontradoError) return HttpStatus.NOT_FOUND;
     // 409: o recurso existe, mas seu estado atual impede a operação.
     if (erro instanceof CicloEncerradoError) return HttpStatus.CONFLICT;
     if (erro instanceof AmbienteComCiclosError) return HttpStatus.CONFLICT;

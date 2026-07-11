@@ -67,6 +67,9 @@ export {
 export { DadosClimaticos } from './lib/outdoor/dados-climaticos.entity';
 export type { DadosClimaticosProps } from './lib/outdoor/dados-climaticos.entity';
 
+export { ModeloDeCiclo } from './lib/modelos/modelo-de-ciclo.entity';
+export type { ModeloDeCicloProps } from './lib/modelos/modelo-de-ciclo.entity';
+
 export {
   RegistroAmbiental,
   OrigemDoRegistro,
@@ -132,4 +135,6 @@ export {
   ComparacaoSemCiclosError,
   AmbienteNaoOutdoorError,
   DadosClimaticosNaoEncontradosError,
+  ModeloDeCicloNaoEncontradoError,
+  RecursoExclusivoPremiumError,
 } from './lib/errors/grow.errors';

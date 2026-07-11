@@ -85,6 +85,11 @@ import {
   DefinirDadosClimaticosUseCase,
   ObterDadosClimaticosUseCase,
   RemoverDadosClimaticosUseCase,
+  MODELO_DE_CICLO_REPOSITORY,
+  type ModeloDeCicloRepository,
+  CriarModeloDeCicloUseCase,
+  ListarModelosDeCicloUseCase,
+  RemoverModeloDeCicloUseCase,
 } from '@cosmaria/grow-application';
 import {
   InMemoryAmbienteRepository,
@@ -100,6 +105,7 @@ import {
   InMemorySecagemRepository,
   InMemoryTarefaRepository,
   InMemoryDadosClimaticosRepository,
+  InMemoryModeloDeCicloRepository,
   PostgresAmbienteRepository,
   PostgresCicloRepository,
   PostgresColheitaRepository,
@@ -113,6 +119,7 @@ import {
   PostgresSecagemRepository,
   PostgresTarefaRepository,
   PostgresDadosClimaticosRepository,
+  PostgresModeloDeCicloRepository,
 } from '@cosmaria/grow-infrastructure';
 import { PG_POOL } from '../infra/infra.tokens';
 import { AuthModule } from '../auth/auth.module';
@@ -146,6 +153,7 @@ import {
   RelatorioDoCicloController,
 } from './estatisticas.controller';
 import { ClimaController } from './outdoor.controller';
+import { ModeloDeCicloController } from './modelo-de-ciclo.controller';
 
 /**
  * Composition root do COSMARIA Grow (doc 02 / doc 14 §10).
@@ -172,6 +180,7 @@ const emMemoria = () => {
   const lotes = new InMemoryLoteRepository();
   const tarefas = new InMemoryTarefaRepository();
   const dadosClimaticos = new InMemoryDadosClimaticosRepository();
+  const modelosDeCiclo = new InMemoryModeloDeCicloRepository();
   geneticas.conectarPlantas(plantas);
   ambientes.conectarCiclos(ciclos);
   return {
@@ -188,6 +197,7 @@ const emMemoria = () => {
     lotes,
     tarefas,
     dadosClimaticos,
+    modelosDeCiclo,
   };
 };
 
@@ -667,6 +677,44 @@ const providers: Provider[] = [
       new RemoverDadosClimaticosUseCase(dados, ambientes),
     inject: [DADOS_CLIMATICOS_REPOSITORY, AMBIENTE_REPOSITORY],
   },
+
+  // Modelos de Ciclo (Premium)
+  {
+    provide: MODELO_DE_CICLO_REPOSITORY,
+    useFactory: (
+      pool: Pool | null,
+      memoria: ReturnType<typeof emMemoria>,
+    ): ModeloDeCicloRepository =>
+      pool ? new PostgresModeloDeCicloRepository(pool) : memoria.modelosDeCiclo,
+    inject: [PG_POOL, REPOSITORIOS_EM_MEMORIA],
+  },
+  {
+    provide: CriarModeloDeCicloUseCase,
+    useFactory: (
+      modelos: ModeloDeCicloRepository,
+      ambientes: AmbienteRepository,
+      geneticas: GeneticaRepository,
+      premium: PremiumPublicApi,
+      idGen: IdGenerator,
+    ) => new CriarModeloDeCicloUseCase(modelos, ambientes, geneticas, premium, idGen),
+    inject: [
+      MODELO_DE_CICLO_REPOSITORY,
+      AMBIENTE_REPOSITORY,
+      GENETICA_REPOSITORY,
+      PREMIUM_PUBLIC_API,
+      ID_GENERATOR,
+    ],
+  },
+  {
+    provide: ListarModelosDeCicloUseCase,
+    useFactory: (modelos: ModeloDeCicloRepository) => new ListarModelosDeCicloUseCase(modelos),
+    inject: [MODELO_DE_CICLO_REPOSITORY],
+  },
+  {
+    provide: RemoverModeloDeCicloUseCase,
+    useFactory: (modelos: ModeloDeCicloRepository) => new RemoverModeloDeCicloUseCase(modelos),
+    inject: [MODELO_DE_CICLO_REPOSITORY],
+  },
 ];
 
 @Module({
@@ -674,6 +722,8 @@ const providers: Provider[] = [
   controllers: [
     GeneticaController,
     AmbienteController,
+    // Antes do CicloController: `ciclos/modelos` precisa casar antes de `ciclos/:id`.
+    ModeloDeCicloController,
     CicloController,
     PlantaController,
     RegistroAmbientalController,

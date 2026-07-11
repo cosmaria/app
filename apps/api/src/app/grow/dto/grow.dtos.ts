@@ -504,6 +504,33 @@ export class CriarTarefaDto {
   recorrenciaDias?: number | null;
 }
 
+// --- Modelos de Ciclo (doc 02 §7, Premium) ---
+
+/** Corpo de POST /v1/ciclos/modelos. Padrões (ambiente/genética/fase/rotina) são opcionais. */
+export class CriarModeloDeCicloDto {
+  @IsString()
+  @MinLength(1)
+  @MaxLength(120)
+  nome!: string;
+
+  @IsOptional()
+  @IsString()
+  ambienteId?: string | null;
+
+  @IsOptional()
+  @IsString()
+  geneticaId?: string | null;
+
+  @IsOptional()
+  @IsIn(FASES)
+  faseInicial?: FaseDeVida | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  rotinaPadrao?: string | null;
+}
+
 // --- Módulo Outdoor (doc 02 §6) ---
 
 /** Corpo de PUT /v1/ambientes/{id}/clima. Localização é opt-in e aproximada. */

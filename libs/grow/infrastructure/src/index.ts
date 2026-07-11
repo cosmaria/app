@@ -15,6 +15,7 @@ export {
   PostgresLoteRepository,
   PostgresTarefaRepository,
   PostgresDadosClimaticosRepository,
+  PostgresModeloDeCicloRepository,
 } from './lib/postgres-grow.repositories';
 
 export {
@@ -31,4 +32,5 @@ export {
   InMemoryLoteRepository,
   InMemoryTarefaRepository,
   InMemoryDadosClimaticosRepository,
+  InMemoryModeloDeCicloRepository,
 } from './lib/in-memory-grow.repositories';
