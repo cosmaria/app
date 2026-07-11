@@ -17,6 +17,7 @@ import type {
 } from '@cosmaria/grow-application';
 import {
   Ambiente,
+  arredondar,
   CicloCultivo,
   Colheita,
   Cura,
@@ -30,6 +31,7 @@ import {
   type OrigemDoRegistro,
   Planta,
   RegistroAmbiental,
+  type ResumoAmbiental,
   Secagem,
   type Severidade,
   type StatusDaTarefa,
@@ -40,6 +42,10 @@ import {
   type TipoDeSanidade,
   type TipoDeTarefa,
 } from '@cosmaria/grow-domain';
+
+/** Média vinda de `AVG` (string ou null), convertida e arredondada na fronteira. */
+const mediaArredondada = (valor: string | null): number | null =>
+  valor === null ? null : arredondar(Number(valor), 2);
 
 /**
  * `NUMERIC` volta do driver `pg` como **string**, para não perder precisão. Converter
@@ -511,6 +517,39 @@ export class PostgresRegistroAmbientalRepository implements RegistroAmbientalRep
       [cicloId],
     );
     return { itens: rows.map(mapearRegistro), total: Number(contagem.rows[0].total) };
+  }
+
+  async resumoAmbientalPorCiclo(cicloId: string): Promise<ResumoAmbiental> {
+    // AVG ignora NULLs por definição: a média é sobre as medições efetivamente registradas.
+    const { rows } = await this.pool.query<{
+      total: string;
+      temperatura: string | null;
+      umidade: string | null;
+      vpd: string | null;
+      dli: string | null;
+      ph: string | null;
+      ec: string | null;
+    }>(
+      `SELECT count(*) AS total,
+              avg(temperatura_c)    AS temperatura,
+              avg(umidade_relativa) AS umidade,
+              avg(vpd_kpa)          AS vpd,
+              avg(dli)              AS dli,
+              avg(ph)               AS ph,
+              avg(ec)               AS ec
+         FROM grow.registro_ambiental WHERE ciclo_id = $1`,
+      [cicloId],
+    );
+    const r = rows[0];
+    return {
+      totalRegistros: Number(r.total),
+      temperaturaMedia: mediaArredondada(r.temperatura),
+      umidadeMedia: mediaArredondada(r.umidade),
+      vpdMedio: mediaArredondada(r.vpd),
+      dliMedio: mediaArredondada(r.dli),
+      phMedio: mediaArredondada(r.ph),
+      ecMedio: mediaArredondada(r.ec),
+    };
   }
 }
 

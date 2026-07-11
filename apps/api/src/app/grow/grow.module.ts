@@ -77,6 +77,9 @@ import {
   ListarTarefasUseCase,
   TAREFA_REPOSITORY,
   type TarefaRepository,
+  CompararCiclosUseCase,
+  ObterRelatorioDoCicloUseCase,
+  type ReposDeEstatisticas,
 } from '@cosmaria/grow-application';
 import {
   InMemoryAmbienteRepository,
@@ -131,6 +134,10 @@ import {
   SecagemController,
 } from './pos-colheita.controller';
 import { TarefaController } from './tarefa.controller';
+import {
+  ComparacaoDeCiclosController,
+  RelatorioDoCicloController,
+} from './estatisticas.controller';
 
 /**
  * Composition root do COSMARIA Grow (doc 02 / doc 14 §10).
@@ -181,6 +188,9 @@ const emMemoria = () => {
  * (`possuiPlantas`) sempre responderiam "não".
  */
 const REPOSITORIOS_EM_MEMORIA = Symbol('RepositoriosGrowEmMemoria');
+
+/** Bundle de repositórios que o Motor de Estatísticas lê (cruza quase todos os agregados). */
+const REPOS_ESTATISTICAS = Symbol('ReposDeEstatisticas');
 
 const providers: Provider[] = [
   { provide: ID_GENERATOR, useClass: CryptoIdGenerator },
@@ -568,6 +578,53 @@ const providers: Provider[] = [
     ) => new ConcluirTarefaUseCase(tarefas, ciclos, idGen, eventos),
     inject: [TAREFA_REPOSITORY, CICLO_REPOSITORY, ID_GENERATOR, EVENT_PUBLISHER],
   },
+
+  // Estatísticas / Comparação entre ciclos — motor de agregação de leitura.
+  {
+    provide: REPOS_ESTATISTICAS,
+    useFactory: (
+      ciclos: CicloRepository,
+      plantas: PlantaRepository,
+      manejos: EventoManejoRepository,
+      sanidades: EventoSanidadeRepository,
+      registros: RegistroAmbientalRepository,
+      colheitas: ColheitaRepository,
+      secagens: SecagemRepository,
+      curas: CuraRepository,
+      lotes: LoteRepository,
+    ): ReposDeEstatisticas => ({
+      ciclos,
+      plantas,
+      manejos,
+      sanidades,
+      registros,
+      colheitas,
+      secagens,
+      curas,
+      lotes,
+    }),
+    inject: [
+      CICLO_REPOSITORY,
+      PLANTA_REPOSITORY,
+      EVENTO_MANEJO_REPOSITORY,
+      EVENTO_SANIDADE_REPOSITORY,
+      REGISTRO_AMBIENTAL_REPOSITORY,
+      COLHEITA_REPOSITORY,
+      SECAGEM_REPOSITORY,
+      CURA_REPOSITORY,
+      LOTE_REPOSITORY,
+    ],
+  },
+  {
+    provide: ObterRelatorioDoCicloUseCase,
+    useFactory: (repos: ReposDeEstatisticas) => new ObterRelatorioDoCicloUseCase(repos),
+    inject: [REPOS_ESTATISTICAS],
+  },
+  {
+    provide: CompararCiclosUseCase,
+    useFactory: (repos: ReposDeEstatisticas) => new CompararCiclosUseCase(repos),
+    inject: [REPOS_ESTATISTICAS],
+  },
 ];
 
 @Module({
@@ -588,6 +645,8 @@ const providers: Provider[] = [
     CuraController,
     LoteController,
     TarefaController,
+    RelatorioDoCicloController,
+    ComparacaoDeCiclosController,
   ],
   providers,
 })

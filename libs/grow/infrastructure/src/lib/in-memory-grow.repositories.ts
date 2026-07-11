@@ -14,6 +14,7 @@ import type {
   SecagemRepository,
   TarefaRepository,
 } from '@cosmaria/grow-application';
+import { arredondar } from '@cosmaria/grow-domain';
 import type {
   Ambiente,
   CicloCultivo,
@@ -25,9 +26,17 @@ import type {
   Lote,
   Planta,
   RegistroAmbiental,
+  ResumoAmbiental,
   Secagem,
   Tarefa,
 } from '@cosmaria/grow-domain';
+
+/** Média de um campo opcional ignorando ausências — o mesmo que o AVG do SQL faz. */
+const media = (valores: (number | null)[]): number | null => {
+  const presentes = valores.filter((v): v is number => v !== null);
+  if (presentes.length === 0) return null;
+  return arredondar(presentes.reduce((s, v) => s + v, 0) / presentes.length, 2);
+};
 
 /**
  * Repositórios do Grow em memória — mesmas portas do Postgres (LSP, doc 04 §4).
@@ -168,6 +177,19 @@ export class InMemoryRegistroAmbientalRepository implements RegistroAmbientalRep
     return Promise.resolve({
       itens: doCiclo.slice(parametros.deslocamento, parametros.deslocamento + parametros.limite),
       total: doCiclo.length,
+    });
+  }
+
+  resumoAmbientalPorCiclo(cicloId: string): Promise<ResumoAmbiental> {
+    const doCiclo = [...this.porId.values()].filter((r) => r.cicloId === cicloId);
+    return Promise.resolve({
+      totalRegistros: doCiclo.length,
+      temperaturaMedia: media(doCiclo.map((r) => r.temperaturaC)),
+      umidadeMedia: media(doCiclo.map((r) => r.umidadeRelativa)),
+      vpdMedio: media(doCiclo.map((r) => r.vpdKpa)),
+      dliMedio: media(doCiclo.map((r) => r.dli)),
+      phMedio: media(doCiclo.map((r) => r.ph)),
+      ecMedio: media(doCiclo.map((r) => r.ec)),
     });
   }
 }

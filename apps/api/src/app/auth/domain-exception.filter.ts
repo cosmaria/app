@@ -28,6 +28,7 @@ import {
   CicloNaoEncontradoError,
   ColheitaNaoEncontradaError,
   ColheitaSemPlantasError,
+  ComparacaoSemCiclosError,
   CuraJaRegistradaError,
   CuraNaoEncontradaError,
   EventoDeCultivoNaoEncontradoError,
@@ -115,6 +116,7 @@ export class DomainExceptionFilter implements ExceptionFilter {
     if (erro instanceof TransicaoDeFaseInvalidaError) return HttpStatus.BAD_REQUEST;
     if (erro instanceof RegistroSemMedicaoError) return HttpStatus.BAD_REQUEST;
     if (erro instanceof ColheitaSemPlantasError) return HttpStatus.BAD_REQUEST;
+    if (erro instanceof ComparacaoSemCiclosError) return HttpStatus.BAD_REQUEST;
 
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }

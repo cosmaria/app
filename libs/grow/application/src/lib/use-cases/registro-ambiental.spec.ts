@@ -16,6 +16,7 @@ import {
   type RegistroAmbiental,
   RegistroAmbientalCriado,
   RegistroSemMedicaoError,
+  type ResumoAmbiental,
 } from '@cosmaria/grow-domain';
 import type {
   CicloRepository,
@@ -50,6 +51,17 @@ class RegistrosFake implements RegistroAmbientalRepository {
     return Promise.resolve({
       itens: doCiclo.slice(parametros.deslocamento, parametros.deslocamento + parametros.limite),
       total: doCiclo.length,
+    });
+  }
+  resumoAmbientalPorCiclo(cicloId: string): Promise<ResumoAmbiental> {
+    return Promise.resolve({
+      totalRegistros: [...this.porId.values()].filter((r) => r.cicloId === cicloId).length,
+      temperaturaMedia: null,
+      umidadeMedia: null,
+      vpdMedio: null,
+      dliMedio: null,
+      phMedio: null,
+      ecMedio: null,
     });
   }
 }

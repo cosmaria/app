@@ -147,3 +147,13 @@ export type {
   AtualizarTarefaInput,
   ConcluirTarefaResult,
 } from './lib/use-cases/tarefa.use-cases';
+
+export {
+  ObterRelatorioDoCicloUseCase,
+  CompararCiclosUseCase,
+} from './lib/use-cases/estatisticas.use-cases';
+export type {
+  RelatorioDoCicloView,
+  ComparacaoDeCiclosView,
+  ReposDeEstatisticas,
+} from './lib/use-cases/estatisticas.use-cases';

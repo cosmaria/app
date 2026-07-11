@@ -9,6 +9,7 @@ import type {
   Lote,
   Planta,
   RegistroAmbiental,
+  ResumoAmbiental,
   Secagem,
   Tarefa,
 } from '@cosmaria/grow-domain';
@@ -77,6 +78,12 @@ export interface RegistroAmbientalRepository {
     cicloId: string,
     parametros: { limite: number; deslocamento: number },
   ): Promise<PaginaDeRegistros>;
+  /**
+   * Médias ambientais do ciclo para o Motor de Estatísticas (doc 02 §5.12). A agregação
+   * acontece no banco (AVG), não trazendo a série inteira para a aplicação — um ciclo pode
+   * ter centenas de check-ins.
+   */
+  resumoAmbientalPorCiclo(cicloId: string): Promise<ResumoAmbiental>;
 }
 
 export const REGISTRO_AMBIENTAL_REPOSITORY = Symbol('RegistroAmbientalRepository');

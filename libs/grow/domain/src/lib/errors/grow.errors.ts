@@ -161,3 +161,13 @@ export class TarefaNaoEncontradaError extends DomainError {
     super('Tarefa não encontrada.');
   }
 }
+
+// --- Estatísticas (doc 02 §5.12) ---
+
+/** Comparar exige ao menos um ciclo. */
+export class ComparacaoSemCiclosError extends DomainError {
+  readonly code = 'COMPARACAO_SEM_CICLOS';
+  constructor() {
+    super('Informe ao menos um ciclo para comparar.');
+  }
+}

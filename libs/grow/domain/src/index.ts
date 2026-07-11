@@ -74,6 +74,24 @@ export {
 } from './lib/clima/calculos-ambientais';
 
 export {
+  resumirSanidade,
+  resumirColheitas,
+  duracaoTotalEmDias,
+  montarEstatisticasDeCiclo,
+  compararCiclos,
+} from './lib/estatisticas/estatisticas';
+export type {
+  ResumoAmbiental,
+  ResumoSanidade,
+  ResumoColheita,
+  DuracaoDeFase,
+  EstatisticasDeCiclo,
+  DadosParaEstatisticas,
+  DestaquesDaComparacao,
+  ComparacaoDeCiclos,
+} from './lib/estatisticas/estatisticas';
+
+export {
   CicloCriado,
   CicloFinalizado,
   PlantaCriada,
@@ -104,4 +122,5 @@ export {
   CuraJaRegistradaError,
   LoteJaGeradoError,
   TarefaNaoEncontradaError,
+  ComparacaoSemCiclosError,
 } from './lib/errors/grow.errors';
