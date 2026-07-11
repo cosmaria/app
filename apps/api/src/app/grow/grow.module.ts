@@ -80,6 +80,11 @@ import {
   CompararCiclosUseCase,
   ObterRelatorioDoCicloUseCase,
   type ReposDeEstatisticas,
+  DADOS_CLIMATICOS_REPOSITORY,
+  type DadosClimaticosRepository,
+  DefinirDadosClimaticosUseCase,
+  ObterDadosClimaticosUseCase,
+  RemoverDadosClimaticosUseCase,
 } from '@cosmaria/grow-application';
 import {
   InMemoryAmbienteRepository,
@@ -94,6 +99,7 @@ import {
   InMemoryRegistroAmbientalRepository,
   InMemorySecagemRepository,
   InMemoryTarefaRepository,
+  InMemoryDadosClimaticosRepository,
   PostgresAmbienteRepository,
   PostgresCicloRepository,
   PostgresColheitaRepository,
@@ -106,6 +112,7 @@ import {
   PostgresRegistroAmbientalRepository,
   PostgresSecagemRepository,
   PostgresTarefaRepository,
+  PostgresDadosClimaticosRepository,
 } from '@cosmaria/grow-infrastructure';
 import { PG_POOL } from '../infra/infra.tokens';
 import { AuthModule } from '../auth/auth.module';
@@ -138,6 +145,7 @@ import {
   ComparacaoDeCiclosController,
   RelatorioDoCicloController,
 } from './estatisticas.controller';
+import { ClimaController } from './outdoor.controller';
 
 /**
  * Composition root do COSMARIA Grow (doc 02 / doc 14 §10).
@@ -163,6 +171,7 @@ const emMemoria = () => {
   const curas = new InMemoryCuraRepository();
   const lotes = new InMemoryLoteRepository();
   const tarefas = new InMemoryTarefaRepository();
+  const dadosClimaticos = new InMemoryDadosClimaticosRepository();
   geneticas.conectarPlantas(plantas);
   ambientes.conectarCiclos(ciclos);
   return {
@@ -178,6 +187,7 @@ const emMemoria = () => {
     curas,
     lotes,
     tarefas,
+    dadosClimaticos,
   };
 };
 
@@ -625,6 +635,38 @@ const providers: Provider[] = [
     useFactory: (repos: ReposDeEstatisticas) => new CompararCiclosUseCase(repos),
     inject: [REPOS_ESTATISTICAS],
   },
+
+  // Módulo Outdoor (desacoplado)
+  {
+    provide: DADOS_CLIMATICOS_REPOSITORY,
+    useFactory: (
+      pool: Pool | null,
+      memoria: ReturnType<typeof emMemoria>,
+    ): DadosClimaticosRepository =>
+      pool ? new PostgresDadosClimaticosRepository(pool) : memoria.dadosClimaticos,
+    inject: [PG_POOL, REPOSITORIOS_EM_MEMORIA],
+  },
+  {
+    provide: DefinirDadosClimaticosUseCase,
+    useFactory: (
+      dados: DadosClimaticosRepository,
+      ambientes: AmbienteRepository,
+      idGen: IdGenerator,
+    ) => new DefinirDadosClimaticosUseCase(dados, ambientes, idGen),
+    inject: [DADOS_CLIMATICOS_REPOSITORY, AMBIENTE_REPOSITORY, ID_GENERATOR],
+  },
+  {
+    provide: ObterDadosClimaticosUseCase,
+    useFactory: (dados: DadosClimaticosRepository, ambientes: AmbienteRepository) =>
+      new ObterDadosClimaticosUseCase(dados, ambientes),
+    inject: [DADOS_CLIMATICOS_REPOSITORY, AMBIENTE_REPOSITORY],
+  },
+  {
+    provide: RemoverDadosClimaticosUseCase,
+    useFactory: (dados: DadosClimaticosRepository, ambientes: AmbienteRepository) =>
+      new RemoverDadosClimaticosUseCase(dados, ambientes),
+    inject: [DADOS_CLIMATICOS_REPOSITORY, AMBIENTE_REPOSITORY],
+  },
 ];
 
 @Module({
@@ -647,6 +689,7 @@ const providers: Provider[] = [
     TarefaController,
     RelatorioDoCicloController,
     ComparacaoDeCiclosController,
+    ClimaController,
   ],
   providers,
 })

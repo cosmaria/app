@@ -61,6 +61,13 @@ export { Tarefa } from './lib/tarefas/tarefa.entity';
 export type { TarefaProps } from './lib/tarefas/tarefa.entity';
 
 export {
+  FonteDeDadosClimaticos,
+  ehFonteDeDadosClimaticosValida,
+} from './lib/outdoor/catalogos-outdoor';
+export { DadosClimaticos } from './lib/outdoor/dados-climaticos.entity';
+export type { DadosClimaticosProps } from './lib/outdoor/dados-climaticos.entity';
+
+export {
   RegistroAmbiental,
   OrigemDoRegistro,
   ehOrigemDoRegistroValida,
@@ -123,4 +130,6 @@ export {
   LoteJaGeradoError,
   TarefaNaoEncontradaError,
   ComparacaoSemCiclosError,
+  AmbienteNaoOutdoorError,
+  DadosClimaticosNaoEncontradosError,
 } from './lib/errors/grow.errors';

@@ -504,6 +504,33 @@ export class CriarTarefaDto {
   recorrenciaDias?: number | null;
 }
 
+// --- Módulo Outdoor (doc 02 §6) ---
+
+/** Corpo de PUT /v1/ambientes/{id}/clima. Localização é opt-in e aproximada. */
+export class DefinirClimaDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  localizacaoAproximada?: string | null;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  latitudeAproximada?: number | null;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  longitudeAproximada?: number | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  observacoes?: string | null;
+}
+
 /** Corpo de PUT /v1/tarefas/{id}. Campo ausente não muda; `null` limpa data/recorrência. */
 export class AtualizarTarefaDto {
   @IsOptional()

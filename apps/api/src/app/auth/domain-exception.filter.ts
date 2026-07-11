@@ -24,11 +24,13 @@ import {
 import {
   AmbienteComCiclosError,
   AmbienteNaoEncontradoError,
+  AmbienteNaoOutdoorError,
   CicloEncerradoError,
   CicloNaoEncontradoError,
   ColheitaNaoEncontradaError,
   ColheitaSemPlantasError,
   ComparacaoSemCiclosError,
+  DadosClimaticosNaoEncontradosError,
   CuraJaRegistradaError,
   CuraNaoEncontradaError,
   EventoDeCultivoNaoEncontradoError,
@@ -105,6 +107,7 @@ export class DomainExceptionFilter implements ExceptionFilter {
     if (erro instanceof CuraNaoEncontradaError) return HttpStatus.NOT_FOUND;
     if (erro instanceof LoteNaoEncontradoError) return HttpStatus.NOT_FOUND;
     if (erro instanceof TarefaNaoEncontradaError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof DadosClimaticosNaoEncontradosError) return HttpStatus.NOT_FOUND;
     // 409: o recurso existe, mas seu estado atual impede a operação.
     if (erro instanceof CicloEncerradoError) return HttpStatus.CONFLICT;
     if (erro instanceof AmbienteComCiclosError) return HttpStatus.CONFLICT;
@@ -113,6 +116,8 @@ export class DomainExceptionFilter implements ExceptionFilter {
     if (erro instanceof SecagemJaRegistradaError) return HttpStatus.CONFLICT;
     if (erro instanceof CuraJaRegistradaError) return HttpStatus.CONFLICT;
     if (erro instanceof LoteJaGeradoError) return HttpStatus.CONFLICT;
+    // O ambiente existe, mas seu tipo (indoor/estufa) não comporta dados climáticos.
+    if (erro instanceof AmbienteNaoOutdoorError) return HttpStatus.CONFLICT;
     if (erro instanceof TransicaoDeFaseInvalidaError) return HttpStatus.BAD_REQUEST;
     if (erro instanceof RegistroSemMedicaoError) return HttpStatus.BAD_REQUEST;
     if (erro instanceof ColheitaSemPlantasError) return HttpStatus.BAD_REQUEST;

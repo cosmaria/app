@@ -14,6 +14,7 @@ export {
   PostgresCuraRepository,
   PostgresLoteRepository,
   PostgresTarefaRepository,
+  PostgresDadosClimaticosRepository,
 } from './lib/postgres-grow.repositories';
 
 export {
@@ -29,4 +30,5 @@ export {
   InMemoryCuraRepository,
   InMemoryLoteRepository,
   InMemoryTarefaRepository,
+  InMemoryDadosClimaticosRepository,
 } from './lib/in-memory-grow.repositories';

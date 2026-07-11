@@ -4,6 +4,7 @@ import type {
   CicloRepository,
   ColheitaRepository,
   CuraRepository,
+  DadosClimaticosRepository,
   EventoManejoRepository,
   EventoSanidadeRepository,
   FiltroDeTarefas,
@@ -21,9 +22,11 @@ import {
   CicloCultivo,
   Colheita,
   Cura,
+  DadosClimaticos,
   EventoManejo,
   EventoSanidade,
   type FaseDeVida,
+  type FonteDeDadosClimaticos,
   Genetica,
   Lote,
   type OrigemDaTarefa,
@@ -1054,5 +1057,82 @@ export class PostgresTarefaRepository implements TarefaRepository {
       params,
     );
     return rows.map(mapearTarefa);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Dados Climáticos (Módulo Outdoor)
+// ---------------------------------------------------------------------------
+
+interface DadosClimaticosRow {
+  id: string;
+  usuario_id: string;
+  ambiente_id: string;
+  localizacao_aproximada: string | null;
+  latitude_aproximada: string | null;
+  longitude_aproximada: string | null;
+  fonte: string;
+  observacoes: string | null;
+  criado_em: Date;
+  atualizado_em: Date;
+}
+
+const COLUNAS_CLIMA =
+  'id, usuario_id, ambiente_id, localizacao_aproximada, latitude_aproximada, longitude_aproximada, fonte, observacoes, criado_em, atualizado_em';
+
+const mapearClima = (r: DadosClimaticosRow): DadosClimaticos =>
+  DadosClimaticos.reconstituir({
+    id: r.id,
+    usuarioId: r.usuario_id,
+    ambienteId: r.ambiente_id,
+    localizacaoAproximada: r.localizacao_aproximada,
+    latitudeAproximada: numeroOuNulo(r.latitude_aproximada),
+    longitudeAproximada: numeroOuNulo(r.longitude_aproximada),
+    fonte: r.fonte as FonteDeDadosClimaticos,
+    observacoes: r.observacoes,
+    criadoEm: r.criado_em,
+    atualizadoEm: r.atualizado_em,
+  });
+
+/** Módulo Outdoor — 0—1 por ambiente. Upsert pela chave natural `ambiente_id`. */
+export class PostgresDadosClimaticosRepository implements DadosClimaticosRepository {
+  constructor(private readonly pool: Pool) {}
+
+  async salvar(d: DadosClimaticos): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO grow.dados_climaticos (${COLUNAS_CLIMA})
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+       ON CONFLICT (ambiente_id) DO UPDATE
+         SET localizacao_aproximada = EXCLUDED.localizacao_aproximada,
+             latitude_aproximada = EXCLUDED.latitude_aproximada,
+             longitude_aproximada = EXCLUDED.longitude_aproximada,
+             fonte = EXCLUDED.fonte,
+             observacoes = EXCLUDED.observacoes,
+             atualizado_em = EXCLUDED.atualizado_em`,
+      [
+        d.id,
+        d.usuarioId,
+        d.ambienteId,
+        d.localizacaoAproximada,
+        d.latitudeAproximada,
+        d.longitudeAproximada,
+        d.fonte,
+        d.observacoes,
+        d.criadoEm,
+        d.atualizadoEm,
+      ],
+    );
+  }
+
+  async buscarPorAmbiente(ambienteId: string): Promise<DadosClimaticos | null> {
+    const { rows } = await this.pool.query<DadosClimaticosRow>(
+      `SELECT ${COLUNAS_CLIMA} FROM grow.dados_climaticos WHERE ambiente_id = $1`,
+      [ambienteId],
+    );
+    return rows[0] ? mapearClima(rows[0]) : null;
+  }
+
+  async remover(ambienteId: string): Promise<void> {
+    await this.pool.query(`DELETE FROM grow.dados_climaticos WHERE ambiente_id = $1`, [ambienteId]);
   }
 }

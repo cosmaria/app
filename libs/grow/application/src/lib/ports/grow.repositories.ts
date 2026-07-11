@@ -3,6 +3,7 @@ import type {
   CicloCultivo,
   Colheita,
   Cura,
+  DadosClimaticos,
   EventoManejo,
   EventoSanidade,
   Genetica,
@@ -170,3 +171,15 @@ export interface TarefaRepository {
 }
 
 export const TAREFA_REPOSITORY = Symbol('TarefaRepository');
+
+/**
+ * DadosClimáticos do Módulo Outdoor (0—1 por ambiente). Chave natural = ambienteId
+ * (`salvar` faz upsert por ambiente). Desacoplado: só o próprio módulo lê esta porta.
+ */
+export interface DadosClimaticosRepository {
+  salvar(dados: DadosClimaticos): Promise<void>;
+  buscarPorAmbiente(ambienteId: string): Promise<DadosClimaticos | null>;
+  remover(ambienteId: string): Promise<void>;
+}
+
+export const DADOS_CLIMATICOS_REPOSITORY = Symbol('DadosClimaticosRepository');

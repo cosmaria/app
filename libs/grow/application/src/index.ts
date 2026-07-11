@@ -15,6 +15,7 @@ export {
   CURA_REPOSITORY,
   LOTE_REPOSITORY,
   TAREFA_REPOSITORY,
+  DADOS_CLIMATICOS_REPOSITORY,
 } from './lib/ports/grow.repositories';
 export type {
   GeneticaRepository,
@@ -31,6 +32,7 @@ export type {
   LoteRepository,
   TarefaRepository,
   FiltroDeTarefas,
+  DadosClimaticosRepository,
 } from './lib/ports/grow.repositories';
 
 export {
@@ -157,3 +159,14 @@ export type {
   ComparacaoDeCiclosView,
   ReposDeEstatisticas,
 } from './lib/use-cases/estatisticas.use-cases';
+
+export {
+  DefinirDadosClimaticosUseCase,
+  ObterDadosClimaticosUseCase,
+  RemoverDadosClimaticosUseCase,
+  paraDadosClimaticosView,
+} from './lib/use-cases/outdoor.use-cases';
+export type {
+  DadosClimaticosView,
+  DefinirDadosClimaticosInput,
+} from './lib/use-cases/outdoor.use-cases';

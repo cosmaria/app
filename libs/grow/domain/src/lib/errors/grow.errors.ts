@@ -171,3 +171,21 @@ export class ComparacaoSemCiclosError extends DomainError {
     super('Informe ao menos um ciclo para comparar.');
   }
 }
+
+// --- Módulo Outdoor (doc 02 §6) ---
+
+/** Só ambientes outdoor têm dados climáticos (doc 02 §5.3, doc 08 §272). */
+export class AmbienteNaoOutdoorError extends DomainError {
+  readonly code = 'AMBIENTE_NAO_OUTDOOR';
+  constructor() {
+    super('Dados climáticos só se aplicam a ambientes outdoor.');
+  }
+}
+
+/** O ambiente não tem o Módulo Outdoor configurado — ausência isolada, não um erro do core. */
+export class DadosClimaticosNaoEncontradosError extends DomainError {
+  readonly code = 'DADOS_CLIMATICOS_NAO_ENCONTRADOS';
+  constructor() {
+    super('Este ambiente não possui dados climáticos configurados.');
+  }
+}

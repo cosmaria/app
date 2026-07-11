@@ -3,6 +3,7 @@ import type {
   CicloRepository,
   ColheitaRepository,
   CuraRepository,
+  DadosClimaticosRepository,
   EventoManejoRepository,
   EventoSanidadeRepository,
   FiltroDeTarefas,
@@ -20,6 +21,7 @@ import type {
   CicloCultivo,
   Colheita,
   Cura,
+  DadosClimaticos,
   EventoManejo,
   EventoSanidade,
   Genetica,
@@ -323,5 +325,22 @@ export class InMemoryTarefaRepository implements TarefaRepository {
           (!filtro?.apenasPendentes || !t.estaConcluida()),
       ),
     );
+  }
+}
+
+/** Dados climáticos em memória (Módulo Outdoor). 0—1 por ambiente. */
+export class InMemoryDadosClimaticosRepository implements DadosClimaticosRepository {
+  private readonly porAmbiente = new Map<string, DadosClimaticos>();
+
+  salvar(dados: DadosClimaticos): Promise<void> {
+    this.porAmbiente.set(dados.ambienteId, dados);
+    return Promise.resolve();
+  }
+  buscarPorAmbiente(ambienteId: string): Promise<DadosClimaticos | null> {
+    return Promise.resolve(this.porAmbiente.get(ambienteId) ?? null);
+  }
+  remover(ambienteId: string): Promise<void> {
+    this.porAmbiente.delete(ambienteId);
+    return Promise.resolve();
   }
 }
