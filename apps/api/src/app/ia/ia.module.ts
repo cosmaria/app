@@ -4,6 +4,7 @@ import { ID_GENERATOR, type IdGenerator } from '@cosmaria/core-application';
 import { CryptoIdGenerator, InProcessEventPublisher } from '@cosmaria/core-infrastructure';
 import {
   AvaliarAlertasUseCase,
+  CalcularCorrelacaoCruzadaUseCase,
   CalcularCorrelacaoUseCase,
   GerarDigestUseCase,
   GerarInsightsUseCase,
@@ -11,12 +12,17 @@ import {
   IngerirEventoService,
   POLITICA_DE_AGREGACAO,
   PONTO_DE_SERIE_REPOSITORY,
+  RegistrarVinculoGrowMedService,
+  VINCULO_GROW_MED_REPOSITORY,
   type PontoDeSerieRepository,
+  type VinculoGrowMedRepository,
 } from '@cosmaria/ia-application';
 import { PoliticaDeAgregacao } from '@cosmaria/ia-domain';
 import {
   InMemoryPontoDeSerieRepository,
+  InMemoryVinculoGrowMedRepository,
   PostgresPontoDeSerieRepository,
+  PostgresVinculoGrowMedRepository,
 } from '@cosmaria/ia-infrastructure';
 import { PG_POOL } from '../infra/infra.tokens';
 import { AuthModule } from '../auth/auth.module';
@@ -44,6 +50,26 @@ const providers: Provider[] = [
     useFactory: (repo: PontoDeSerieRepository, idGen: IdGenerator) =>
       new IngerirEventoService(repo, idGen),
     inject: [PONTO_DE_SERIE_REPOSITORY, ID_GENERATOR],
+  },
+  {
+    provide: VINCULO_GROW_MED_REPOSITORY,
+    useFactory: (pool: Pool | null): VinculoGrowMedRepository =>
+      pool ? new PostgresVinculoGrowMedRepository(pool) : new InMemoryVinculoGrowMedRepository(),
+    inject: [PG_POOL],
+  },
+  {
+    provide: RegistrarVinculoGrowMedService,
+    useFactory: (repo: VinculoGrowMedRepository) => new RegistrarVinculoGrowMedService(repo),
+    inject: [VINCULO_GROW_MED_REPOSITORY],
+  },
+  {
+    provide: CalcularCorrelacaoCruzadaUseCase,
+    useFactory: (
+      repo: PontoDeSerieRepository,
+      vinculos: VinculoGrowMedRepository,
+      politica: PoliticaDeAgregacao,
+    ) => new CalcularCorrelacaoCruzadaUseCase(repo, vinculos, politica),
+    inject: [PONTO_DE_SERIE_REPOSITORY, VINCULO_GROW_MED_REPOSITORY, POLITICA_DE_AGREGACAO],
   },
   {
     provide: CalcularCorrelacaoUseCase,
@@ -93,12 +119,17 @@ export class IaModule implements OnModuleInit {
   constructor(
     @Inject(InProcessEventPublisher) private readonly bus: InProcessEventPublisher,
     private readonly ingestao: IngerirEventoService,
+    private readonly vinculos: RegistrarVinculoGrowMedService,
   ) {}
 
   onModuleInit(): void {
     // A IA passa a ouvir os eventos de série temporal de Grow e Med (doc 05 §6).
     for (const nome of IngerirEventoService.EVENTOS_INGERIDOS) {
       this.bus.assinar(nome, (evento) => this.ingestao.ingerir(evento));
+    }
+    // E os eventos de opt-in Grow↔Med, que habilitam a correlação cruzada (doc 00).
+    for (const nome of RegistrarVinculoGrowMedService.EVENTOS) {
+      this.bus.assinar(nome, (evento) => this.vinculos.processar(evento));
     }
   }
 }

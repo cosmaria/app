@@ -49,6 +49,8 @@ import {
   type SessaoView,
   type SintomaDiarioView,
   type TratamentoView,
+  VincularProdutoALoteUseCase,
+  DesvincularProdutoDoLoteUseCase,
 } from '@cosmaria/med-application';
 import { identidadeDe, JwtAuthGuard, type RequestAutenticada } from '../auth/jwt-auth.guard';
 import {
@@ -62,6 +64,7 @@ import {
   RegistrarSessaoDepoisDto,
   RegistrarSintomaDiarioDto,
   RegistrarUsoDto,
+  VincularLoteDto,
 } from './dto/med.dtos';
 
 /** Tratamentos (doc 09 `/v1/tratamentos`) — a entidade central do Med. */
@@ -166,6 +169,8 @@ export class ProdutoController {
     private readonly atualizar: AtualizarProdutoUseCase,
     private readonly remover: RemoverProdutoUseCase,
     private readonly listarUsos: ListarUsosDoProdutoUseCase,
+    private readonly vincularLote: VincularProdutoALoteUseCase,
+    private readonly desvincularLote: DesvincularProdutoDoLoteUseCase,
   ) {}
 
   @Post()
@@ -205,6 +210,29 @@ export class ProdutoController {
     @Req() req: RequestAutenticada,
   ): Promise<void> {
     await this.remover.executar({ usuarioId: identidadeDe(req).usuarioId, produtoId });
+  }
+
+  /** Vincula (opt-in) o produto a um Lote do próprio cultivo no Grow (doc 03 §5.2/§18). */
+  @Post(':produtoId/vincular-lote')
+  vincular(
+    @Param('produtoId') produtoId: string,
+    @Body() dto: VincularLoteDto,
+    @Req() req: RequestAutenticada,
+  ): Promise<ProdutoView> {
+    return this.vincularLote.executar({
+      usuarioId: identidadeDe(req).usuarioId,
+      produtoId,
+      loteId: dto.loteId,
+    });
+  }
+
+  @Delete(':produtoId/vincular-lote')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async desvincular(
+    @Param('produtoId') produtoId: string,
+    @Req() req: RequestAutenticada,
+  ): Promise<void> {
+    await this.desvincularLote.executar({ usuarioId: identidadeDe(req).usuarioId, produtoId });
   }
 }
 

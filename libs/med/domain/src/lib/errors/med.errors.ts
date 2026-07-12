@@ -129,3 +129,11 @@ export class RecursoExclusivoPremiumError extends DomainError {
     super(`"${recurso}" é um recurso exclusivo do Premium.`);
   }
 }
+
+/** Lote informado no vínculo não existe (ou não pertence ao usuário) no Grow — 404. */
+export class LoteNaoEncontradoParaVinculoError extends DomainError {
+  readonly code = 'LOTE_NAO_ENCONTRADO_PARA_VINCULO';
+  constructor() {
+    super('Lote não encontrado para vincular.');
+  }
+}

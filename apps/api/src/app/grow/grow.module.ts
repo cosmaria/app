@@ -17,6 +17,7 @@ import {
   PRIVACIDADE_PUBLIC_API,
   type PrivacidadePublicApi,
 } from '@cosmaria/core-public-api';
+import { GROW_PUBLIC_API, type GrowPublicApi } from '@cosmaria/grow-public-api';
 import {
   AdicionarPlantaUseCase,
   AMBIENTE_REPOSITORY,
@@ -348,6 +349,27 @@ const providers: Provider[] = [
       eventos: EventPublisher,
     ) => new PublicarCicloUseCase(ciclos, perfis, privacidade, eventos),
     inject: [CICLO_REPOSITORY, PERFIL_PUBLIC_API, PRIVACIDADE_PUBLIC_API, EVENT_PUBLISHER],
+  },
+
+  // Interface pública do Grow: o Med resolve o snapshot de um Lote por aqui (integração
+  // opt-in Grow↔Med), sem nunca tocar no schema/entidades do Grow (doc 04 §23/§24).
+  {
+    provide: GROW_PUBLIC_API,
+    useFactory: (lotes: LoteRepository): GrowPublicApi => ({
+      obterLoteSnapshot: async (usuarioId, loteId) => {
+        const lote = await lotes.buscarPorId(loteId);
+        if (!lote || !lote.pertenceA(usuarioId)) {
+          return null;
+        }
+        return {
+          loteId: lote.id,
+          codigo: lote.codigo,
+          pesoSecoGramas: lote.pesoSecoGramas,
+          geradoEm: lote.geradoEm.toISOString(),
+        };
+      },
+    }),
+    inject: [LOTE_REPOSITORY],
   },
 
   // Planta
@@ -761,5 +783,6 @@ const providers: Provider[] = [
     ClimaController,
   ],
   providers,
+  exports: [GROW_PUBLIC_API],
 })
 export class GrowModule {}

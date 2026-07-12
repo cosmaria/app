@@ -22,7 +22,7 @@ export {
 export { Tratamento } from './lib/tratamento.entity';
 export type { TratamentoProps } from './lib/tratamento.entity';
 export { Produto } from './lib/produto.entity';
-export type { ProdutoProps } from './lib/produto.entity';
+export type { ProdutoProps, LoteVinculado } from './lib/produto.entity';
 export { RegistroDeUso } from './lib/registro-uso.entity';
 export type { RegistroDeUsoProps } from './lib/registro-uso.entity';
 export { SessaoAntesDepois } from './lib/sessao-antes-depois.entity';
@@ -61,6 +61,8 @@ export {
   SintomaDiarioRegistrado,
   EfeitoRegistrado,
   RelatorioGerado,
+  ProdutoVinculadoALote,
+  ProdutoDesvinculadoDoLote,
 } from './lib/eventos/med.events';
 
 export {
@@ -78,4 +80,5 @@ export {
   EfeitoNaoEncontradoError,
   ModeloDeTratamentoNaoEncontradoError,
   RecursoExclusivoPremiumError,
+  LoteNaoEncontradoParaVinculoError,
 } from './lib/errors/med.errors';

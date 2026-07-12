@@ -280,3 +280,10 @@ export class CriarModeloDeTratamentoDto {
   @MaxLength(2000)
   notas?: string | null;
 }
+
+/** Corpo de `POST /v1/produtos/{id}/vincular-lote` — vínculo opt-in a um Lote do Grow. */
+export class VincularLoteDto {
+  @IsString()
+  @MinLength(1)
+  loteId!: string;
+}

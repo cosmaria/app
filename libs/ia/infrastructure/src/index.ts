@@ -3,3 +3,7 @@
 
 export { InMemoryPontoDeSerieRepository } from './lib/in-memory-ia.repositories';
 export { PostgresPontoDeSerieRepository } from './lib/postgres-ia.repositories';
+export {
+  InMemoryVinculoGrowMedRepository,
+  PostgresVinculoGrowMedRepository,
+} from './lib/vinculo-grow-med.repositories';

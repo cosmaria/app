@@ -8,12 +8,15 @@ import {
 } from '@cosmaria/core-application';
 import { CryptoIdGenerator } from '@cosmaria/core-infrastructure';
 import { PREMIUM_PUBLIC_API, type PremiumPublicApi } from '@cosmaria/core-public-api';
+import { GROW_PUBLIC_API, type GrowPublicApi } from '@cosmaria/grow-public-api';
 import {
   AtualizarProdutoUseCase,
   AtualizarTratamentoUseCase,
   CriarModeloDeTratamentoUseCase,
   CriarProdutoUseCase,
   CriarTratamentoUseCase,
+  DesvincularProdutoDoLoteUseCase,
+  VincularProdutoALoteUseCase,
   EFEITO_REPOSITORY,
   type EfeitoRepository,
   EncerrarTratamentoUseCase,
@@ -71,6 +74,7 @@ import {
 import { PG_POOL } from '../infra/infra.tokens';
 import { AuthModule } from '../auth/auth.module';
 import { BillingModule } from '../billing/billing.module';
+import { GrowModule } from '../grow/grow.module';
 import {
   EfeitoController,
   EvolucaoController,
@@ -203,6 +207,19 @@ const providers: Provider[] = [
     provide: RemoverProdutoUseCase,
     useFactory: (produtos: ProdutoRepository) => new RemoverProdutoUseCase(produtos),
     inject: [PRODUTO_REPOSITORY],
+  },
+  // Vínculo opt-in Produto↔Lote (integração Grow↔Med, doc 03 §5.2/§18).
+  {
+    provide: VincularProdutoALoteUseCase,
+    useFactory: (produtos: ProdutoRepository, grow: GrowPublicApi, eventos: EventPublisher) =>
+      new VincularProdutoALoteUseCase(produtos, grow, eventos),
+    inject: [PRODUTO_REPOSITORY, GROW_PUBLIC_API, EVENT_PUBLISHER],
+  },
+  {
+    provide: DesvincularProdutoDoLoteUseCase,
+    useFactory: (produtos: ProdutoRepository, eventos: EventPublisher) =>
+      new DesvincularProdutoDoLoteUseCase(produtos, eventos),
+    inject: [PRODUTO_REPOSITORY, EVENT_PUBLISHER],
   },
 
   // Registro de Uso (série de doses)
@@ -384,11 +401,15 @@ const providers: Provider[] = [
 
 /**
  * Importa o BillingModule apenas pela PREMIUM_PUBLIC_API (gate dos Modelos de Tratamento):
- * o Med pergunta "é Premium?" e nunca reimplementa regra de cobrança. Não importa, e não
- * pode importar, nenhum módulo do Grow (doc 04 §24, enforçado por lint).
+ * o Med pergunta "é Premium?" e nunca reimplementa regra de cobrança.
+ *
+ * Importa o GrowModule **apenas pela GROW_PUBLIC_API** (integração opt-in Produto↔Lote):
+ * o Med resolve o snapshot de um Lote por ID, sem jamais tocar no schema/entidades do Grow.
+ * É a única forma sancionada de um módulo de produto falar com outro (doc 04 §24) — as libs
+ * `med-*` continuam sem poder importar `grow-*` que não seja a public-api (enforçado por lint).
  */
 @Module({
-  imports: [AuthModule, BillingModule],
+  imports: [AuthModule, BillingModule, GrowModule],
   controllers: [
     // Antes do TratamentoController: `tratamentos/modelos` precisa casar antes de
     // `tratamentos/:tratamentoId`.

@@ -43,4 +43,8 @@ export type { DigestAnalitico } from './lib/relatorio/digest';
 
 export { CorrelacaoCalculada } from './lib/eventos/ia.events';
 
-export { FatorDesconhecidoError, DominioDeDadoInvalidoError } from './lib/errors/ia.errors';
+export {
+  FatorDesconhecidoError,
+  DominioDeDadoInvalidoError,
+  CorrelacaoCruzadaNaoHabilitadaError,
+} from './lib/errors/ia.errors';

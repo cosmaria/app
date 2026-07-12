@@ -1,6 +1,19 @@
 import { AcessoNegadoError } from '@cosmaria/core-domain';
 import { TipoDeProduto } from './catalogos';
 
+/**
+ * Snapshot de um Lote do Grow copiado no ato do vínculo (doc 04 §23 — referência
+ * cross-módulo por ID + snapshot). Guardar a cópia significa que o Med exibe a procedência
+ * sem depender do Grow em toda leitura, e o dado sobrevive mesmo que o Lote mude/suma.
+ * O formato é local ao Med (o Med não importa a public-api do Grow no domínio).
+ */
+export interface LoteVinculado {
+  loteId: string;
+  codigo: string;
+  pesoSecoGramas: number;
+  geradoEm: Date;
+}
+
 export interface ProdutoProps {
   id: string;
   usuarioId: string;
@@ -13,15 +26,11 @@ export interface ProdutoProps {
   concentracaoThc: string | null;
   fabricante: string | null;
   /**
-   * Referência opt-in a um Lote do COSMARIA Grow (doc 03 §5.2, §11).
-   *
-   * **Versão 2, inerte no MVP** (doc 03 §18): a coluna existe para que o vínculo não exija
-   * migração destrutiva depois, mas nenhum caso de uso do núcleo a preenche nem a lê. O
-   * vínculo real (por ID + snapshot, via a interface pública do Grow — doc 04 §23) nasce
-   * quando a épica de integração Grow↔Med for construída. Guardar o ID cru não acopla o
-   * Med ao schema do Grow.
+   * Vínculo opt-in a um Lote do COSMARIA Grow (doc 03 §5.2/§18, doc 00 — integração
+   * Grow↔Med é SEMPRE opt-in). `null` enquanto não vinculado. O snapshot é copiado do
+   * Grow via a public-api no ato do vínculo; guardar isso não acopla o Med ao schema do Grow.
    */
-  loteId: string | null;
+  loteVinculado: LoteVinculado | null;
   criadoEm: Date;
   atualizadoEm: Date;
 }
@@ -60,7 +69,7 @@ export class Produto {
       concentracaoCbd: params.concentracaoCbd ?? null,
       concentracaoThc: params.concentracaoThc ?? null,
       fabricante: params.fabricante ?? null,
-      loteId: null,
+      loteVinculado: null,
       criadoEm: agora,
       atualizadoEm: agora,
     });
@@ -91,7 +100,13 @@ export class Produto {
     return this.props.fabricante;
   }
   get loteId(): string | null {
-    return this.props.loteId;
+    return this.props.loteVinculado?.loteId ?? null;
+  }
+  get loteVinculado(): LoteVinculado | null {
+    return this.props.loteVinculado ? { ...this.props.loteVinculado } : null;
+  }
+  estaVinculadoALote(): boolean {
+    return this.props.loteVinculado !== null;
   }
   get criadoEm(): Date {
     return this.props.criadoEm;
@@ -126,6 +141,21 @@ export class Produto {
     if (campos.fabricante !== undefined) {
       this.props.fabricante = campos.fabricante;
     }
+    this.props.atualizadoEm = agora;
+  }
+
+  /** Vincula (ou revincula) o produto a um Lote do Grow. Idempotente para o mesmo lote. */
+  vincularLote(snapshot: LoteVinculado, agora: Date = new Date()): void {
+    this.props.loteVinculado = { ...snapshot };
+    this.props.atualizadoEm = agora;
+  }
+
+  /** Desfaz o vínculo (opt-out). Idempotente. */
+  desvincularLote(agora: Date = new Date()): void {
+    if (this.props.loteVinculado === null) {
+      return;
+    }
+    this.props.loteVinculado = null;
     this.props.atualizadoEm = agora;
   }
 

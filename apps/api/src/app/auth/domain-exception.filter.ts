@@ -49,6 +49,7 @@ import {
 } from '@cosmaria/grow-domain';
 import {
   EfeitoNaoEncontradoError,
+  LoteNaoEncontradoParaVinculoError,
   ModeloDeTratamentoNaoEncontradoError,
   ProdutoComRegistrosError,
   ProdutoNaoEncontradoError,
@@ -63,7 +64,11 @@ import {
   TratamentoEncerradoError,
   TratamentoNaoEncontradoError,
 } from '@cosmaria/med-domain';
-import { DominioDeDadoInvalidoError, FatorDesconhecidoError } from '@cosmaria/ia-domain';
+import {
+  CorrelacaoCruzadaNaoHabilitadaError,
+  DominioDeDadoInvalidoError,
+  FatorDesconhecidoError,
+} from '@cosmaria/ia-domain';
 import {
   ConteudoNaoForkavelError,
   ContextoInvalidoError,
@@ -160,6 +165,8 @@ export class DomainExceptionFilter implements ExceptionFilter {
     if (erro instanceof SintomaDiarioNaoEncontradoError) return HttpStatus.NOT_FOUND;
     if (erro instanceof EfeitoNaoEncontradoError) return HttpStatus.NOT_FOUND;
     if (erro instanceof ModeloDeTratamentoNaoEncontradoError) return HttpStatus.NOT_FOUND;
+    // Lote inexistente/de outro usuário no vínculo opt-in: 404 (não confirma existência).
+    if (erro instanceof LoteNaoEncontradoParaVinculoError) return HttpStatus.NOT_FOUND;
     // 402: recurso Premium (gatilho do paywall).
     if (erro instanceof RecursoExclusivoPremiumMedError) return HttpStatus.PAYMENT_REQUIRED;
     // 409: o recurso existe, mas seu estado atual impede a operação.
@@ -174,6 +181,8 @@ export class DomainExceptionFilter implements ExceptionFilter {
     // --- IA (doc 05) ---
     if (erro instanceof FatorDesconhecidoError) return HttpStatus.BAD_REQUEST;
     if (erro instanceof DominioDeDadoInvalidoError) return HttpStatus.BAD_REQUEST;
+    // Correlação cruzada Grow×Med sem opt-in: 403 (exige consentimento explícito, doc 00).
+    if (erro instanceof CorrelacaoCruzadaNaoHabilitadaError) return HttpStatus.FORBIDDEN;
 
     // --- Comunidade (doc 06) ---
     // Publicação fora do alcance responde igual a inexistente (não confirma existência).

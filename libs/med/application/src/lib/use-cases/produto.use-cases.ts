@@ -9,6 +9,13 @@ import {
 import { ProdutoRepository, TratamentoRepository } from '../ports/med.repositories';
 import { buscarTratamentoDoDono } from './tratamento.use-cases';
 
+export interface LoteVinculadoView {
+  loteId: string;
+  codigo: string;
+  pesoSecoGramas: number;
+  geradoEm: string;
+}
+
 export interface ProdutoView {
   produtoId: string;
   tratamentoId: string;
@@ -18,22 +25,35 @@ export interface ProdutoView {
   concentracaoThc: string | null;
   fabricante: string | null;
   loteId: string | null;
+  /** Snapshot do Lote vinculado (procedência Grow), quando houver vínculo opt-in. */
+  loteVinculado: LoteVinculadoView | null;
   criadoEm: string;
 }
 
-export const paraProdutoView = (p: Produto): ProdutoView => ({
-  produtoId: p.id,
-  tratamentoId: p.tratamentoId,
-  nome: p.nome,
-  tipo: p.tipo,
-  concentracaoCbd: p.concentracaoCbd,
-  concentracaoThc: p.concentracaoThc,
-  fabricante: p.fabricante,
-  loteId: p.loteId,
-  criadoEm: p.criadoEm.toISOString(),
-});
+export const paraProdutoView = (p: Produto): ProdutoView => {
+  const vinculo = p.loteVinculado;
+  return {
+    produtoId: p.id,
+    tratamentoId: p.tratamentoId,
+    nome: p.nome,
+    tipo: p.tipo,
+    concentracaoCbd: p.concentracaoCbd,
+    concentracaoThc: p.concentracaoThc,
+    fabricante: p.fabricante,
+    loteId: p.loteId,
+    loteVinculado: vinculo
+      ? {
+          loteId: vinculo.loteId,
+          codigo: vinculo.codigo,
+          pesoSecoGramas: vinculo.pesoSecoGramas,
+          geradoEm: vinculo.geradoEm.toISOString(),
+        }
+      : null,
+    criadoEm: p.criadoEm.toISOString(),
+  };
+};
 
-async function buscarProdutoDoDono(
+export async function buscarProdutoDoDono(
   repo: ProdutoRepository,
   usuarioId: string,
   produtoId: string,

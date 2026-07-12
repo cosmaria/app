@@ -1,3 +1,3 @@
-// @cosmaria/grow-public-api — placeholder do bootstrap (Sprint 01). Sem regra de negócio.
-// Ver docs/14-estrutura-do-codigo.md
-export const grow_public_api_placeholder = 'grow-public-api';
+// @cosmaria/grow-public-api — Interface pública do Grow consumida por outros módulos (doc 14 §10).
+
+export { GROW_PUBLIC_API, type GrowPublicApi, type LoteSnapshot } from './lib/grow.public-api';

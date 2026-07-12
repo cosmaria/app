@@ -1,6 +1,7 @@
 import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import {
   AvaliarAlertasUseCase,
+  CalcularCorrelacaoCruzadaUseCase,
   CalcularCorrelacaoUseCase,
   GerarDigestUseCase,
   GerarInsightsUseCase,
@@ -27,6 +28,7 @@ import { identidadeDe, JwtAuthGuard, type RequestAutenticada } from '../auth/jwt
 export class IaController {
   constructor(
     private readonly calcular: CalcularCorrelacaoUseCase,
+    private readonly calcularCruzada: CalcularCorrelacaoCruzadaUseCase,
     private readonly gerarInsights: GerarInsightsUseCase,
     private readonly avaliarAlertas: AvaliarAlertasUseCase,
     private readonly gerarRecomendacoes: GerarRecomendacoesUseCase,
@@ -47,6 +49,27 @@ export class IaController {
       dominio,
       fatorA,
       fatorB,
+      de: de ? new Date(de) : undefined,
+      ate: ate ? new Date(ate) : undefined,
+    });
+  }
+
+  /**
+   * `GET /v1/ia/correlacoes/cruzada?fatorGrow=&fatorMed=` — o payoff Grow×Med.
+   * Só com opt-in (vínculo Produto↔Lote); senão 403 (doc 00).
+   */
+  @Get('correlacoes/cruzada')
+  correlacaoCruzada(
+    @Req() req: RequestAutenticada,
+    @Query('fatorGrow') fatorGrow: string,
+    @Query('fatorMed') fatorMed: string,
+    @Query('de') de?: string,
+    @Query('ate') ate?: string,
+  ): Promise<ResultadoDeCorrelacao> {
+    return this.calcularCruzada.executar({
+      usuarioId: identidadeDe(req).usuarioId,
+      fatorGrow,
+      fatorMed,
       de: de ? new Date(de) : undefined,
       ate: ate ? new Date(ate) : undefined,
     });

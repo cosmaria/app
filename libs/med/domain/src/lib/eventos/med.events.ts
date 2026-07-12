@@ -149,6 +149,39 @@ export class EfeitoRegistrado implements DomainEvent {
 }
 
 /**
+ * `ProdutoVinculadoALote` — o paciente vinculou (opt-in) um produto a um Lote do próprio
+ * cultivo (Grow). Consumido pela IA: sinaliza consentimento para considerar dados do Grow
+ * na correlação cruzada Grow×Med (doc 03 §8, doc 00 — integração sempre opt-in).
+ */
+export class ProdutoVinculadoALote implements DomainEvent {
+  readonly nome = 'ProdutoVinculadoALote';
+  readonly ocorridoEm: Date;
+
+  constructor(
+    readonly produtoId: string,
+    readonly usuarioId: string,
+    readonly loteId: string,
+    ocorridoEm?: Date,
+  ) {
+    this.ocorridoEm = ocorridoEm ?? new Date();
+  }
+}
+
+/** `ProdutoDesvinculadoDoLote` — opt-out; a IA remove o produto do conjunto de vínculos. */
+export class ProdutoDesvinculadoDoLote implements DomainEvent {
+  readonly nome = 'ProdutoDesvinculadoDoLote';
+  readonly ocorridoEm: Date;
+
+  constructor(
+    readonly produtoId: string,
+    readonly usuarioId: string,
+    ocorridoEm?: Date,
+  ) {
+    this.ocorridoEm = ocorridoEm ?? new Date();
+  }
+}
+
+/**
  * `RelatorioGerado` — consumido por Notificações/analytics. Informa que o paciente gerou
  * um relatório clínico de um tratamento num período (doc 03 §5.7).
  */

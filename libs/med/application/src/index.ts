@@ -47,9 +47,14 @@ export {
 } from './lib/use-cases/produto.use-cases';
 export type {
   ProdutoView,
+  LoteVinculadoView,
   CriarProdutoInput,
   AtualizarProdutoInput,
 } from './lib/use-cases/produto.use-cases';
+export {
+  VincularProdutoALoteUseCase,
+  DesvincularProdutoDoLoteUseCase,
+} from './lib/use-cases/vinculo-lote.use-cases';
 
 export {
   RegistrarUsoUseCase,

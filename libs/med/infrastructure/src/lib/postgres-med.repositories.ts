@@ -131,12 +131,13 @@ interface ProdutoRow {
   concentracao_thc: string | null;
   fabricante: string | null;
   lote_id: string | null;
+  lote_snapshot: { codigo: string; pesoSecoGramas: number; geradoEm: string } | null;
   criado_em: Date;
   atualizado_em: Date;
 }
 
 const COLUNAS_PRODUTO =
-  'id, usuario_id, tratamento_id, nome, tipo, concentracao_cbd, concentracao_thc, fabricante, lote_id, criado_em, atualizado_em';
+  'id, usuario_id, tratamento_id, nome, tipo, concentracao_cbd, concentracao_thc, fabricante, lote_id, lote_snapshot, criado_em, atualizado_em';
 
 const mapearProduto = (r: ProdutoRow): Produto =>
   Produto.reconstituir({
@@ -148,7 +149,15 @@ const mapearProduto = (r: ProdutoRow): Produto =>
     concentracaoCbd: r.concentracao_cbd,
     concentracaoThc: r.concentracao_thc,
     fabricante: r.fabricante,
-    loteId: r.lote_id,
+    loteVinculado:
+      r.lote_id && r.lote_snapshot
+        ? {
+            loteId: r.lote_id,
+            codigo: r.lote_snapshot.codigo,
+            pesoSecoGramas: Number(r.lote_snapshot.pesoSecoGramas),
+            geradoEm: new Date(r.lote_snapshot.geradoEm),
+          }
+        : null,
     criadoEm: r.criado_em,
     atualizadoEm: r.atualizado_em,
   });
@@ -159,7 +168,7 @@ export class PostgresProdutoRepository implements ProdutoRepository {
   async salvar(p: Produto): Promise<void> {
     await this.pool.query(
       `INSERT INTO med.produto (${COLUNAS_PRODUTO})
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11,$12)
        ON CONFLICT (id) DO UPDATE
          SET nome = EXCLUDED.nome,
              tipo = EXCLUDED.tipo,
@@ -167,6 +176,7 @@ export class PostgresProdutoRepository implements ProdutoRepository {
              concentracao_thc = EXCLUDED.concentracao_thc,
              fabricante = EXCLUDED.fabricante,
              lote_id = EXCLUDED.lote_id,
+             lote_snapshot = EXCLUDED.lote_snapshot,
              atualizado_em = EXCLUDED.atualizado_em`,
       [
         p.id,
@@ -178,6 +188,13 @@ export class PostgresProdutoRepository implements ProdutoRepository {
         p.concentracaoThc,
         p.fabricante,
         p.loteId,
+        p.loteVinculado
+          ? JSON.stringify({
+              codigo: p.loteVinculado.codigo,
+              pesoSecoGramas: p.loteVinculado.pesoSecoGramas,
+              geradoEm: p.loteVinculado.geradoEm.toISOString(),
+            })
+          : null,
         p.criadoEm,
         p.atualizadoEm,
       ],

@@ -135,6 +135,9 @@ export class RegistrarCheckInUseCase {
         registro.plantaId,
         registro.vpdKpa,
         registro.dli,
+        // Timestamp do check-in (não o de publicação): é ele que alinha a série na IA
+        // por dia — sem isso, todas as leituras colapsariam no dia da ingestão.
+        registro.registradoEm,
       ),
     );
     return paraRegistroView(registro);

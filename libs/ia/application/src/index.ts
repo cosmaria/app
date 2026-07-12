@@ -3,6 +3,13 @@
 // Nunca do interior de Grow/Med — consome os eventos deles por contrato (ver ingestao.service).
 
 export { PONTO_DE_SERIE_REPOSITORY, POLITICA_DE_AGREGACAO } from './lib/ports/ia.repositories';
+export {
+  VINCULO_GROW_MED_REPOSITORY,
+  type VinculoGrowMedRepository,
+} from './lib/ports/vinculo-grow-med.repository';
+export { RegistrarVinculoGrowMedService } from './lib/use-cases/vinculo-grow-med.service';
+export { CalcularCorrelacaoCruzadaUseCase } from './lib/use-cases/correlacao-cruzada.use-cases';
+export type { CalcularCorrelacaoCruzadaInput } from './lib/use-cases/correlacao-cruzada.use-cases';
 export type { PontoDeSerieRepository, JanelaTemporal } from './lib/ports/ia.repositories';
 
 export { IngerirEventoService } from './lib/use-cases/ingestao.service';
