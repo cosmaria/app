@@ -47,6 +47,22 @@ import {
   TarefaNaoEncontradaError,
   TransicaoDeFaseInvalidaError,
 } from '@cosmaria/grow-domain';
+import {
+  EfeitoNaoEncontradoError,
+  ModeloDeTratamentoNaoEncontradoError,
+  ProdutoComRegistrosError,
+  ProdutoNaoEncontradoError,
+  RecursoExclusivoPremiumError as RecursoExclusivoPremiumMedError,
+  RegistroDeUsoNaoEncontradoError,
+  SessaoDepoisJaRegistradaError,
+  SessaoJaRegistradaError,
+  SessaoNaoEncontradaError,
+  SintomaDiarioNaoEncontradoError,
+  SintomaDiarioSemMedicaoError,
+  TratamentoComProdutosError,
+  TratamentoEncerradoError,
+  TratamentoNaoEncontradoError,
+} from '@cosmaria/med-domain';
 
 /**
  * Traduz erros de domínio para o formato de erro único da API (doc 09 §5):
@@ -126,6 +142,26 @@ export class DomainExceptionFilter implements ExceptionFilter {
     if (erro instanceof RegistroSemMedicaoError) return HttpStatus.BAD_REQUEST;
     if (erro instanceof ColheitaSemPlantasError) return HttpStatus.BAD_REQUEST;
     if (erro instanceof ComparacaoSemCiclosError) return HttpStatus.BAD_REQUEST;
+
+    // --- Med (doc 03) ---
+    // Recurso de outro usuário responde igual a inexistente: dado de saúde não confirma existência.
+    if (erro instanceof TratamentoNaoEncontradoError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof ProdutoNaoEncontradoError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof RegistroDeUsoNaoEncontradoError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof SessaoNaoEncontradaError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof SintomaDiarioNaoEncontradoError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof EfeitoNaoEncontradoError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof ModeloDeTratamentoNaoEncontradoError) return HttpStatus.NOT_FOUND;
+    // 402: recurso Premium (gatilho do paywall).
+    if (erro instanceof RecursoExclusivoPremiumMedError) return HttpStatus.PAYMENT_REQUIRED;
+    // 409: o recurso existe, mas seu estado atual impede a operação.
+    if (erro instanceof TratamentoEncerradoError) return HttpStatus.CONFLICT;
+    if (erro instanceof TratamentoComProdutosError) return HttpStatus.CONFLICT;
+    if (erro instanceof ProdutoComRegistrosError) return HttpStatus.CONFLICT;
+    // 0—1 por dose e "depois" único: repetir é conflito de estado.
+    if (erro instanceof SessaoJaRegistradaError) return HttpStatus.CONFLICT;
+    if (erro instanceof SessaoDepoisJaRegistradaError) return HttpStatus.CONFLICT;
+    if (erro instanceof SintomaDiarioSemMedicaoError) return HttpStatus.BAD_REQUEST;
 
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }
