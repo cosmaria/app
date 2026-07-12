@@ -74,6 +74,12 @@ export {
 } from './lib/use-cases/ciclo.use-cases';
 export type { CicloView, IniciarCicloInput } from './lib/use-cases/ciclo.use-cases';
 
+export { PublicarCicloUseCase } from './lib/use-cases/publicacao.use-cases';
+export type {
+  PublicarCicloInput,
+  PublicacaoDoCicloView,
+} from './lib/use-cases/publicacao.use-cases';
+
 export {
   AdicionarPlantaUseCase,
   ListarPlantasDoCicloUseCase,

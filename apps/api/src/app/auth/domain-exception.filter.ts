@@ -64,6 +64,13 @@ import {
   TratamentoNaoEncontradoError,
 } from '@cosmaria/med-domain';
 import { DominioDeDadoInvalidoError, FatorDesconhecidoError } from '@cosmaria/ia-domain';
+import {
+  ConteudoNaoForkavelError,
+  ContextoInvalidoError,
+  EstatisticasExclusivasPremiumError,
+  PublicacaoNaoEncontradaError,
+  SeguimentoInvalidoError,
+} from '@cosmaria/comunidade-domain';
 
 /**
  * Traduz erros de domínio para o formato de erro único da API (doc 09 §5):
@@ -167,6 +174,15 @@ export class DomainExceptionFilter implements ExceptionFilter {
     // --- IA (doc 05) ---
     if (erro instanceof FatorDesconhecidoError) return HttpStatus.BAD_REQUEST;
     if (erro instanceof DominioDeDadoInvalidoError) return HttpStatus.BAD_REQUEST;
+
+    // --- Comunidade (doc 06) ---
+    // Publicação fora do alcance responde igual a inexistente (não confirma existência).
+    if (erro instanceof PublicacaoNaoEncontradaError) return HttpStatus.NOT_FOUND;
+    if (erro instanceof ContextoInvalidoError) return HttpStatus.BAD_REQUEST;
+    if (erro instanceof SeguimentoInvalidoError) return HttpStatus.BAD_REQUEST;
+    if (erro instanceof ConteudoNaoForkavelError) return HttpStatus.BAD_REQUEST;
+    // 402: estatística avançada é Premium (gatilho de paywall, doc 07 §4).
+    if (erro instanceof EstatisticasExclusivasPremiumError) return HttpStatus.PAYMENT_REQUIRED;
 
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }

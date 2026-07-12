@@ -1,3 +1,18 @@
-// @cosmaria/comunidade-infrastructure — placeholder do bootstrap (Sprint 01). Sem regra de negócio.
-// Ver docs/14-estrutura-do-codigo.md
-export const comunidade_infrastructure_placeholder = 'comunidade-infrastructure';
+// @cosmaria/comunidade-infrastructure — adaptadores da Comunidade (doc 06 / doc 14 §10).
+
+export {
+  InMemoryPublicacaoComunidadeRepository,
+  InMemorySeguimentoRepository,
+  InMemoryCurtidaRepository,
+  InMemoryComentarioRepository,
+  InMemoryRegistroDeForkRepository,
+  InMemoryVisualizacaoDePerfilRepository,
+} from './lib/in-memory-comunidade.repositories';
+export {
+  PostgresPublicacaoComunidadeRepository,
+  PostgresSeguimentoRepository,
+  PostgresCurtidaRepository,
+  PostgresComentarioRepository,
+  PostgresRegistroDeForkRepository,
+  PostgresVisualizacaoDePerfilRepository,
+} from './lib/postgres-comunidade.repositories';

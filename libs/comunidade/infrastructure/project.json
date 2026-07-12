@@ -12,6 +12,12 @@
         "cwd": "libs/comunidade/infrastructure",
         "command": "tsc --noEmit -p tsconfig.json"
       }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "outputs": ["{projectRoot}/dist"],
+      "options": { "cwd": "libs/comunidade/infrastructure", "command": "tsc -p tsconfig.lib.json" }
     }
   }
 }

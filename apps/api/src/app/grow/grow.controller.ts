@@ -32,6 +32,8 @@ import {
   ListarPlantasDoCicloUseCase,
   ObterCicloUseCase,
   type PlantaView,
+  type PublicacaoDoCicloView,
+  PublicarCicloUseCase,
   RemoverAmbienteUseCase,
   RemoverGeneticaUseCase,
   RenomearCicloUseCase,
@@ -46,6 +48,7 @@ import {
   CriarAmbienteDto,
   CriarGeneticaDto,
   IniciarCicloDto,
+  PublicarCicloDto,
   RenomearCicloDto,
 } from './dto/grow.dtos';
 
@@ -167,6 +170,7 @@ export class CicloController {
     private readonly renomear: RenomearCicloUseCase,
     private readonly encerrar: EncerrarCicloUseCase,
     private readonly listarPlantas: ListarPlantasDoCicloUseCase,
+    private readonly publicar: PublicarCicloUseCase,
   ) {}
 
   @Post()
@@ -230,6 +234,23 @@ export class CicloController {
     @Req() req: RequestAutenticada,
   ): Promise<CicloView> {
     return this.encerrar.executar({ usuarioId: identidadeDe(req).usuarioId, cicloId });
+  }
+
+  /** Publica o Growlog na Comunidade (doc 06 §9). O Grow é dono do conteúdo e da privacidade. */
+  @Post(':cicloId/publicar')
+  publicarCiclo(
+    @Param('cicloId') cicloId: string,
+    @Body() dto: PublicarCicloDto,
+    @Req() req: RequestAutenticada,
+  ): Promise<PublicacaoDoCicloView> {
+    return this.publicar.executar({
+      usuarioId: identidadeDe(req).usuarioId,
+      cicloId,
+      escopo: dto.escopo,
+      titulo: dto.titulo,
+      resumo: dto.resumo,
+      dimensoes: dto.dimensoes,
+    });
   }
 }
 

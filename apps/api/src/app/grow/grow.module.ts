@@ -10,8 +10,12 @@ import { CryptoIdGenerator } from '@cosmaria/core-infrastructure';
 import {
   COMPLEXIDADE_PUBLIC_API,
   type ComplexidadePublicApi,
+  PERFIL_PUBLIC_API,
+  type PerfilPublicApi,
   PREMIUM_PUBLIC_API,
   type PremiumPublicApi,
+  PRIVACIDADE_PUBLIC_API,
+  type PrivacidadePublicApi,
 } from '@cosmaria/core-public-api';
 import {
   AdicionarPlantaUseCase,
@@ -37,6 +41,7 @@ import {
   GENETICA_REPOSITORY,
   type GeneticaRepository,
   IniciarCicloUseCase,
+  PublicarCicloUseCase,
   EVENTO_MANEJO_REPOSITORY,
   EVENTO_SANIDADE_REPOSITORY,
   type EventoManejoRepository,
@@ -125,6 +130,8 @@ import { PG_POOL } from '../infra/infra.tokens';
 import { AuthModule } from '../auth/auth.module';
 import { BillingModule } from '../billing/billing.module';
 import { ComplexidadeModule } from '../complexidade/complexidade.module';
+import { PerfilModule } from '../perfil/perfil.module';
+import { PrivacidadeModule } from '../privacidade/privacidade.module';
 import {
   AmbienteController,
   CicloController,
@@ -331,6 +338,16 @@ const providers: Provider[] = [
     useFactory: (repo: CicloRepository, eventos: EventPublisher) =>
       new EncerrarCicloUseCase(repo, eventos),
     inject: [CICLO_REPOSITORY, EVENT_PUBLISHER],
+  },
+  {
+    provide: PublicarCicloUseCase,
+    useFactory: (
+      ciclos: CicloRepository,
+      perfis: PerfilPublicApi,
+      privacidade: PrivacidadePublicApi,
+      eventos: EventPublisher,
+    ) => new PublicarCicloUseCase(ciclos, perfis, privacidade, eventos),
+    inject: [CICLO_REPOSITORY, PERFIL_PUBLIC_API, PRIVACIDADE_PUBLIC_API, EVENT_PUBLISHER],
   },
 
   // Planta
@@ -718,7 +735,9 @@ const providers: Provider[] = [
 ];
 
 @Module({
-  imports: [AuthModule, BillingModule, ComplexidadeModule],
+  // PerfilModule/PrivacidadeModule: publicar um Growlog resolve o Perfil Público (contexto
+  // Grow) e registra o compartilhamento no Motor de Privacidade — só pelas public-apis.
+  imports: [AuthModule, BillingModule, ComplexidadeModule, PerfilModule, PrivacidadeModule],
   controllers: [
     GeneticaController,
     AmbienteController,

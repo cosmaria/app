@@ -6,6 +6,7 @@ import {
   IsIn,
   IsInt,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   Max,
@@ -13,6 +14,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+import { Escopo } from '@cosmaria/core-domain';
 import {
   FaseDeVida,
   OrigemDoMaterial,
@@ -24,6 +26,9 @@ import {
   TipoDeSanidade,
   TipoDeTarefa,
 } from '@cosmaria/grow-domain';
+
+/** Escopos expostos na UI do MVP (doc 02 §18): AMIGOS=Pesquisa, LINK=V2 ficam de fora. */
+const ESCOPOS_MVP = [Escopo.PRIVADO, Escopo.SEGUIDORES, Escopo.PUBLICO];
 
 const FASES = Object.values(FaseDeVida);
 const ORIGENS_DO_REGISTRO = Object.values(OrigemDoRegistro);
@@ -578,4 +583,25 @@ export class AtualizarTarefaDto {
   @IsInt()
   @Min(1)
   recorrenciaDias?: number | null;
+}
+
+/** `POST /v1/ciclos/{id}/publicar` — publica o Growlog na Comunidade (doc 06 §9). */
+export class PublicarCicloDto {
+  @IsIn(ESCOPOS_MVP)
+  escopo!: Escopo;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  titulo?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  resumo?: string | null;
+
+  /** Parâmetros técnicos compartilhados (chave→valor), indexados pela busca estruturada. */
+  @IsOptional()
+  @IsObject()
+  dimensoes?: Record<string, string>;
 }

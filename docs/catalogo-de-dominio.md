@@ -44,8 +44,8 @@
 | `TarefaConcluida` | Grow | IA | Doc 02 |
 | `TarefaSugeridaPelaIAAceita` | Grow | IA (Motor de Aprendizado) | Doc 02/05 |
 | `ColheitaRegistrada` | Grow | IA, Notificações | Doc 02/04 |
-| `GrowlogPublicado` | Grow | Comunidade (Core) | Doc 02 |
-| `GrowlogForkRealizado` | Grow | Comunidade (Core) | Doc 02 |
+| `GrowlogPublicado` | Grow *(caso de uso `PublicarCiclo` — implementado na Épica Comunidade)* | Comunidade (Core, projeção de leitura) | Doc 02/06 |
+| `GrowlogForkRealizado` | Comunidade (Core, operação de Fork sobre conteúdo do contexto Grow) *(reatribuído na Épica Comunidade — a Comunidade é dona do conteúdo publicado e do grafo de atribuição; o Grow nunca é acoplado; o cliente inicia o novo ciclo pela API normal)* | Notificações (avisar o autor original) *(diferido)* | Doc 02/06 |
 | `TratamentoCriado` | Med | — | Doc 03 |
 | `TratamentoEncerrado` | Med | — | Doc 03 |
 | `ProdutoRegistrado` | Med | — | Doc 03 |
@@ -61,7 +61,7 @@
 | `VinculoDePerfisRevogado` | Core (Identidade Social) | **TrilhaDeAuditoria** *(novo — Sprint Core-5: doc 08 §14 exige trilha para toda mudança em entidade crítica, e desfazer um vínculo é uma dessas mudanças; só a autorização tinha evento)* | Doc 06 (implementação) |
 | `ConfiguracaoDeCompartilhamentoAlterada` | Core (Comunidade/Grow/Med, ao publicar ou editar privacidade) | **TrilhaDeAuditoria** *(novo — revisão 00-09: doc 08 §7 já exigia auditoria dessa entidade, mas nenhum evento a implementava)* | Doc 09 (revisão) |
 | `ProdutoVinculadoALote` | Med | **IA** (Motor de Correlação — inicia consideração de dados do Grow para a correlação, doc 03 §8) *(novo — revisão 00-09: ação existia mas não publicava evento, IA não tinha como saber)* | Doc 09 (revisão) |
-| `SeguimentoIniciado`, `ComentarioCriado`, `CurtidaRegistrada` | Comunidade | Notificações *(novos — revisão 00-09: doc 06 já prometia notificação de "novo seguidor/comentário/curtida", mas os eventos que disparariam isso nunca foram catalogados)* | Doc 09 (revisão) |
+| `PerfilSeguido`, `PublicacaoCurtida`, `PublicacaoComentada` | Comunidade | Notificações *(avisar o autor sobre interação social; a **entrega** da notificação é diferida — exige um resolvedor perfil→Conta dentro da fronteira Core Perfil/Notificações, pois o `usuarioId` é ocultado de propósito pela public-api; nomes concretos definidos na Épica Comunidade, substituem os placeholders `SeguimentoIniciado/ComentarioCriado/CurtidaRegistrada`)* | Doc 06/09 |
 | `ContaExclusaoSolicitada` | Core (Consentimento) | Grow, Med, Comunidade, IA | Doc 04 |
 | `ExportacaoDadosSolicitada` | Core (Consentimento) | Grow, Med, Comunidade, IA | Doc 04 |
 | `ConsentimentoAlterado` | Core (Consentimento) | Grow, Med, IA | Doc 04 |

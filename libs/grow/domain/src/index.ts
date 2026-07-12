@@ -110,6 +110,7 @@ export {
   ColheitaRegistrada,
   TarefaCriada,
   TarefaConcluida,
+  GrowlogPublicado,
 } from './lib/eventos/grow.events';
 
 export {

@@ -148,3 +148,36 @@ export class PlantaFaseAlterada implements DomainEvent {
     this.ocorridoEm = ocorridoEm ?? new Date();
   }
 }
+
+/**
+ * `GrowlogPublicado` — consumido pela Comunidade (doc 06 §8, doc 04 §9.1).
+ *
+ * O Grow é dono do conteúdo e da ação de publicar: resolve o Perfil Público (contexto Grow)
+ * e o escopo escolhido pelo autor, e emite este evento com um SNAPSHOT do que pode ser
+ * mostrado. A Comunidade apenas projeta — nunca reabre o Ciclo. O snapshot carrega os dados
+ * (padrão "eventos carregam os valores", igual ao que a IA já usa) para a projeção não
+ * depender do interior do Grow.
+ */
+export class GrowlogPublicado implements DomainEvent {
+  readonly nome = 'GrowlogPublicado';
+  readonly contexto = 'GROW';
+  readonly modulo = 'grow';
+  readonly tipoConteudo = 'ciclo';
+  readonly ocorridoEm: Date;
+
+  constructor(
+    readonly conteudoId: string,
+    readonly usuarioId: string,
+    readonly perfilPublicoId: string,
+    /** Escopo de visibilidade escolhido pelo autor (PRIVADO/SEGUIDORES/PUBLICO). */
+    readonly escopo: string,
+    readonly titulo: string | null,
+    readonly resumo: string | null,
+    /** Parâmetros técnicos que o autor optou por compartilhar (busca estruturada). */
+    readonly dimensoes: Record<string, string>,
+    readonly publicadoEm: Date,
+    ocorridoEm?: Date,
+  ) {
+    this.ocorridoEm = ocorridoEm ?? new Date();
+  }
+}
