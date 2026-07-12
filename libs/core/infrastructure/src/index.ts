@@ -7,6 +7,7 @@ export { JwtTokenService } from './lib/adapters/jwt-token-service';
 export type { JwtConfig } from './lib/adapters/jwt-token-service';
 
 export { criarPgPool } from './lib/persistence/pg-pool';
+export { PgUnitOfWork } from './lib/persistence/pg-unit-of-work';
 export { PostgresUsuarioRepository } from './lib/persistence/postgres-usuario.repository';
 export { PostgresSessaoRepository } from './lib/persistence/postgres-sessao.repository';
 export { InMemoryUsuarioRepository } from './lib/persistence/in-memory-usuario.repository';

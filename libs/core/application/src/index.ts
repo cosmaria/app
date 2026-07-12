@@ -59,6 +59,11 @@ export type { RegistroDeIdempotenciaRepository } from './lib/ports/idempotencia.
 export { OUTBOX_REPOSITORY } from './lib/ports/outbox.repository';
 export type { OutboxRepository, OutboxRegistro } from './lib/ports/outbox.repository';
 export {
+  TRANSACTION_RUNNER,
+  ImmediateTransactionRunner,
+} from './lib/ports/transaction-runner.port';
+export type { TransactionRunner } from './lib/ports/transaction-runner.port';
+export {
   PREFERENCIA_DE_NOTIFICACAO_REPOSITORY,
   NOTIFICACAO_REPOSITORY,
 } from './lib/ports/notificacao.repositories';
