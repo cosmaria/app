@@ -1,3 +1,17 @@
-// @cosmaria/ia-application — placeholder do bootstrap (Sprint 01). Sem regra de negócio.
-// Ver docs/14-estrutura-do-codigo.md
-export const ia_application_placeholder = 'ia-application';
+// @cosmaria/ia-application — Casos de uso e portas da IA (doc 05, doc 14).
+// Depende do próprio domínio e do shared kernel do Core (IdGenerator, EventPublisher).
+// Nunca do interior de Grow/Med — consome os eventos deles por contrato (ver ingestao.service).
+
+export { PONTO_DE_SERIE_REPOSITORY, POLITICA_DE_AGREGACAO } from './lib/ports/ia.repositories';
+export type { PontoDeSerieRepository, JanelaTemporal } from './lib/ports/ia.repositories';
+
+export { IngerirEventoService } from './lib/use-cases/ingestao.service';
+
+export { CalcularCorrelacaoUseCase } from './lib/use-cases/correlacao.use-cases';
+export type { CalcularCorrelacaoInput } from './lib/use-cases/correlacao.use-cases';
+
+export { GerarInsightsUseCase } from './lib/use-cases/insights.use-cases';
+
+export { AvaliarAlertasUseCase } from './lib/use-cases/alertas.use-cases';
+
+export { GerarRecomendacoesUseCase, GerarDigestUseCase } from './lib/use-cases/digest.use-cases';

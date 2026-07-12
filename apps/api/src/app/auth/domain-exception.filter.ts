@@ -63,6 +63,7 @@ import {
   TratamentoEncerradoError,
   TratamentoNaoEncontradoError,
 } from '@cosmaria/med-domain';
+import { DominioDeDadoInvalidoError, FatorDesconhecidoError } from '@cosmaria/ia-domain';
 
 /**
  * Traduz erros de domínio para o formato de erro único da API (doc 09 §5):
@@ -162,6 +163,10 @@ export class DomainExceptionFilter implements ExceptionFilter {
     if (erro instanceof SessaoJaRegistradaError) return HttpStatus.CONFLICT;
     if (erro instanceof SessaoDepoisJaRegistradaError) return HttpStatus.CONFLICT;
     if (erro instanceof SintomaDiarioSemMedicaoError) return HttpStatus.BAD_REQUEST;
+
+    // --- IA (doc 05) ---
+    if (erro instanceof FatorDesconhecidoError) return HttpStatus.BAD_REQUEST;
+    if (erro instanceof DominioDeDadoInvalidoError) return HttpStatus.BAD_REQUEST;
 
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }

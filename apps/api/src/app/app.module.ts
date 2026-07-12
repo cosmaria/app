@@ -15,6 +15,7 @@ import { MidiaModule } from './midia/midia.module';
 import { ComplexidadeModule } from './complexidade/complexidade.module';
 import { GrowModule } from './grow/grow.module';
 import { MedModule } from './med/med.module';
+import { IaModule } from './ia/ia.module';
 
 /**
  * Módulo raiz do Modular Monolith.
@@ -32,7 +33,8 @@ import { MedModule } from './med/med.module';
  * - ComplexidadeModule: complexidade progressiva e Modo Especialista (Core, doc 02 §5.0).
  * - GrowModule: núcleo do COSMARIA Grow — Genética, Ambiente, Ciclo, Planta (doc 02).
  * - MedModule: núcleo do COSMARIA Med — Tratamento, Produto, Registro de Uso (doc 03).
- * IA (doc 05) e Comunidade (doc 06) entram em épicas seguintes.
+ * - IaModule: IA — ingestão de eventos + Motor de Correlação (doc 05).
+ * Comunidade (doc 06) entra em sprints seguintes.
  */
 @Module({
   imports: [
@@ -53,6 +55,7 @@ import { MedModule } from './med/med.module';
     ComplexidadeModule,
     GrowModule,
     MedModule,
+    IaModule,
   ],
 })
 export class AppModule {}
