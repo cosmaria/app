@@ -294,7 +294,7 @@ export class ComunidadeModule implements OnModuleInit {
 
   onModuleInit(): void {
     for (const nome of ProjetarPublicacaoService.EVENTOS_PROJETADOS) {
-      this.bus.assinar(nome, (evento) => this.projetor.projetar(evento));
+      this.bus.assinar(nome, (evento) => this.projetor.projetar(evento), 'comunidade.projecao');
     }
   }
 }

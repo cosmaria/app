@@ -7,7 +7,12 @@ import type { StartedRedisContainer } from '@testcontainers/redis';
 import { assinarPayloadWebhook, criarPgPool } from '@cosmaria/core-infrastructure';
 import { AppModule } from '../../apps/api/src/app/app.module';
 import { DomainExceptionFilter } from '../../apps/api/src/app/auth/domain-exception.filter';
-import { aplicarMigrations, iniciarPostgres, iniciarRedis } from './support/containers';
+import {
+  aguardarAte,
+  aplicarMigrations,
+  iniciarPostgres,
+  iniciarRedis,
+} from './support/containers';
 
 const SEGREDO = 'segredo-de-integracao';
 
@@ -36,6 +41,7 @@ describe('Notificações contra Postgres/Redis reais (integração)', () => {
     process.env.REDIS_URL = redis.getConnectionUrl();
     process.env.ACCESS_TOKEN_SECRET = 'test-access';
     process.env.REFRESH_TOKEN_SECRET = 'test-refresh';
+    process.env.OUTBOX_POLL_MS = '50'; // efeitos de consumidores de eventos são assíncronos
     process.env.PAGAMENTO_WEBHOOK_SECRET = SEGREDO;
 
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
@@ -120,16 +126,21 @@ describe('Notificações contra Postgres/Redis reais (integração)', () => {
       vigenteAte: new Date(Date.now() + 30 * 86_400_000).toISOString(),
     }).expect(200);
 
-    const { rows } = await pool.query<{
-      categoria: string;
-      titulo: string;
-      status: string;
-      canais_despachados: string[];
-    }>(
-      `SELECT categoria, titulo, status, canais_despachados FROM core.notificacao
-        WHERE usuario_id = $1`,
-      [usuarioId],
-    );
+    // A notificação nasce de um evento (PagamentoRecebido) entregue de forma assíncrona (outbox).
+    const consultar = () =>
+      pool.query<{
+        categoria: string;
+        titulo: string;
+        status: string;
+        canais_despachados: string[];
+      }>(
+        `SELECT categoria, titulo, status, canais_despachados FROM core.notificacao
+          WHERE usuario_id = $1`,
+        [usuarioId],
+      );
+    await aguardarAte(async () => (await consultar()).rows.length === 1);
+
+    const { rows } = await consultar();
     expect(rows).toHaveLength(1);
     expect(rows[0].categoria).toBe('BILLING');
     expect(rows[0].titulo).toContain('Premium está ativo');
@@ -147,10 +158,13 @@ describe('Notificações contra Postgres/Redis reais (integração)', () => {
       vigenteAte: new Date(Date.now() + 60 * 86_400_000).toISOString(),
     }).expect(200);
 
-    const { rows } = await pool.query<{ status: string }>(
-      `SELECT status FROM core.notificacao WHERE usuario_id = $1`,
-      [usuarioId],
-    );
+    const consultar = () =>
+      pool.query<{ status: string }>(`SELECT status FROM core.notificacao WHERE usuario_id = $1`, [
+        usuarioId,
+      ]);
+    await aguardarAte(async () => (await consultar()).rows.length === 2);
+
+    const { rows } = await consultar();
     // Duas notificações registradas; só a primeira saiu por canal externo.
     expect(rows).toHaveLength(2);
     expect(rows.filter((r) => r.status === 'ENVIADA')).toHaveLength(1);
@@ -158,11 +172,13 @@ describe('Notificações contra Postgres/Redis reais (integração)', () => {
   });
 
   it('a Central pagina e conta as não lidas pelo índice parcial', async () => {
-    const resposta = await request(app.getHttpServer())
-      .get('/v1/notificacoes?limite=1')
-      .set('Authorization', `Bearer ${token}`)
-      .expect(200);
+    const central = () =>
+      request(app.getHttpServer())
+        .get('/v1/notificacoes?limite=1')
+        .set('Authorization', `Bearer ${token}`);
+    await aguardarAte(async () => (await central()).body.naoLidas === 2);
 
+    const resposta = await central().expect(200);
     expect(resposta.body.itens).toHaveLength(1);
     expect(resposta.body.naoLidas).toBe(2);
   });

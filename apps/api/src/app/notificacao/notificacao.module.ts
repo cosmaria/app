@@ -144,7 +144,7 @@ export class NotificacaoModule implements OnModuleInit {
 
   onModuleInit(): void {
     for (const nome of NotificarSobreEventosService.EVENTOS_NOTIFICAVEIS) {
-      this.bus.assinar(nome, (evento) => this.notificador.notificar(evento));
+      this.bus.assinar(nome, (evento) => this.notificador.notificar(evento), 'core.notificacao');
     }
   }
 }

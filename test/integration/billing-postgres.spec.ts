@@ -10,7 +10,12 @@ import { ChavesDeLimite } from '@cosmaria/core-domain';
 import { PREMIUM_PUBLIC_API, type PremiumPublicApi } from '@cosmaria/core-public-api';
 import { AppModule } from '../../apps/api/src/app/app.module';
 import { DomainExceptionFilter } from '../../apps/api/src/app/auth/domain-exception.filter';
-import { aplicarMigrations, iniciarPostgres, iniciarRedis } from './support/containers';
+import {
+  aguardarAte,
+  aplicarMigrations,
+  iniciarPostgres,
+  iniciarRedis,
+} from './support/containers';
 
 const SEGREDO = 'segredo-de-integracao';
 const CABECALHO = 'x-cosmaria-assinatura';
@@ -42,6 +47,7 @@ describe('Billing & Premium contra Postgres/Redis reais (integração)', () => {
     process.env.REDIS_URL = redis.getConnectionUrl();
     process.env.ACCESS_TOKEN_SECRET = 'test-access';
     process.env.REFRESH_TOKEN_SECRET = 'test-refresh';
+    process.env.OUTBOX_POLL_MS = '50'; // efeitos de consumidores de eventos são assíncronos
     process.env.PAGAMENTO_WEBHOOK_SECRET = SEGREDO;
 
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
@@ -213,10 +219,18 @@ describe('Billing & Premium contra Postgres/Redis reais (integração)', () => {
   });
 
   it('toda mudança de status da assinatura deixa rastro na TrilhaDeAuditoria', async () => {
-    const { rows } = await pool.query<{ acao: string; detalhe: Record<string, unknown> }>(
-      `SELECT acao, detalhe FROM core.trilha_de_auditoria
-        WHERE entidade_afetada = 'AssinaturaPremium' ORDER BY registrado_em`,
-    );
+    // A trilha é gravada pelo assinante de auditoria via EDA (entrega assíncrona, outbox).
+    const trilha = () =>
+      pool.query<{ acao: string; detalhe: Record<string, unknown> }>(
+        `SELECT acao, detalhe FROM core.trilha_de_auditoria
+          WHERE entidade_afetada = 'AssinaturaPremium' ORDER BY registrado_em`,
+      );
+    await aguardarAte(async () => {
+      const acoes = (await trilha()).rows.map((r) => r.acao);
+      return acoes.includes('STATUS_PENDENTE_PAGAMENTO') && acoes.includes('STATUS_ATIVA');
+    });
+
+    const { rows } = await trilha();
     const acoes = rows.map((r) => r.acao);
     expect(acoes).toContain('STATUS_PENDENTE_PAGAMENTO');
     expect(acoes).toContain('STATUS_ATIVA');

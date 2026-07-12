@@ -6,4 +6,12 @@
 export interface DomainEvent {
   readonly nome: string;
   readonly ocorridoEm: Date;
+
+  /**
+   * Id estável do evento, atribuído pelo transporte durável (outbox) no momento da
+   * publicação e devolvido ao consumidor na (re)entrega. Ausente no caminho síncrono
+   * em processo (entrega exatamente-uma-vez inline). Consumidores idempotentes usam-no
+   * como chave de deduplicação contra reentrega (doc 04 §659).
+   */
+  readonly id?: string;
 }

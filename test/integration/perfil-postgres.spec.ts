@@ -9,7 +9,12 @@ import { ContextoDeApp } from '@cosmaria/core-domain';
 import { PERFIL_PUBLIC_API, type PerfilPublicApi } from '@cosmaria/core-public-api';
 import { AppModule } from '../../apps/api/src/app/app.module';
 import { DomainExceptionFilter } from '../../apps/api/src/app/auth/domain-exception.filter';
-import { aplicarMigrations, iniciarPostgres, iniciarRedis } from './support/containers';
+import {
+  aguardarAte,
+  aplicarMigrations,
+  iniciarPostgres,
+  iniciarRedis,
+} from './support/containers';
 
 /**
  * Integração da Identidade Social (doc 06) contra PostgreSQL real.
@@ -38,6 +43,7 @@ describe('Identidade Social contra Postgres real (integração)', () => {
     process.env.REDIS_URL = redis.getConnectionUrl();
     process.env.ACCESS_TOKEN_SECRET = 'test-access';
     process.env.REFRESH_TOKEN_SECRET = 'test-refresh';
+    process.env.OUTBOX_POLL_MS = '50'; // efeitos de consumidores de eventos são assíncronos
     // Versão 2 ligada só neste teste, para exercitar o modelo já pronto (doc 06).
     process.env.FEATURE_VINCULO_DE_PERFIS = 'true';
 
@@ -153,12 +159,15 @@ describe('Identidade Social contra Postgres real (integração)', () => {
     expect(rows[0].perfil_ids.sort()).toEqual([perfilGrowId, perfilMedId].sort());
     expect(rows[0].visivel_em).toEqual(['MED']);
 
-    // EDA ponta a ponta: o evento chegou ao assinante de auditoria (doc 08 §7).
-    const trilha = await pool.query<{ acao: string; detalhe: Record<string, unknown> }>(
-      `SELECT acao, detalhe FROM core.trilha_de_auditoria
-        WHERE entidade_afetada = 'RegistroDeVinculoDePerfis' AND entidade_id = $1`,
-      [vinculoId],
-    );
+    // EDA ponta a ponta: o evento chega ao assinante de auditoria de forma assíncrona (outbox).
+    const consultarTrilha = () =>
+      pool.query<{ acao: string; detalhe: Record<string, unknown> }>(
+        `SELECT acao, detalhe FROM core.trilha_de_auditoria
+          WHERE entidade_afetada = 'RegistroDeVinculoDePerfis' AND entidade_id = $1`,
+        [vinculoId],
+      );
+    await aguardarAte(async () => (await consultarTrilha()).rows.length === 1);
+    const trilha = await consultarTrilha();
     expect(trilha.rows).toHaveLength(1);
     expect(trilha.rows[0].acao).toBe('AUTORIZADO');
     // A trilha guarda a quantidade, nunca os ids — ela própria não cruza contextos.
@@ -181,12 +190,16 @@ describe('Identidade Social contra Postgres real (integração)', () => {
 
     await expect(perfis.perfisVinculadosPublicamente(perfilMedId)).resolves.toEqual([]);
 
-    const { rows } = await pool.query<{ acao: string }>(
-      `SELECT acao FROM core.trilha_de_auditoria
-        WHERE entidade_afetada = 'RegistroDeVinculoDePerfis' AND entidade_id = $1
-        ORDER BY registrado_em`,
-      [vinculoId],
-    );
+    // O REVOGADO chega à trilha de forma assíncrona (outbox) — aguarda os dois rastros.
+    const consultarTrilha = () =>
+      pool.query<{ acao: string }>(
+        `SELECT acao FROM core.trilha_de_auditoria
+          WHERE entidade_afetada = 'RegistroDeVinculoDePerfis' AND entidade_id = $1
+          ORDER BY registrado_em`,
+        [vinculoId],
+      );
+    await aguardarAte(async () => (await consultarTrilha()).rows.length === 2);
+    const { rows } = await consultarTrilha();
     expect(rows.map((r) => r.acao)).toEqual(['AUTORIZADO', 'REVOGADO']);
   });
 

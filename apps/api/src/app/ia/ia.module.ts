@@ -1,7 +1,17 @@
 import { Inject, Module, type OnModuleInit, type Provider } from '@nestjs/common';
 import type { Pool } from 'pg';
-import { ID_GENERATOR, type IdGenerator } from '@cosmaria/core-application';
-import { CryptoIdGenerator, InProcessEventPublisher } from '@cosmaria/core-infrastructure';
+import {
+  CACHE_PORT,
+  ID_GENERATOR,
+  type CachePort,
+  type IdGenerator,
+  type RegistroDeIdempotenciaRepository,
+} from '@cosmaria/core-application';
+import {
+  CacheRegistroDeIdempotenciaRepository,
+  CryptoIdGenerator,
+  InProcessEventPublisher,
+} from '@cosmaria/core-infrastructure';
 import {
   AvaliarAlertasUseCase,
   CalcularCorrelacaoCruzadaUseCase,
@@ -47,9 +57,12 @@ const providers: Provider[] = [
   },
   {
     provide: IngerirEventoService,
-    useFactory: (repo: PontoDeSerieRepository, idGen: IdGenerator) =>
-      new IngerirEventoService(repo, idGen),
-    inject: [PONTO_DE_SERIE_REPOSITORY, ID_GENERATOR],
+    useFactory: (repo: PontoDeSerieRepository, idGen: IdGenerator, cache: CachePort) => {
+      const idempotencia: RegistroDeIdempotenciaRepository =
+        new CacheRegistroDeIdempotenciaRepository(cache);
+      return new IngerirEventoService(repo, idGen, idempotencia);
+    },
+    inject: [PONTO_DE_SERIE_REPOSITORY, ID_GENERATOR, CACHE_PORT],
   },
   {
     provide: VINCULO_GROW_MED_REPOSITORY,
@@ -125,11 +138,11 @@ export class IaModule implements OnModuleInit {
   onModuleInit(): void {
     // A IA passa a ouvir os eventos de série temporal de Grow e Med (doc 05 §6).
     for (const nome of IngerirEventoService.EVENTOS_INGERIDOS) {
-      this.bus.assinar(nome, (evento) => this.ingestao.ingerir(evento));
+      this.bus.assinar(nome, (evento) => this.ingestao.ingerir(evento), 'ia.ingestao');
     }
     // E os eventos de opt-in Grow↔Med, que habilitam a correlação cruzada (doc 00).
     for (const nome of RegistrarVinculoGrowMedService.EVENTOS) {
-      this.bus.assinar(nome, (evento) => this.vinculos.processar(evento));
+      this.bus.assinar(nome, (evento) => this.vinculos.processar(evento), 'ia.vinculo-grow-med');
     }
   }
 }

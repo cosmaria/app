@@ -1,4 +1,5 @@
-import type { IdGenerator } from '@cosmaria/core-application';
+import type { IdGenerator, RegistroDeIdempotenciaRepository } from '@cosmaria/core-application';
+import { TTL_IDEMPOTENCIA_SEGUNDOS } from '@cosmaria/core-application';
 import type { DomainEvent } from '@cosmaria/core-domain';
 import { DominioDeDado, Fator, PontoDeSerie } from '@cosmaria/ia-domain';
 import { PontoDeSerieRepository } from '../ports/ia.repositories';
@@ -58,9 +59,23 @@ export class IngerirEventoService {
   constructor(
     private readonly repo: PontoDeSerieRepository,
     private readonly idGen: IdGenerator,
+    /**
+     * Opcional: dedup de reentrega. Presente quando o transporte é durável (outbox), que
+     * entrega ao-menos-uma-vez. No caminho síncrono em processo (`evento.id` ausente) não é
+     * usado — a entrega ali é exatamente-uma-vez.
+     */
+    private readonly idempotencia?: RegistroDeIdempotenciaRepository,
   ) {}
 
   async ingerir(evento: DomainEvent): Promise<void> {
+    // Reentrega (outbox at-least-once) não pode duplicar pontos de série (doc 04 §659).
+    if (evento.id && this.idempotencia) {
+      const nova = await this.idempotencia.registrarSeNova(
+        `ia:ingestao:${evento.id}`,
+        TTL_IDEMPOTENCIA_SEGUNDOS,
+      );
+      if (!nova) return;
+    }
     const pontos = this.mapear(evento);
     if (pontos.length > 0) {
       await this.repo.salvarVarios(pontos);

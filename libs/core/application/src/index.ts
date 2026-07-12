@@ -56,6 +56,8 @@ export {
   TTL_IDEMPOTENCIA_SEGUNDOS,
 } from './lib/ports/idempotencia.port';
 export type { RegistroDeIdempotenciaRepository } from './lib/ports/idempotencia.port';
+export { OUTBOX_REPOSITORY } from './lib/ports/outbox.repository';
+export type { OutboxRepository, OutboxRegistro } from './lib/ports/outbox.repository';
 export {
   PREFERENCIA_DE_NOTIFICACAO_REPOSITORY,
   NOTIFICACAO_REPOSITORY,

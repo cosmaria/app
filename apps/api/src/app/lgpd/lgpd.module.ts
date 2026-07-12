@@ -133,7 +133,7 @@ export class LgpdModule implements OnModuleInit {
   onModuleInit(): void {
     // Auditoria passa a ouvir os eventos críticos do barramento (doc 08 §7).
     for (const nome of RegistrarNaTrilhaDeAuditoriaService.EVENTOS_AUDITADOS) {
-      this.bus.assinar(nome, (evento) => this.auditoria.registrar(evento));
+      this.bus.assinar(nome, (evento) => this.auditoria.registrar(evento), 'core.auditoria');
     }
   }
 }

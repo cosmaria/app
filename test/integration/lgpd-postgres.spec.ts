@@ -8,7 +8,12 @@ import { criarPgPool, JwtTokenService } from '@cosmaria/core-infrastructure';
 import { Papel } from '@cosmaria/core-domain';
 import { AppModule } from '../../apps/api/src/app/app.module';
 import { DomainExceptionFilter } from '../../apps/api/src/app/auth/domain-exception.filter';
-import { aplicarMigrations, iniciarPostgres, iniciarRedis } from './support/containers';
+import {
+  aguardarAte,
+  aplicarMigrations,
+  iniciarPostgres,
+  iniciarRedis,
+} from './support/containers';
 
 /**
  * Integração de Consentimento/LGPD/Auditoria contra PostgreSQL real. Prova a
@@ -41,6 +46,7 @@ describe('LGPD & Auditoria contra Postgres real (integração)', () => {
     process.env.REDIS_URL = redis.getConnectionUrl();
     process.env.ACCESS_TOKEN_SECRET = 'test-access';
     process.env.REFRESH_TOKEN_SECRET = 'test-refresh';
+    process.env.OUTBOX_POLL_MS = '50'; // auditoria (EDA) é entregue de forma assíncrona
 
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
@@ -78,10 +84,13 @@ describe('LGPD & Auditoria contra Postgres real (integração)', () => {
     expect(consentimentos.rowCount).toBe(1);
     expect(consentimentos.rows[0].revogado_em).toBeNull();
 
-    const auditoria = await pool.query(
-      `SELECT acao FROM core.trilha_de_auditoria WHERE entidade_afetada = 'ConsentimentoRegistro'`,
-    );
-    expect(auditoria.rowCount ?? 0).toBeGreaterThanOrEqual(1);
+    // Auditoria via EDA: o assinante grava a trilha de forma assíncrona (outbox).
+    const consultarAuditoria = () =>
+      pool.query(
+        `SELECT acao FROM core.trilha_de_auditoria WHERE entidade_afetada = 'ConsentimentoRegistro'`,
+      );
+    await aguardarAte(async () => ((await consultarAuditoria()).rowCount ?? 0) >= 1);
+    const auditoria = await consultarAuditoria();
     expect(auditoria.rows[0].acao).toBe('CONCEDIDO');
   });
 

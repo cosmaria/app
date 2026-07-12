@@ -7,7 +7,12 @@ import type { StartedRedisContainer } from '@testcontainers/redis';
 import { criarPgPool } from '@cosmaria/core-infrastructure';
 import { AppModule } from '../../apps/api/src/app/app.module';
 import { DomainExceptionFilter } from '../../apps/api/src/app/auth/domain-exception.filter';
-import { aplicarMigrations, iniciarPostgres, iniciarRedis } from './support/containers';
+import {
+  aguardarAte,
+  aplicarMigrations,
+  iniciarPostgres,
+  iniciarRedis,
+} from './support/containers';
 
 /**
  * Integração fina Grow↔Med↔IA (doc 12 passo 5) contra PostgreSQL real — o payoff da
@@ -34,6 +39,7 @@ describe('Grow×Med×IA — integração fina (integração)', () => {
     process.env.REDIS_URL = redis.getConnectionUrl();
     process.env.ACCESS_TOKEN_SECRET = 'test-access';
     process.env.REFRESH_TOKEN_SECRET = 'test-refresh';
+    process.env.OUTBOX_POLL_MS = '50'; // entrega assíncrona rápida no teste
 
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication({ rawBody: true });
@@ -161,17 +167,25 @@ describe('Grow×Med×IA — integração fina (integração)', () => {
       .send({ loteId })
       .expect(201);
 
-    // O opt-in ficou registrado no schema ia.
-    const vinc = await pool.query(
-      `SELECT 1 FROM ia.vinculo_grow_med WHERE usuario_id = $1 AND produto_id = $2`,
-      [usuarioId, produtoId],
-    );
-    expect(vinc.rowCount).toBe(1);
+    // O opt-in é registrado no schema ia de forma assíncrona (evento ProdutoVinculadoALote
+    // pelo outbox). Aguarda a projeção antes de exigir a linha.
+    const temVinculo = async (): Promise<boolean> => {
+      const vinc = await pool.query(
+        `SELECT 1 FROM ia.vinculo_grow_med WHERE usuario_id = $1 AND produto_id = $2`,
+        [usuarioId, produtoId],
+      );
+      return vinc.rowCount === 1;
+    };
+    await aguardarAte(temVinculo);
+    expect(await temVinculo()).toBe(true);
 
-    const r = await request(server())
-      .get('/v1/ia/correlacoes/cruzada?fatorGrow=VPD&fatorMed=DOR')
-      .set(auth())
-      .expect(200);
+    // Entrega assíncrona (outbox): a IA ingeriu VPD (Grow) e DOR (Med) um tick após as
+    // escritas. Aguarda a série ficar suficiente antes de exigir a correlação.
+    const correlacao = () =>
+      request(server()).get('/v1/ia/correlacoes/cruzada?fatorGrow=VPD&fatorMed=DOR').set(auth());
+    await aguardarAte(async () => (await correlacao()).body?.suficiente === true);
+
+    const r = await correlacao().expect(200);
     expect(r.body.suficiente).toBe(true);
     expect(r.body.correlacao.tamanhoAmostra).toBe(8);
     expect(r.body.correlacao.fatorA).toBe('VPD');
@@ -183,9 +197,12 @@ describe('Grow×Med×IA — integração fina (integração)', () => {
       .delete(`/v1/produtos/${produtoId}/vincular-lote`)
       .set(auth())
       .expect(204);
-    await request(server())
-      .get('/v1/ia/correlacoes/cruzada?fatorGrow=VPD&fatorMed=DOR')
-      .set(auth())
-      .expect(403);
+    // Desvínculo também é assíncrono (evento ProdutoDesvinculadoDoLote): aguarda o opt-in cair.
+    await aguardarAte(async () => {
+      const r = await request(server())
+        .get('/v1/ia/correlacoes/cruzada?fatorGrow=VPD&fatorMed=DOR')
+        .set(auth());
+      return r.status === 403;
+    });
   });
 });

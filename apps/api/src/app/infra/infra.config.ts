@@ -77,3 +77,15 @@ export function segredoUrlDeMidia(): string {
 export function urlBaseDeMidia(): string {
   return process.env.MIDIA_URL_BASE ?? 'http://localhost:3000/v1/arquivos';
 }
+
+/**
+ * Ajustes do despachante do outbox (doc 04 §9). Só têm efeito quando há Postgres — sem ele,
+ * a entrega é síncrona em processo e o despachante nem é criado. Defaults conservadores;
+ * override por ambiente sem tocar no código.
+ */
+export function outboxIntervaloMs(): number {
+  return Number(process.env.OUTBOX_POLL_MS ?? 1000);
+}
+export function outboxMaxTentativas(): number {
+  return Number(process.env.OUTBOX_MAX_TENTATIVAS ?? 8);
+}

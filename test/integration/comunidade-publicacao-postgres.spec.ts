@@ -7,7 +7,12 @@ import type { StartedRedisContainer } from '@testcontainers/redis';
 import { assinarPayloadWebhook, criarPgPool } from '@cosmaria/core-infrastructure';
 import { AppModule } from '../../apps/api/src/app/app.module';
 import { DomainExceptionFilter } from '../../apps/api/src/app/auth/domain-exception.filter';
-import { aplicarMigrations, iniciarPostgres, iniciarRedis } from './support/containers';
+import {
+  aguardarAte,
+  aplicarMigrations,
+  iniciarPostgres,
+  iniciarRedis,
+} from './support/containers';
 
 /**
  * Integração da Comunidade (doc 06) contra PostgreSQL real.
@@ -37,6 +42,7 @@ describe('Comunidade contra Postgres real (integração)', () => {
     process.env.ACCESS_TOKEN_SECRET = 'test-access';
     process.env.REFRESH_TOKEN_SECRET = 'test-refresh';
     process.env.PAGAMENTO_WEBHOOK_SECRET = SEGREDO;
+    process.env.OUTBOX_POLL_MS = '50'; // projeção da Comunidade chega por evento (assíncrono)
 
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication({ rawBody: true });
@@ -88,6 +94,15 @@ describe('Comunidade contra Postgres real (integração)', () => {
       .set(auth())
       .send(corpo)
       .expect(201);
+    // A projeção na Comunidade chega por evento (ConteudoCompartilhadoAtualizado) — assíncrono.
+    // Aguarda a linha existir antes de o teste ler feed/projeção.
+    await aguardarAte(async () => {
+      const { rowCount } = await pool.query(
+        `SELECT 1 FROM comunidade.publicacao WHERE conteudo_id = $1`,
+        [ciclo.body.cicloId],
+      );
+      return (rowCount ?? 0) >= 1;
+    });
     return ciclo.body.cicloId as string;
   };
 
@@ -123,10 +138,14 @@ describe('Comunidade contra Postgres real (integração)', () => {
       .send({ escopo: 'SEGUIDORES', titulo: 'Reeditado' })
       .expect(201);
 
-    const { rows } = await pool.query(
-      `SELECT escopo, titulo FROM comunidade.publicacao WHERE conteudo_id = $1`,
-      [cicloId],
-    );
+    // A reprojeção (mesmo evento, assíncrono) atualiza a linha existente — aguarda o novo valor.
+    const projecao = () =>
+      pool.query(`SELECT escopo, titulo FROM comunidade.publicacao WHERE conteudo_id = $1`, [
+        cicloId,
+      ]);
+    await aguardarAte(async () => (await projecao()).rows[0]?.escopo === 'SEGUIDORES');
+
+    const { rows } = await projecao();
     expect(rows).toHaveLength(1);
     expect(rows[0].escopo).toBe('SEGUIDORES');
     expect(rows[0].titulo).toBe('Reeditado');

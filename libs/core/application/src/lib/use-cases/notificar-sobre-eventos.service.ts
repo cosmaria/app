@@ -1,12 +1,22 @@
-import {
-  AssinaturaAtualizada,
-  CategoriaDeNotificacao,
-  type DomainEvent,
-  LimitePremiumAtingido,
-  PagamentoFalhou,
-  StatusAssinatura,
-} from '@cosmaria/core-domain';
+import { CategoriaDeNotificacao, type DomainEvent, StatusAssinatura } from '@cosmaria/core-domain';
 import { EnviarNotificacaoService, type EnviarNotificacaoInput } from './notificacao.use-cases';
+
+/**
+ * Contratos de payload dos eventos notificáveis (Catálogo de Domínio). Lidos por NOME, não
+ * por `instanceof`: o barramento durável (outbox) entrega o evento como objeto de contrato,
+ * sem a classe original. Fronteira anticorrupção igual à da IA (doc 04 §24, §16.1).
+ */
+interface EvAssinatura extends DomainEvent {
+  usuarioId: string;
+  statusNovo: StatusAssinatura;
+}
+interface EvPagamentoFalhou extends DomainEvent {
+  usuarioId: string;
+}
+interface EvLimitePremium extends DomainEvent {
+  usuarioId: string;
+  chave: string;
+}
 
 /**
  * Segundo consumidor do barramento de eventos (o primeiro é a auditoria).
@@ -52,32 +62,36 @@ export class NotificarSobreEventosService {
   }
 
   private mapear(evento: DomainEvent): EnviarNotificacaoInput | null {
-    if (evento instanceof AssinaturaAtualizada) {
-      return this.deAssinatura(evento);
+    switch (evento.nome) {
+      case 'AssinaturaAtualizada':
+        return this.deAssinatura(evento as EvAssinatura);
+      case 'PagamentoFalhou': {
+        const e = evento as EvPagamentoFalhou;
+        return {
+          usuarioId: e.usuarioId,
+          categoria: CategoriaDeNotificacao.BILLING,
+          titulo: 'Não conseguimos processar seu pagamento',
+          corpo: 'Atualize sua forma de pagamento para manter o Premium ativo.',
+          chaveDeAgrupamento: 'pagamento:falhou',
+        };
+      }
+      case 'LimitePremiumAtingido': {
+        const e = evento as EvLimitePremium;
+        return {
+          usuarioId: e.usuarioId,
+          categoria: CategoriaDeNotificacao.BILLING,
+          // Tom informativo, nunca de pressão (doc 07 §4 — sem paywall agressivo).
+          titulo: 'Você atingiu um limite do plano gratuito',
+          corpo: `Seus dados continuam completos e acessíveis. O Premium amplia o limite de "${e.chave}".`,
+          chaveDeAgrupamento: `limite:${e.chave}`,
+        };
+      }
+      default:
+        return null;
     }
-    if (evento instanceof PagamentoFalhou) {
-      return {
-        usuarioId: evento.usuarioId,
-        categoria: CategoriaDeNotificacao.BILLING,
-        titulo: 'Não conseguimos processar seu pagamento',
-        corpo: 'Atualize sua forma de pagamento para manter o Premium ativo.',
-        chaveDeAgrupamento: 'pagamento:falhou',
-      };
-    }
-    if (evento instanceof LimitePremiumAtingido) {
-      return {
-        usuarioId: evento.usuarioId,
-        categoria: CategoriaDeNotificacao.BILLING,
-        // Tom informativo, nunca de pressão (doc 07 §4 — sem paywall agressivo).
-        titulo: 'Você atingiu um limite do plano gratuito',
-        corpo: `Seus dados continuam completos e acessíveis. O Premium amplia o limite de "${evento.chave}".`,
-        chaveDeAgrupamento: `limite:${evento.chave}`,
-      };
-    }
-    return null;
   }
 
-  private deAssinatura(evento: AssinaturaAtualizada): EnviarNotificacaoInput | null {
+  private deAssinatura(evento: EvAssinatura): EnviarNotificacaoInput | null {
     if (!NotificarSobreEventosService.STATUS_NOTIFICAVEIS.includes(evento.statusNovo)) {
       return null;
     }

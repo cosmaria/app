@@ -32,3 +32,21 @@ export async function aplicarMigrations(databaseUrl: string): Promise<void> {
     log: () => undefined, // silencia o log verboso das migrations no output do teste
   });
 }
+
+/**
+ * Espera por consistência eventual: repete `condicao` até ela devolver `true` ou estourar o
+ * timeout. Necessário desde que a entrega de eventos passou a ser assíncrona (outbox, doc 04
+ * §9) — a ingestão da IA acontece um tick depois da escrita, não mais inline.
+ */
+export async function aguardarAte(
+  condicao: () => Promise<boolean>,
+  { timeoutMs = 10_000, intervaloMs = 50 }: { timeoutMs?: number; intervaloMs?: number } = {},
+): Promise<void> {
+  const limite = Date.now() + timeoutMs;
+  for (;;) {
+    if (await condicao()) return;
+    if (Date.now() > limite)
+      throw new Error(`aguardarAte: condição não satisfeita em ${timeoutMs}ms`);
+    await new Promise((r) => setTimeout(r, intervaloMs));
+  }
+}

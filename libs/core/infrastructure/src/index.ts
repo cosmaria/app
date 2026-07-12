@@ -79,3 +79,7 @@ export {
 
 export { InProcessEventPublisher } from './lib/events/in-process-event-publisher';
 export type { ManipuladorDeEvento } from './lib/events/in-process-event-publisher';
+export { OutboxEventPublisher } from './lib/events/outbox-event-publisher';
+export { OutboxDispatcher, CONFIG_OUTBOX_PADRAO } from './lib/events/outbox-dispatcher';
+export type { OutboxDispatcherConfig, RegistradorDeOutbox } from './lib/events/outbox-dispatcher';
+export { PostgresOutboxRepository } from './lib/persistence/postgres-outbox.repository';

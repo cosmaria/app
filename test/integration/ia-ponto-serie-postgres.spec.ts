@@ -7,7 +7,12 @@ import type { StartedRedisContainer } from '@testcontainers/redis';
 import { criarPgPool } from '@cosmaria/core-infrastructure';
 import { AppModule } from '../../apps/api/src/app/app.module';
 import { DomainExceptionFilter } from '../../apps/api/src/app/auth/domain-exception.filter';
-import { aplicarMigrations, iniciarPostgres, iniciarRedis } from './support/containers';
+import {
+  aguardarAte,
+  aplicarMigrations,
+  iniciarPostgres,
+  iniciarRedis,
+} from './support/containers';
 
 /**
  * Integração da IA (doc 05 §6) contra PostgreSQL real.
@@ -33,6 +38,7 @@ describe('IA série temporal contra Postgres real (integração)', () => {
     process.env.REDIS_URL = redis.getConnectionUrl();
     process.env.ACCESS_TOKEN_SECRET = 'test-access';
     process.env.REFRESH_TOKEN_SECRET = 'test-refresh';
+    process.env.OUTBOX_POLL_MS = '50'; // entrega assíncrona rápida no teste
 
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication({ rawBody: true });
@@ -85,14 +91,24 @@ describe('IA série temporal contra Postgres real (integração)', () => {
         .expect(201);
     }
 
-    const doses = await pool.query<{ total: string }>(
-      `SELECT count(*) AS total FROM ia.ponto_serie WHERE fator = 'DOSE'`,
+    // Entrega assíncrona (outbox): a ingestão acontece um tick depois da escrita.
+    const contar = async (fator: string): Promise<number> => {
+      const { rows } = await pool.query<{ total: string }>(
+        `SELECT count(*) AS total FROM ia.ponto_serie WHERE fator = $1`,
+        [fator],
+      );
+      return Number(rows[0].total);
+    };
+    await aguardarAte(async () => (await contar('DOSE')) === 8 && (await contar('DOR')) === 8);
+
+    expect(await contar('DOSE')).toBe(8);
+    expect(await contar('DOR')).toBe(8);
+
+    // Toda linha do outbox foi entregue (nenhuma pendente/morta).
+    const pendentes = await pool.query<{ total: string }>(
+      `SELECT count(*) AS total FROM core.outbox WHERE status <> 'ENTREGUE'`,
     );
-    expect(Number(doses.rows[0].total)).toBe(8);
-    const dores = await pool.query<{ total: string }>(
-      `SELECT count(*) AS total FROM ia.ponto_serie WHERE fator = 'DOR'`,
-    );
-    expect(Number(dores.rows[0].total)).toBe(8);
+    expect(Number(pendentes.rows[0].total)).toBe(0);
   });
 
   it('o banco recusa domínio fora do catálogo', async () => {
