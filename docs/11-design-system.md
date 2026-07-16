@@ -1,5 +1,7 @@
 # 11 — Design System (Documento 100% Completo)
 
+> **Extensão (2026-07-16):** a especificação aprofundada de linguagem visual, UI Kit, biblioteca de componentes, templates de tela e produção no Figma vive em [`design-system/README.md`](design-system/README.md), subordinada a este documento. Este documento continua sendo a autoridade raiz e o ponto de entrada do sistema visual.
+
 > Status: **Rascunho para validação.** Especificação de produto de nível enterprise — não um guia visual solto. Todos os valores concretos (cor, tipografia, grid, espaçamento, sombra, borda, motion) são **propostas oficiais da arquitetura, candidatas a validação com usuários reais antes do lançamento** — não decisões finais imutáveis. Dark Mode é o padrão da plataforma; Light Mode existe desde o MVP usando exatamente os mesmos tokens. Um único Design System para toda a COSMARIA — Grow, Med e futuros aplicativos compartilham a mesma biblioteca de componentes, diferenciando-se apenas pelos **Accent Tokens**.
 
 ---
