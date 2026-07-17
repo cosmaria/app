@@ -1,3 +1,6 @@
-// @cosmaria/shared-ui-components — placeholder do bootstrap (Sprint 01). Sem regra de negócio.
-// Ver docs/14-estrutura-do-codigo.md
-export const shared_ui_components_placeholder = 'shared-ui-components';
+// @cosmaria/shared-ui-components — biblioteca de componentes React Native (doc 11 §7,
+// doc 14 §9). Consome @cosmaria/shared-design-tokens; nunca hardcode de valor.
+// Button é o componente piloto (ui-kit §26 / component-library família 8).
+
+export { Button } from './button/button';
+export type { ButtonProps, ButtonVariant, ButtonSize } from './button/button';

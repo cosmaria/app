@@ -716,18 +716,18 @@ Med deve parecer:
 
 ### 9.2 Acento cromático
 
-O acento do Med é um **azul clínico profundo com leve direção índigo**, visualmente distinto do violeta institucional do Core.
+O acento do Med é um **índigo calmo**, deliberadamente não verde para evitar qualquer leitura recreativa, comunicando confiança clínica e discrição.
 
-**Referência principal oficial:** `#4F7EDC` no tema escuro e `#3F64B5` no tema claro.
+**Referência principal oficial (doc 11 §5.1, fonte de verdade):** `#6E7FE8` no tema escuro e `#4A5BC4` no tema claro.
 
 **Justificativa:**
 
-- azul comunica estabilidade e confiança sem recorrer ao verde associado à cannabis;
-- a distância cromática em relação ao violeta do Core reduz confusão entre contexto institucional e contexto clínico;
+- o índigo comunica estabilidade e confiança sem recorrer ao verde associado à cannabis;
+- a proximidade em relação ao violeta do Core é reconhecida (doc 11 §15) e será validada com usuários; a distinção entre contexto institucional e clínico apoia-se também em conteúdo, ícones e tom, não apenas no matiz;
 - a saturação moderada evita aparência hospitalar ou corporativa genérica;
 - funciona como acento discreto em ambientes com dados sensíveis.
 
-Esta definição substitui o valor candidato anterior do Med quando o Design System for revisado.
+Estes valores seguem exatamente o token oficial do Med definido no doc 11 §5.1 e implementado no código (`color.accent.med`); nenhuma variação de matiz é introduzida aqui.
 
 ### 9.3 Uso do acento
 
@@ -984,7 +984,7 @@ Essa proporção não é uma métrica de implementação, mas um critério visua
 | Superfície secundária | `#EEF1F4` | separação sem sombra excessiva |
 | Texto principal | `#10151A` | alto contraste sem preto absoluto |
 | Texto secundário | `#4B5760` | leitura auxiliar |
-| Texto terciário | `#6F7C86` | metadados e suporte |
+| Texto terciário | `#7C8790` | metadados e suporte |
 | Borda | `#DDE3E8` | organização silenciosa |
 
 ### 12.5 Cores de identidade
@@ -993,16 +993,18 @@ Essa proporção não é uma métrica de implementação, mas um critério visua
 |---|---:|---:|---|
 | Core | `#8B7FE0` | `#5F4FCC` | conhecimento, cosmos, tecnologia serena |
 | Grow | `#2E9E6B` | `#1F7A52` | vida, produtividade, técnica botânica |
-| Med | `#4F7EDC` | `#3F64B5` | confiança clínica, calma, discrição |
+| Med | `#6E7FE8` | `#4A5BC4` | confiança clínica, calma, discrição |
 | Premium | `#C4A56A` | `#8F6E35` | profundidade, valor e maturidade |
+
+*(Med, Core e Grow seguem exatamente os tokens oficiais do doc 11 §5.1 / código. A cor **Premium** é **candidata** (doc 11 §4): ainda não possui token correspondente no doc 11 nem no código — sua formalização é decisão futura, não um valor definitivo.)*
 
 ### 12.6 Cores semânticas
 
 | Significado | Escuro | Claro | Regra |
 |---|---:|---:|---|
-| Sucesso | `#34C77B` | `#1E8F58` | ação concluída ou estado positivo confirmado |
-| Atenção | `#E8A93E` | `#A96C16` | requer atenção, sem criticidade imediata |
-| Crítico/erro | `#E5675E` | `#B8352D` | falha, risco real ou ação destrutiva |
+| Sucesso | `#34C77B` | `#1E9A5C` | ação concluída ou estado positivo confirmado |
+| Atenção | `#E8A93E` | `#B9791E` | requer atenção, sem criticidade imediata |
+| Crítico/erro | `#E5675E` | `#C6382E` | falha, risco real ou ação destrutiva |
 | Informação | `#4EA1E8` | `#1F71B8` | orientação neutra e contexto |
 
 Nenhuma cor semântica pode ser usada apenas por estética. Ela sempre deve possuir significado consistente.
@@ -3604,8 +3606,8 @@ Grow parece feito por quem compreende cultivo; Med parece confiável para acompa
 
 - Core: violeta-cosmos.
 - Grow: verde-teal técnico.
-- Med: azul clínico profundo.
-- Premium: champanhe/bronze discreto.
+- Med: índigo clínico calmo.
+- Premium: champanhe/bronze discreto *(candidato — sem token oficial ainda)*.
 
 ### 49.3 Decisões que dependem de validação contínua
 

@@ -576,6 +576,8 @@ Superfícies devem ser diferenciadas primeiro por contraste de plano, borda e es
 
 | `color.text.tertiary` | #6B7885 | #7C8790 | Metadados não essenciais, desde que mantenham contraste. |
 
+| `color.text.on-accent` | #FFFFFF | #FFFFFF | Texto/ícone sobre superfície Accent (ex.: botão primário). Branco nos dois temas. Código: `color.text.onAccent`. Não usar sobre superfícies semânticas (ex.: destrutivo sobre crítico). |
+
 
 
 ### 7.5 Cores de borda
@@ -5549,7 +5551,7 @@ Este anexo consolida dimensões visuais de referência para produção do UI Kit
 | --- | ---: | ---: | ---: | ---: | --- |
 | Pequeno | 36px, com alvo de 44px | 12px | 8px | 16px | Tabelas e densidade compacta em desktop |
 | Médio | 44px | 16px | 8px | 20px | Padrão da plataforma |
-| Grande | 52px | 20px | 8px | 24px | Ação de foco único, onboarding e mobile |
+| Grande | 52px | 24px | 8px | 24px | Ação de foco único, onboarding e mobile |
 | Somente ícone | 44×44px | — | — | 20–24px | Ações inequívocas |
 
 **Regras adicionais:**

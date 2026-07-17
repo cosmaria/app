@@ -1,0 +1,78 @@
+{
+  "Color/Theme": {
+    "modes": ["Dark", "Light"],
+    "variables": {
+      "bg/base": {
+        "type": "COLOR",
+        "values": { "Dark": "#0B0F14", "Light": "#F7F8FA" },
+        "description": "Fundo de aplicação"
+      },
+      "bg/surface": {
+        "type": "COLOR",
+        "values": { "Dark": "#12181F", "Light": "#FFFFFF" },
+        "description": "Superfície principal"
+      },
+      "bg/surface-2": {
+        "type": "COLOR",
+        "values": { "Dark": "#1A222B", "Light": "#EEF1F4" },
+        "description": "Superfície elevada"
+      },
+      "text/primary": { "type": "COLOR", "values": { "Dark": "#EDF1F5", "Light": "#10151A" } },
+      "text/secondary": { "type": "COLOR", "values": { "Dark": "#9AA7B2", "Light": "#4B5760" } },
+      "text/tertiary": { "type": "COLOR", "values": { "Dark": "#6B7885", "Light": "#7C8790" } },
+      "text/on-accent": {
+        "type": "COLOR",
+        "values": { "Dark": "#FFFFFF", "Light": "#FFFFFF" },
+        "description": "Texto/ícone sobre superfície Accent"
+      },
+      "border": { "type": "COLOR", "values": { "Dark": "#232D38", "Light": "#DDE3E8" } },
+      "semantic/success": { "type": "COLOR", "values": { "Dark": "#34C77B", "Light": "#1E9A5C" } },
+      "semantic/warning": { "type": "COLOR", "values": { "Dark": "#E8A93E", "Light": "#B9791E" } },
+      "semantic/critical": { "type": "COLOR", "values": { "Dark": "#E5675E", "Light": "#C6382E" } },
+      "semantic/info": { "type": "COLOR", "values": { "Dark": "#4EA1E8", "Light": "#1F71B8" } }
+    }
+  },
+  "Color/Context": {
+    "modes": ["Core", "Grow", "Med"],
+    "variables": {
+      "accent/dark": {
+        "type": "COLOR",
+        "values": { "Core": "#8B7FE0", "Grow": "#2E9E6B", "Med": "#6E7FE8" },
+        "description": "Accent por contexto (tema Dark)"
+      },
+      "accent/light": {
+        "type": "COLOR",
+        "values": { "Core": "#5F4FCC", "Grow": "#1F7A52", "Med": "#4A5BC4" },
+        "description": "Accent por contexto (tema Light)"
+      }
+    }
+  },
+  "Dimension/Scale": {
+    "modes": ["Default"],
+    "variables": {
+      "space/1": { "type": "FLOAT", "values": { "Default": 4 } },
+      "space/2": { "type": "FLOAT", "values": { "Default": 8 } },
+      "space/3": { "type": "FLOAT", "values": { "Default": 12 } },
+      "space/4": { "type": "FLOAT", "values": { "Default": 16 } },
+      "space/6": { "type": "FLOAT", "values": { "Default": 24 } },
+      "space/8": { "type": "FLOAT", "values": { "Default": 32 } },
+      "space/12": { "type": "FLOAT", "values": { "Default": 48 } },
+      "space/16": { "type": "FLOAT", "values": { "Default": 64 } },
+      "space/24": { "type": "FLOAT", "values": { "Default": 96 } },
+      "radius/sm": { "type": "FLOAT", "values": { "Default": 4 } },
+      "radius/md": { "type": "FLOAT", "values": { "Default": 8 } },
+      "radius/lg": { "type": "FLOAT", "values": { "Default": 16 } },
+      "radius/pill": { "type": "FLOAT", "values": { "Default": 999 } },
+      "border/hairline": { "type": "FLOAT", "values": { "Default": 1 } },
+      "border/focus": { "type": "FLOAT", "values": { "Default": 2 } }
+    }
+  },
+  "Opacity/Semantic": {
+    "modes": ["Default"],
+    "variables": {
+      "disabled": { "type": "FLOAT", "values": { "Default": 0.4 } },
+      "overlay": { "type": "FLOAT", "values": { "Default": 0.6 } },
+      "hover-overlay": { "type": "FLOAT", "values": { "Default": 0.1 } }
+    }
+  }
+}

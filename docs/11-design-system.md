@@ -58,7 +58,10 @@
 | `color.text.primary` | `#EDF1F5` | `#10151A` |
 | `color.text.secondary` | `#9AA7B2` | `#4B5760` |
 | `color.text.tertiary` | `#6B7885` | `#7C8790` |
+| `color.text.on-accent` | `#FFFFFF` | `#FFFFFF` |
 | `color.border` | `#232D38` | `#DDE3E8` |
+
+> `color.text.on-accent` representa texto/ícone exibido **sobre uma superfície Accent** (ex.: botão primário). É branco nos dois temas porque o accent é saturado tanto em Dark quanto em Light. No código, a chave equivalente é `color.text.onAccent` (camelCase, mesma convenção de `bg.surface-2` ↔ `bg.surface2`). Não se aplica a texto sobre superfícies semânticas (ex.: destrutivo sobre `critical`), que é uma função semântica distinta.
 
 **Semânticos (compartilhados, independentes do Accent Token — nunca usados como identidade visual de app)**
 

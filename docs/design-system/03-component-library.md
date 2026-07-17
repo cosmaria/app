@@ -778,7 +778,7 @@ Botões padronizados controlam prioridade, previnem múltiplas ações primária
 | --- | --- |
 | Pequeno | 36px visual; alvo 44px; padding 12px; ícone 16px; radius.sm |
 | Médio | 44px; padding 16px; ícone 20px; radius.md |
-| Grande | 52px; padding 20px; ícone 24px; radius.md |
+| Grande | 52px; padding 24px; ícone 24px; radius.md |
 | Gap ícone–texto | 8px |
 
 Margens externas pertencem ao padrão de composição, não ao componente. O componente não pode mudar de altura entre estados equivalentes; texto ampliado pode aumentar sua altura, nunca reduzi-la.
