@@ -98,14 +98,6 @@ interface VariantColors {
   readonly weight: TextStyle['fontWeight'];
 }
 
-/**
- * Texto branco sobre preenchimento crítico (variante destrutiva). NÃO é conteúdo
- * sobre Accent — por isso não usa `color.text.on-accent` (regra semântica: destrutivo
- * fica sobre `semantic.critical`, não sobre accent). Um token dedicado de "texto sobre
- * crítico" pode absorvê-lo no futuro; hoje permanece como este literal local.
- */
-const ON_CRITICAL = '#FFFFFF';
-
 function resolveColors(
   variant: ButtonVariant,
   theme: ReturnType<typeof buildTheme>,
@@ -123,7 +115,9 @@ function resolveColors(
       return {
         background: theme.semantic.critical,
         border: undefined,
-        text: ON_CRITICAL,
+        // Conteúdo sobre superfície crítica → token semântico dedicado
+        // (doc 11 §5.1, color.text.on-critical), independente de on-accent.
+        text: theme.text.onCritical,
         weight: fontWeight.semibold,
       };
     case 'secondary':

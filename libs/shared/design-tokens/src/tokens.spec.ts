@@ -174,6 +174,12 @@ describe('paridade do export Figma com os tokens canônicos (fonte única)', () 
     expect(v.values['Light']).toBe(color.text.onAccent.light);
   });
 
+  it('Color/Theme text/on-critical = color.text.onCritical', () => {
+    const v = figma['Color/Theme'].variables['text/on-critical'];
+    expect(v.values['Dark']).toBe(color.text.onCritical.dark);
+    expect(v.values['Light']).toBe(color.text.onCritical.light);
+  });
+
   it('Color/Context accent Med (Dark/Light) = color.accent.med', () => {
     expect(figma['Color/Context'].variables['accent/dark'].values['Med']).toBe(
       color.accent.med.dark,

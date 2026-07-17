@@ -110,7 +110,7 @@ describe('Button — tamanhos (ui-kit §26)', () => {
   });
 });
 
-describe('Button — on-accent e ausência de hex para conteúdo sobre accent (doc 11 §5.1)', () => {
+describe('Button — tokens de conteúdo sobre accent e sobre crítico (doc 11 §5.1)', () => {
   it('primário usa color.text.onAccent (#FFFFFF) no texto, nos dois temas', () => {
     const dark = render(<Button label="Salvar" variant="primary" context="med" mode="dark" />);
     expect(labelStyleOf(dark).color).toBe(buildTheme('dark', 'med').text.onAccent);
@@ -120,14 +120,22 @@ describe('Button — on-accent e ausência de hex para conteúdo sobre accent (d
     expect(labelStyleOf(light).color).toBe('#FFFFFF');
   });
 
-  it('o componente não inlina hex de accent para conteúdo sobre accent', () => {
+  it('destrutivo usa color.text.onCritical (#FFFFFF) no texto, nos dois temas', () => {
+    const dark = render(<Button label="Excluir" variant="destructive" mode="dark" />);
+    expect(labelStyleOf(dark).color).toBe(buildTheme('dark', 'core').text.onCritical);
+    expect(labelStyleOf(dark).color).toBe('#FFFFFF');
+
+    const light = render(<Button label="Excluir" variant="destructive" mode="light" />);
+    expect(labelStyleOf(light).color).toBe('#FFFFFF');
+  });
+
+  it('o componente não inlina NENHUM hex — accent e crítico usam tokens', () => {
     const src = readFileSync(resolve(__dirname, 'button.tsx'), 'utf8');
-    // O primário referencia o TOKEN, nunca um hex cru.
+    // Primário → token on-accent; destrutivo → token on-critical.
     expect(src).toMatch(/text:\s*theme\.text\.onAccent/);
-    // Qualquer hex presente no arquivo é apenas o branco sobre crítico (destrutivo),
-    // documentado — nunca um valor de accent inlinado.
-    const hexes = src.match(/#[0-9A-Fa-f]{6}/g) ?? [];
-    for (const h of hexes) expect(h.toUpperCase()).toBe('#FFFFFF');
+    expect(src).toMatch(/text:\s*theme\.text\.onCritical/);
+    // Nenhum hexadecimal cru permanece no componente (ON_CRITICAL foi tokenizado).
+    expect(src.match(/#[0-9A-Fa-f]{6}/g) ?? []).toHaveLength(0);
   });
 });
 

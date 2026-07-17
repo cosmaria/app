@@ -30,6 +30,11 @@ describe('resolvePalette', () => {
     expect(resolvePalette('light').text.onAccent).toBe('#FFFFFF');
   });
 
+  it('onCritical é resolvido (branco nos dois temas) e distinto do papel de accent', () => {
+    expect(resolvePalette('dark').text.onCritical).toBe(color.text.onCritical.dark);
+    expect(resolvePalette('light').text.onCritical).toBe('#FFFFFF');
+  });
+
   it('a paleta resolvida NÃO expõe accent (accent entra por contexto)', () => {
     expect('accent' in resolvePalette('dark')).toBe(false);
   });
@@ -60,6 +65,7 @@ describe('buildTheme', () => {
     expect(t.context).toBe('med');
     expect(t.accent).toBe(color.accent.med.dark);
     expect(t.text.onAccent).toBe('#FFFFFF');
+    expect(t.text.onCritical).toBe('#FFFFFF');
     expect(t.bg.base).toBe(color.bg.base.dark);
   });
 

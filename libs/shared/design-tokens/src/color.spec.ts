@@ -55,6 +55,14 @@ describe('color — valores aprovados (doc 11 §5.1)', () => {
     expect(color.text.onAccent.light).toBe('#FFFFFF');
   });
 
+  it('color.text.onCritical = #FFFFFF em Dark e Light, independente de onAccent', () => {
+    // Texto/ícone sobre superfície semântica crítica (doc 11 §5.1, on-critical).
+    expect(color.text.onCritical.dark).toBe('#FFFFFF');
+    expect(color.text.onCritical.light).toBe('#FFFFFF');
+    // Mesmo valor hoje, mas NÃO é alias — tokens independentes (funções distintas).
+    expect(color.text.onCritical).not.toBe(color.text.onAccent);
+  });
+
   it('Semânticos batem com o doc 11 §5.1', () => {
     expect(color.semantic.success).toEqual({ dark: '#34C77B', light: '#1E9A5C' });
     expect(color.semantic.warning).toEqual({ dark: '#E8A93E', light: '#B9791E' });
@@ -96,6 +104,7 @@ describe('color — presença dos tokens obrigatórios', () => {
     expect(Object.keys(color.bg).sort()).toEqual(['base', 'surface', 'surface2']);
     expect(Object.keys(color.text).sort()).toEqual([
       'onAccent',
+      'onCritical',
       'primary',
       'secondary',
       'tertiary',

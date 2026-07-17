@@ -45,6 +45,7 @@ const CASES: Array<{ docToken: string; code: ThemedColor }> = [
   { docToken: 'color.text.secondary', code: color.text.secondary },
   { docToken: 'color.text.tertiary', code: color.text.tertiary },
   { docToken: 'color.text.on-accent', code: color.text.onAccent }, // kebab → camel
+  { docToken: 'color.text.on-critical', code: color.text.onCritical }, // kebab → camel
   { docToken: 'color.border', code: color.border },
   { docToken: 'color.semantic.success', code: color.semantic.success },
   { docToken: 'color.semantic.warning', code: color.semantic.warning },
@@ -75,8 +76,10 @@ describe('paridade doc 11 §5.1 ↔ código', () => {
   it('a nomenclatura kebab-case do doc traduz para camelCase no código', () => {
     // Presença no doc (kebab) — os acessores camelCase equivalentes existem no código.
     expect(doc).toContain('color.text.on-accent');
+    expect(doc).toContain('color.text.on-critical');
     expect(doc).toContain('color.bg.surface-2');
     expect(color.text.onAccent).toBeDefined();
+    expect(color.text.onCritical).toBeDefined();
     expect(color.bg.surface2).toBeDefined();
   });
 });
