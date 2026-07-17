@@ -10,13 +10,23 @@ module.exports = {
   testEnvironment: 'node',
   setupFiles: ['reflect-metadata'],
   roots: ['<rootDir>/apps', '<rootDir>/libs'],
-  testMatch: ['**/*.spec.ts', '**/*.e2e-spec.ts'],
+  testMatch: ['**/*.spec.ts', '**/*.spec.tsx', '**/*.e2e-spec.ts'],
   // Testes de integração (Docker/Testcontainers) rodam só via jest.integration.config.js.
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/test/integration/'],
-  moduleFileExtensions: ['ts', 'js', 'json'],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'json'],
+  moduleNameMapper: {
+    // Componentes React Native (ui-components) são testados contra um mock leve de
+    // `react-native` — só afeta specs que importam react-native (a suíte Node não).
+    '^react-native$': '<rootDir>/libs/shared/ui-components/test/react-native.mock.ts',
+    ...pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
+  },
   transform: {
-    '^.+\\.ts$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
+    // UM único transform/config para .ts e .tsx (determinístico — evita vazamento
+    // de opções entre múltiplas configs do ts-jest). `isolatedModules` (transpile,
+    // sem type-check) vive no tsconfig.spec.json e permite testar o Button (JSX/RN)
+    // sem exigir os tipos completos do React Native; o type-check real do
+    // código-fonte continua no target `nx typecheck`.
+    '^.+\\.tsx?$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
   collectCoverageFrom: [
     'libs/**/src/**/*.ts',

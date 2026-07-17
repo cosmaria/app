@@ -6,6 +6,8 @@
     "noEmit": true,
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "jsx": "react-jsx",
+    "isolatedModules": true
   }
 }
