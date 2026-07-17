@@ -3,12 +3,24 @@ name: CI
 # Pipeline de integração contínua (doc 13 §14 / doc 14 §15).
 # Roda em todo push e PR. Um PR que viole as fronteiras de módulo
 # (doc 14 §6) FALHA aqui, antes de qualquer revisão humana.
+#
+# Portões de qualidade do Design System v1 rodam DENTRO deste mesmo pipeline,
+# sem job dedicado (evita redundância):
+#   - testes de tokens/tema/paridade e do Button piloto → passo Test (`npm test`);
+#   - fronteiras Nx do shared (design-tokens/ui-components) → passo Lint;
+#   - tipos dos tokens/componentes → passo Typecheck.
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch: {}
+
+# Cancela execuções supersedidas do mesmo ref (economia de runner, sem risco).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verify:
@@ -25,7 +37,7 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install dependencies (lockfile congelado)
         run: npm ci
 
       - name: Lint (inclui enforcement de fronteiras de módulo)
