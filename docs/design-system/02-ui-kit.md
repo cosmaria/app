@@ -1985,7 +1985,7 @@ Múltiplos primários, ícone sem label ambíguo, botão desabilitado sem razão
 
 | --- | --- |
 
-| Anatomia | Container, label obrigatório, ícone opcional, indicador de loading opcional. |
+| Anatomia | Container, label obrigatório, ícone inicial e/ou final opcional (ordem inicial → label → final), indicador de loading opcional. |
 
 | Variantes | Primário, secundário, terciário, destrutivo, baixo destaque; com/sem ícone; pequeno/médio/grande. |
 

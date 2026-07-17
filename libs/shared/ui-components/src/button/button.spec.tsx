@@ -65,6 +65,15 @@ function labelStyleOf(r: TestRenderer.ReactTestRenderer): Record<string, unknown
   return StyleSheet.flatten(labelNodeOf(r).props.style);
 }
 
+/** Estilo achatado do container de conteúdo (única View com flexDirection row). */
+function contentStyleOf(r: TestRenderer.ReactTestRenderer): Record<string, unknown> {
+  for (const v of r.root.findAllByType('View')) {
+    const s = StyleSheet.flatten(v.props.style);
+    if (s['flexDirection'] === 'row') return s;
+  }
+  throw new Error('container de conteúdo (View flexDirection row) não encontrado');
+}
+
 describe('Button — variantes (ui-kit §26.1–§26.5)', () => {
   it('primário usa o accent do contexto como fundo', () => {
     const r = render(<Button label="Salvar" variant="primary" context="grow" mode="dark" />);
@@ -209,12 +218,90 @@ describe('Button — ícone inicial e preservação de props públicas', () => {
         disabled={false}
         loading={false}
         fullWidth
-        startIcon={React.createElement('StartIcon', { testID: 'ic' })}
+        startIcon={React.createElement('StartIcon', { testID: 'ic-start' })}
+        endIcon={React.createElement('EndIcon', { testID: 'ic-end' })}
         accessibilityLabel="Ação completa"
         testID="btn-completo"
       />,
     );
     expect(r.root.findByProps({ testID: 'btn-completo' })).toBeTruthy();
     expect(pressableOf(r).props.accessibilityLabel).toBe('Ação completa');
+  });
+});
+
+describe('Button — endIcon (ícone final, ui-kit §26.7)', () => {
+  it('renderiza o endIcon fornecido', () => {
+    const r = render(
+      <Button label="Continuar" endIcon={React.createElement('EndIcon', { testID: 'ic-end' })} />,
+    );
+    expect(r.root.findAllByProps({ testID: 'ic-end' }).length).toBeGreaterThan(0);
+  });
+
+  it('ordem visual é startIcon → label → endIcon', () => {
+    // Label único e accessibilityLabel distinto: o marcador do label só aparece
+    // como filho de texto (não também no accessibilityLabel das props do Pressable).
+    const r = render(
+      <Button
+        label="ZLABELZ"
+        accessibilityLabel="acc"
+        startIcon={React.createElement('StartIcon', { testID: 'ic-start' })}
+        endIcon={React.createElement('EndIcon', { testID: 'ic-end' })}
+      />,
+    );
+    const json = JSON.stringify(r.toJSON());
+    const iStart = json.indexOf('ic-start');
+    const iLabel = json.indexOf('ZLABELZ');
+    const iEnd = json.indexOf('ic-end');
+    expect(iStart).toBeGreaterThanOrEqual(0);
+    expect(iLabel).toBeGreaterThan(iStart);
+    expect(iEnd).toBeGreaterThan(iLabel);
+  });
+
+  it('ausência de ícones não cria wrapper (não reserva espaço)', () => {
+    const r = render(<Button label="Salvar" />);
+    // Só o container de conteúdo; nenhum View de wrapper de ícone.
+    expect(r.root.findAllByType('View')).toHaveLength(1);
+  });
+
+  it('startIcon e endIcon adicionam exatamente um wrapper cada', () => {
+    const r = render(
+      <Button
+        label="Salvar"
+        startIcon={React.createElement('StartIcon', {})}
+        endIcon={React.createElement('EndIcon', {})}
+      />,
+    );
+    // container de conteúdo + wrapper do startIcon + wrapper do endIcon.
+    expect(r.root.findAllByType('View')).toHaveLength(3);
+  });
+
+  it('em Loading, endIcon é ocultado com o conteúdo (opacidade 0) e o nome acessível é preservado', () => {
+    const r = render(
+      <Button
+        label="Continuar"
+        endIcon={React.createElement('EndIcon', { testID: 'ic-end' })}
+        loading
+        accessibilityLabel="Continuar ação"
+      />,
+    );
+    // O container de conteúdo (que contém o endIcon) é ocultado por opacidade — sem layout shift.
+    expect(contentStyleOf(r).opacity).toBe(0);
+    // endIcon continua na árvore (só oculto visualmente); nome acessível preservado.
+    expect(r.root.findAllByProps({ testID: 'ic-end' }).length).toBeGreaterThan(0);
+    expect(pressableOf(r).props.accessibilityLabel).toBe('Continuar ação');
+  });
+
+  it('endIcon recebe o mesmo tratamento (wrapper) do startIcon', () => {
+    // Ambos entram no mesmo container de conteúdo, com o mesmo gap — tratamento equivalente.
+    const r = render(
+      <Button
+        label="Salvar"
+        startIcon={React.createElement('StartIcon', { testID: 'ic-start' })}
+        endIcon={React.createElement('EndIcon', { testID: 'ic-end' })}
+      />,
+    );
+    expect(contentStyleOf(r).columnGap).toBeDefined();
+    expect(r.root.findAllByProps({ testID: 'ic-start' }).length).toBe(1);
+    expect(r.root.findAllByProps({ testID: 'ic-end' }).length).toBe(1);
   });
 });
