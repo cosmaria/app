@@ -2,11 +2,11 @@
 // react-test-renderer em ambiente Node, SEM o preset pesado do React Native
 // (que exigiria Metro/Babel/haste e quebraria a suíte Node do backend).
 //
-// Só modela o que o Button consome: os host components (View/Text/Pressable/
-// ActivityIndicator) e o StyleSheet (create/flatten). Os host components viram
-// nós de host nomeados no renderer, então os testes localizam por tipo e leem as
-// props/estilos reais que o componente aplicou. Ativado por moduleNameMapper no
-// jest.config.js apenas para quem importa `react-native` (só a ui-components).
+// Só modela o que os componentes da lib consomem: os host components (View/Text/
+// Pressable/ActivityIndicator/TextInput) e o StyleSheet (create/flatten). Os host
+// components viram nós de host nomeados no renderer, então os testes localizam por
+// tipo e leem as props/estilos reais que o componente aplicou. Ativado por
+// moduleNameMapper no jest.config.js apenas para quem importa `react-native`.
 
 import React from 'react';
 
@@ -24,6 +24,7 @@ export const View = host('View');
 export const Text = host('Text');
 export const Pressable = host('Pressable');
 export const ActivityIndicator = host('ActivityIndicator');
+export const TextInput = host('TextInput');
 
 /** Estilos podem ser objeto, array aninhado ou valores falsy (curto-circuito de JSX). */
 type Style = Record<string, unknown> | Style[] | false | null | undefined;
@@ -57,5 +58,8 @@ export type PressableStateCallbackType = { pressed: boolean };
 export type StyleProp<T> = T | T[] | null | undefined;
 export type ViewStyle = Record<string, unknown>;
 export type TextStyle = Record<string, unknown>;
+export type TextInputProps = Record<string, unknown>;
+export type NativeSyntheticEvent<T> = { nativeEvent: T };
+export type TextInputFocusEventData = Record<string, unknown>;
 
-export default { View, Text, Pressable, ActivityIndicator, StyleSheet };
+export default { View, Text, Pressable, ActivityIndicator, TextInput, StyleSheet };

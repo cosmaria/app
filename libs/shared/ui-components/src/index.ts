@@ -14,3 +14,6 @@ export type {
   IconButtonShape,
   IconRenderProps,
 } from './icon-button/icon-button';
+
+export { TextField } from './text-field/text-field';
+export type { TextFieldProps, TextFieldSize, TextFieldStatus } from './text-field/text-field';

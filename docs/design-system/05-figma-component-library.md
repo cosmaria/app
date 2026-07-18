@@ -1484,7 +1484,7 @@ Link navega; Button executa. External exibe indicação aprovada.
 
 | Tipo | Definição |
 | --- | --- |
-| Variant properties | Size=Medium|Large; State=Empty|Filled|Focus|Disabled|Read-only|Error|Warning|Success |
+| Variant properties | Size=Small|Medium|Large; State=Empty|Filled|Focus|Disabled|Read-only|Error|Warning|Success |
 | Boolean properties | Show leading icon, Show trailing action, Show supporting text, Required |
 | Text properties | Label, Value, Placeholder, Supporting text |
 | Instance swap properties | Leading icon, Trailing action |
