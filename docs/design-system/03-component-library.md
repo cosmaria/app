@@ -856,26 +856,37 @@ Separá-lo do Button impede que ações ambíguas sejam reduzidas prematuramente
 
 ### Anatomia
 
-1. Container de alvo.
-2. Ícone central.
-3. Tooltip quando necessário.
-4. Nome acessível.
+1. Container de alvo (mínimo 44×44).
+2. Ícone central (decorativo — não anunciado, evita duplicação).
+3. Nome acessível obrigatório (`accessibilityLabel`).
 
-### Variantes permitidas
+Tooltip **não** é interno no React Native; em desktop/web é composto externamente quando houver infraestrutura oficial (ver ui-kit §26.8).
 
-- Neutro.
-- Accent selecionado.
-- Destrutivo.
-- Circular.
-- Quadrado arredondado.
+### Propriedades (eixos independentes — não confundir entre si)
+
+**Hierarchy** (propósito visual, consistente com o Button):
+
+- `primary` — accent contextual + `color.text.on-accent`;
+- `secondary` — superfície neutra + borda estrutural;
+- `tertiary` — baixa ênfase;
+- `destructive` — semântica crítica + `color.text.on-critical`, nunca accent.
+
+**Shape** (só geometria — não altera hierarchy, estado nem alvo):
+
+- `roundedSquare` (default) — radius oficial do sistema (`radius.md`);
+- `circular` — radius integral (`radius.pill`).
+
+**Selected** é ESTADO (não hierarchy) — ver "Estados".
+
+> "Neutral", "Accent selecionado", "Circular" e "Quadrado arredondado" **não** formam uma única categoria de variantes. Hierarchy, shape e selected são eixos independentes.
 
 ### Tamanho, spacing e geometria
 
 | Elemento | Especificação |
 | --- | --- |
-| Alvo | 44×44px |
+| Alvo | 44×44px (nunca abaixo) |
 | Ícone | 20–24px |
-| Radius | md ou circular quando a semântica exigir |
+| Radius | `roundedSquare` = `radius.md`; `circular` = radius integral (`radius.pill`) |
 
 Margens externas pertencem ao padrão de composição, não ao componente. O componente não pode mudar de altura entre estados equivalentes; texto ampliado pode aumentar sua altura, nunca reduzi-la.
 
@@ -886,8 +897,10 @@ Margens externas pertencem ao padrão de composição, não ao componente. O com
 - Focus visible.
 - Active/pressed.
 - Disabled quando aplicável.
-- Selected.
+- Selected (estado toggle: `selected?: boolean`; `accessibilityState.selected`; ring de accent).
 - Loading quando aplicável.
+
+Precedência visual quando estados coexistem: **disabled → loading → pressed → selected → default**. `selected` pode coexistir com disabled/loading/pressed; a acessibilidade reflete todos (`disabled`/`busy`/`selected`).
 
 ### Regras de iconografia
 
@@ -913,7 +926,7 @@ Não reduz abaixo de 44px. Em mobile ações secundárias podem migrar para menu
 
 ### Acessibilidade
 
-Nome programático, focus visible, tooltip no pointer/keyboard e feedback pressed.
+`accessibilityLabel` obrigatório (nunca ausência silenciosa); `accessibilityHint` opcional; `accessibilityState` para `disabled`/`busy`/`selected`; focus visible e feedback de pressed. Tooltip apenas em desktop/web, composto externamente — nunca interno no React Native.
 
 ### Core, Grow, Med e temas
 
@@ -923,16 +936,17 @@ Accent apenas em selected ou ação contextual; destrutivo usa crítico.
 ### Anti-patterns
 
 - Ícone de 16px em alvo pequeno.
-- Ação sem tooltip.
+- Ação sem `accessibilityLabel` (nome acessível obrigatório).
+- Tratar `shape` ou `selected` como se fossem `hierarchy`.
 - Vários icon buttons adjacentes sem separação.
 
 ### Critérios de aceitação
 
 - [ ] 44×44.
 - [ ] Ícone oficial.
-- [ ] Nome acessível.
-- [ ] Tooltip quando ambíguo.
-- [ ] Estado selecionado claro.
+- [ ] `accessibilityLabel` obrigatório.
+- [ ] Tooltip (desktop/web) composto externamente quando ambíguo — nunca interno no RN.
+- [ ] Estado `selected` claro (ring de accent + `accessibilityState.selected`).
 
 ## 10. Link
 
