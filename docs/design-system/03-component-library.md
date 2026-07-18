@@ -1088,6 +1088,8 @@ Uma anatomia única reduz erros, elimina placeholder como label e mantém consis
 | Borda | 1px |
 | Focus ring | 2px |
 
+Tamanhos oficiais (`Size`, doc 05 §8.3) ↔ altura ↔ código: `Small` = Compacto (44px, = alvo mínimo) · `Medium` = Padrão (48px, default) · `Large` = Confortável (56px). No código: `sm`/`md`/`lg`.
+
 Margens externas pertencem ao padrão de composição, não ao componente. O componente não pode mudar de altura entre estados equivalentes; texto ampliado pode aumentar sua altura, nunca reduzi-la.
 
 ### Estados obrigatórios ou aplicáveis
@@ -1101,6 +1103,8 @@ Margens externas pertencem ao padrão de composição, não ao componente. O com
 - Warning.
 - Error.
 - Success quando útil.
+
+Precedência visual quando estados coexistem: **disabled → readOnly → error → warning → success → focused → filled → default**. Estado nunca é comunicado só por cor — a mensagem de validação e o estado acessível carregam o significado.
 
 ### Regras de iconografia
 
