@@ -576,7 +576,8 @@ Superfícies devem ser diferenciadas primeiro por contraste de plano, borda e es
 
 | `color.text.tertiary` | #6B7885 | #7C8790 | Metadados não essenciais, desde que mantenham contraste. |
 
-| `color.text.on-accent` | #FFFFFF | #FFFFFF | Texto/ícone sobre superfície Accent (ex.: botão primário). Branco nos dois temas. Código: `color.text.onAccent`. Não usar sobre superfícies semânticas (ex.: destrutivo sobre crítico). |
+| `color.text.on-accent` | #FFFFFF | #FFFFFF | Texto/ícone sobre superfície Accent (ex.: botão primário). Branco nos dois temas. Código: `color.text.onAccent`. Não usar sobre superfícies semânticas. |
+| `color.text.on-critical` | #FFFFFF | #FFFFFF | Texto/ícone sobre superfície semântica crítica (ex.: botão destrutivo, sobre crítico). Branco nos dois temas. Código: `color.text.onCritical`. Independente de on-accent — mesma cor hoje, funções semânticas distintas. |
 
 
 
@@ -1984,7 +1985,7 @@ Múltiplos primários, ícone sem label ambíguo, botão desabilitado sem razão
 
 | --- | --- |
 
-| Anatomia | Container, label obrigatório, ícone opcional, indicador de loading opcional. |
+| Anatomia | Container, label obrigatório, ícone inicial e/ou final opcional (ordem inicial → label → final), indicador de loading opcional. |
 
 | Variantes | Primário, secundário, terciário, destrutivo, baixo destaque; com/sem ícone; pequeno/médio/grande. |
 

@@ -25,6 +25,11 @@
         "values": { "Dark": "#FFFFFF", "Light": "#FFFFFF" },
         "description": "Texto/ícone sobre superfície Accent"
       },
+      "text/on-critical": {
+        "type": "COLOR",
+        "values": { "Dark": "#FFFFFF", "Light": "#FFFFFF" },
+        "description": "Texto/ícone sobre superfície semântica crítica"
+      },
       "border": { "type": "COLOR", "values": { "Dark": "#232D38", "Light": "#DDE3E8" } },
       "semantic/success": { "type": "COLOR", "values": { "Dark": "#34C77B", "Light": "#1E9A5C" } },
       "semantic/warning": { "type": "COLOR", "values": { "Dark": "#E8A93E", "Light": "#B9791E" } },

@@ -63,6 +63,11 @@ export function buildFigmaTokens(): FigmaTokenExport {
           color.text.onAccent.light,
           'Texto/ícone sobre superfície Accent',
         ),
+        'text/on-critical': themed(
+          color.text.onCritical.dark,
+          color.text.onCritical.light,
+          'Texto/ícone sobre superfície semântica crítica',
+        ),
         border: themed(color.border.dark, color.border.light),
         'semantic/success': themed(color.semantic.success.dark, color.semantic.success.light),
         'semantic/warning': themed(color.semantic.warning.dark, color.semantic.warning.light),

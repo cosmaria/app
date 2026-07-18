@@ -758,7 +758,7 @@ Botões padronizados controlam prioridade, previnem múltiplas ações primária
 
 1. Container.
 2. Label obrigatório.
-3. Ícone inicial ou final opcional.
+3. Ícone inicial e/ou final opcional (ordem: inicial → label → final).
 4. Indicador de loading opcional.
 
 ### Variantes permitidas
@@ -795,7 +795,7 @@ Margens externas pertencem ao padrão de composição, não ao componente. O com
 
 ### Regras de iconografia
 
-Máximo um ícone. Ícone inicial para significado; final para direção/continuidade. Loading ocupa slot sem alterar largura.
+No máximo um ícone por posição — inicial (significado) e/ou final (direção/continuidade); ordem inicial → label → final. Loading oculta os ícones sem alterar a largura. O label permanece obrigatório (Button não vira IconButton).
 
 ### Regras de conteúdo
 

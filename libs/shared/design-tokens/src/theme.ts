@@ -18,6 +18,8 @@ export interface ResolvedPalette {
     readonly tertiary: string;
     /** Texto/ícone sobre superfície Accent (branco nos dois temas) — `color.text.on-accent`. */
     readonly onAccent: string;
+    /** Texto/ícone sobre superfície semântica crítica — `color.text.on-critical`. */
+    readonly onCritical: string;
   };
   readonly border: string;
   readonly semantic: {
@@ -45,6 +47,7 @@ export function resolvePalette(mode: ThemeMode): ResolvedPalette {
       secondary: pick(color.text.secondary, mode),
       tertiary: pick(color.text.tertiary, mode),
       onAccent: pick(color.text.onAccent, mode),
+      onCritical: pick(color.text.onCritical, mode),
     },
     border: pick(color.border, mode),
     semantic: {

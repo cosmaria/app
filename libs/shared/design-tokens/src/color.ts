@@ -35,6 +35,14 @@ export const color = {
      * tanto em Dark quanto em Light. Substitui o `#FFFFFF` avulso antes usado no Button.
      */
     onAccent: { dark: '#FFFFFF', light: '#FFFFFF' },
+    /**
+     * Texto/ícone sobre uma superfície SEMÂNTICA CRÍTICA (ex.: botão destrutivo) —
+     * doc 11 §5.1, token `color.text.on-critical`. Função semântica DISTINTA de
+     * `onAccent`: destrutivo fica sobre `semantic.critical`, não sobre um accent.
+     * Hoje compartilha o valor (#FFFFFF), mas os dois tokens são independentes —
+     * `onCritical` NUNCA é alias de `onAccent`; cada um pode evoluir por conta própria.
+     */
+    onCritical: { dark: '#FFFFFF', light: '#FFFFFF' },
   },
   border: { dark: '#232D38', light: '#DDE3E8' },
 
