@@ -125,17 +125,50 @@ describe('TextField — conteúdo básico (2, 3, 4, 22, 23)', () => {
   });
 });
 
-describe('TextField — required/optional (6)', () => {
-  it('required marca "obrigatório" e define aria-required', () => {
+describe('TextField — requiredness (decisão de marca: Obrigatório/Opcional)', () => {
+  it('campo obrigatório exibe a palavra "Obrigatório"', () => {
     const r = render(<TextField label="CPF" required />);
-    expect(textByContent(r, 'obrigatório')).toBeTruthy();
-    expect(inputOf(r).props['aria-required']).toBe(true);
+    expect(textByContent(r, 'Obrigatório')).toBeTruthy();
   });
 
-  it('não-required marca "opcional" (vocabulário oficial) sem aria-required', () => {
+  it('campo opcional exibe a palavra "Opcional"', () => {
     const r = render(<TextField label="Apelido" />);
-    expect(textByContent(r, 'opcional')).toBeTruthy();
-    expect(inputOf(r).props['aria-required']).toBeUndefined();
+    expect(textByContent(r, 'Opcional')).toBeTruthy();
+  });
+
+  it('não usa asterisco isolado como indicador', () => {
+    const req = render(<TextField label="a" required />);
+    const opt = render(<TextField label="a" />);
+    expect(req.root.findAllByType('Text').some((t) => t.props.children === '*')).toBe(false);
+    expect(opt.root.findAllByType('Text').some((t) => t.props.children === '*')).toBe(false);
+    // A fonte não introduz um indicador de asterisco isolado.
+    const src = readFileSync(resolve(__dirname, 'text-field.tsx'), 'utf8');
+    expect(src.includes("'*'")).toBe(false);
+  });
+
+  it('expõe requiredness semanticamente (aria-required)', () => {
+    expect(inputOf(render(<TextField label="a" required />)).props['aria-required']).toBe(true);
+    expect(inputOf(render(<TextField label="a" />)).props['aria-required']).toBeUndefined();
+  });
+
+  it('indicador fica junto ao label e a leitura permanece correta (label anunciado)', () => {
+    const r = render(<TextField label="Telefone" required />);
+    const label = mustText(r, 'Telefone');
+    expect(mustText(r, 'Obrigatório')).toBeTruthy();
+    // Nome acessível do campo = label; associação preservada.
+    expect(inputOf(r).props.accessibilityLabel).toBe('Telefone');
+    expect(inputOf(r).props['aria-labelledby']).toBe(label.props.nativeID);
+  });
+
+  it('acomoda expansão de texto e i18n: label/indicador crescem sem truncar', () => {
+    const longLabel = 'Endereço de correspondência completo para entrega';
+    const r = render(<TextField label={longLabel} required />);
+    const label = mustText(r, longLabel);
+    const marker = mustText(r, 'Obrigatório');
+    // Sem truncamento nem largura rígida — texto livre para crescer.
+    expect(label.props.numberOfLines).toBeUndefined();
+    expect(StyleSheet.flatten(marker.props.style).width).toBeUndefined();
+    expect(StyleSheet.flatten(marker.props.style).maxWidth).toBeUndefined();
   });
 });
 

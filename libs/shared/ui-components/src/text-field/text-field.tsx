@@ -253,9 +253,12 @@ export function TextField(props: TextFieldProps): React.JSX.Element {
           >
             {label}
           </Text>
-          {/* Marca requiredness com PALAVRA (vocabulário doc §11), nunca só cor. */}
+          {/* Requiredness por PALAVRA oficial (decisão de marca): "Obrigatório"/
+              "Opcional" — discreto, nunca asterisco isolado nem só cor. A semântica
+              de acessibilidade vai em aria-required no input. Texto livre para
+              crescer (i18n) — sem largura fixa nem truncamento. */}
           <Text style={{ color: theme.text.tertiary, fontSize: fontSize.sm }}>
-            {required ? 'obrigatório' : 'opcional'}
+            {required ? 'Obrigatório' : 'Opcional'}
           </Text>
         </View>
       ) : null}
