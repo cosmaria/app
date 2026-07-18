@@ -1931,7 +1931,7 @@ Reservado a direção/continuidade quando útil.
 
 ### 26.8 Botão somente com ícone
 
-Alvo mínimo 44×44, metáfora clara e nome acessível.
+Alvo mínimo 44×44, metáfora clara e `accessibilityLabel` obrigatório (IconButton — component-library família 9). Eixos **independentes**, nunca uma categoria única de variantes: `hierarchy` (primary/secondary/tertiary/destructive, consistente com o Button), `shape` (roundedSquare/circular) e `selected` (estado toggle). Tooltip não é interno no React Native; em desktop/web é composto externamente quando houver infraestrutura oficial.
 
 ### 26.9 Botão full-width
 

@@ -455,6 +455,9 @@ Usar apenas quando a diferença altera uma dimensão discreta e aprovada:
 - `Selection`
 - `Progress`
 - `Layout`
+- `Shape`
+
+`Shape` é geometria (ex.: IconButton `RoundedSquare`/`Circular`) e é um eixo independente de `Hierarchy` e de `State`/`Selection` — não os substitui nem se confunde com eles.
 
 Não criar sinônimos como `Style`, `Kind`, `Mode` ou `Status` para o mesmo conceito.
 
@@ -465,6 +468,7 @@ Não criar sinônimos como `Style`, `Kind`, `Mode` ou `Status` para o mesmo conc
 - Tons: `Neutral`, `Info`, `Success`, `Warning`, `Critical`, `Premium`, `Private`.
 - Orientação: `Horizontal`, `Vertical`.
 - Densidade: `Comfortable`, `Compact`.
+- Formas (`Shape`): `RoundedSquare`, `Circular`.
 
 ### 8.4 Boolean properties
 

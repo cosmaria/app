@@ -11,5 +11,6 @@ export type {
   IconButtonProps,
   IconButtonHierarchy,
   IconButtonSize,
+  IconButtonShape,
   IconRenderProps,
 } from './icon-button/icon-button';

@@ -10,6 +10,7 @@ import { StyleSheet } from 'react-native';
 import { Button, IconButton } from '../index';
 import {
   accentFor,
+  borderWidth,
   buildTheme,
   color,
   fontSize,
@@ -261,5 +262,189 @@ describe('IconButton — tokens, sem hardcode e sem espaço extra (15, 16)', () 
     expect(r.root.findAllByType('Text')).toHaveLength(0);
     expect(containerStyleOf(r).width).toBe(44);
     expect(containerStyleOf(r).height).toBe(44);
+  });
+});
+
+// Overlay de pressed = View com backgroundColor rgba (ring de selected é borda, não bg).
+function hasPressOverlay(r: TestRenderer.ReactTestRenderer): boolean {
+  return r.root.findAllByType('View').some((v) => {
+    const bg = StyleSheet.flatten(v.props.style)['backgroundColor'];
+    return typeof bg === 'string' && bg.startsWith('rgba(');
+  });
+}
+
+function pressIn(r: TestRenderer.ReactTestRenderer): void {
+  act(() => {
+    (pressableOf(r).props.onPressIn as () => void)();
+  });
+}
+
+describe('IconButton — shape (1, 2, 3, 12)', () => {
+  it('default é roundedSquare (radius oficial do sistema)', () => {
+    const r = render(<IconButton icon={glyph} accessibilityLabel="a" />);
+    expect(containerStyleOf(r).borderRadius).toBe(radius.md);
+  });
+
+  it('roundedSquare usa o radius oficial (radius.md)', () => {
+    const r = render(<IconButton icon={glyph} accessibilityLabel="a" shape="roundedSquare" />);
+    expect(containerStyleOf(r).borderRadius).toBe(radius.md);
+  });
+
+  it('circular usa radius integral (radius.pill)', () => {
+    const r = render(<IconButton icon={glyph} accessibilityLabel="a" shape="circular" />);
+    expect(containerStyleOf(r).borderRadius).toBe(radius.pill);
+  });
+
+  it('shape não altera dimensão: roundedSquare e circular têm o mesmo alvo', () => {
+    const sq = render(
+      <IconButton icon={glyph} accessibilityLabel="a" size="md" shape="roundedSquare" />,
+    );
+    const ci = render(
+      <IconButton icon={glyph} accessibilityLabel="a" size="md" shape="circular" />,
+    );
+    expect(containerStyleOf(ci).width).toBe(containerStyleOf(sq).width);
+    expect(containerStyleOf(ci).height).toBe(containerStyleOf(sq).height);
+    // Só o radius difere.
+    expect(containerStyleOf(ci).borderRadius).not.toBe(containerStyleOf(sq).borderRadius);
+  });
+});
+
+describe('IconButton — selected (4, 5, 6, 7, 8)', () => {
+  it('selected=false (default): sem ring de accent e a11y selected false', () => {
+    const r = render(<IconButton icon={glyph} accessibilityLabel="a" hierarchy="tertiary" />);
+    expect(pressableOf(r).props.accessibilityState.selected).toBe(false);
+    expect(containerStyleOf(r).borderColor).toBeUndefined();
+  });
+
+  it('selected=true: aplica ring de accent (borderWidth.focus) e a11y selected', () => {
+    const r = render(
+      <IconButton
+        icon={glyph}
+        accessibilityLabel="a"
+        hierarchy="tertiary"
+        selected
+        mode="dark"
+        context="grow"
+      />,
+    );
+    expect(pressableOf(r).props.accessibilityState.selected).toBe(true);
+    expect(containerStyleOf(r).borderColor).toBe(color.accent.grow.dark);
+    expect(containerStyleOf(r).borderWidth).toBe(borderWidth.focus);
+  });
+
+  it('accessibilityState.selected reflete a prop', () => {
+    const on = render(<IconButton icon={glyph} accessibilityLabel="a" selected />);
+    const off = render(<IconButton icon={glyph} accessibilityLabel="a" selected={false} />);
+    expect(pressableOf(on).props.accessibilityState.selected).toBe(true);
+    expect(pressableOf(off).props.accessibilityState.selected).toBe(false);
+  });
+
+  it('selected coexiste com Primary (estado, não hierarchy): mantém fundo accent + ring', () => {
+    const r = render(
+      <IconButton
+        icon={glyph}
+        accessibilityLabel="a"
+        hierarchy="primary"
+        selected
+        context="core"
+        mode="dark"
+      />,
+    );
+    expect(containerStyleOf(r).backgroundColor).toBe(color.accent.core.dark);
+    expect(pressableOf(r).props.accessibilityState.selected).toBe(true);
+    expect(containerStyleOf(r).borderWidth).toBe(borderWidth.focus);
+  });
+
+  it('selected coexiste com Secondary: ring de accent substitui a borda estrutural', () => {
+    const base = render(
+      <IconButton icon={glyph} accessibilityLabel="a" hierarchy="secondary" mode="dark" />,
+    );
+    const sel = render(
+      <IconButton
+        icon={glyph}
+        accessibilityLabel="a"
+        hierarchy="secondary"
+        selected
+        mode="dark"
+        context="med"
+      />,
+    );
+    // Sem selected: borda estrutural (token border, hairline).
+    expect(containerStyleOf(base).borderColor).toBe(color.border.dark);
+    expect(containerStyleOf(base).borderWidth).toBe(borderWidth.hairline);
+    // Com selected: ring de accent (focus).
+    expect(containerStyleOf(sel).borderColor).toBe(color.accent.med.dark);
+    expect(containerStyleOf(sel).borderWidth).toBe(borderWidth.focus);
+  });
+});
+
+describe('IconButton — selected × outros estados e prioridade (9, 10, 11)', () => {
+  it('selected + disabled: a11y selected+disabled, opacidade de disabled domina', () => {
+    const r = render(<IconButton icon={glyph} accessibilityLabel="a" selected disabled />);
+    const p = pressableOf(r);
+    expect(p.props.accessibilityState).toMatchObject({ selected: true, disabled: true });
+    expect(p.props.disabled).toBe(true);
+    expect(containerStyleOf(r).opacity).toBe(opacity.disabled);
+  });
+
+  it('selected + loading: a11y selected+busy, ícone oculto e indicador presente', () => {
+    const r = render(<IconButton icon={glyph} accessibilityLabel="a" selected loading />);
+    const p = pressableOf(r);
+    expect(p.props.accessibilityState).toMatchObject({ selected: true, busy: true });
+    expect(iconBoxStyleOf(r).opacity).toBe(0);
+    expect(r.root.findAllByType('ActivityIndicator').length).toBe(1);
+  });
+
+  it('prioridade pressed: cobre selected quando ativo, mas é suprimido por disabled', () => {
+    // Ativo + selected: pressIn mostra o overlay de pressed (pressed acima de selected).
+    const active = render(<IconButton icon={glyph} accessibilityLabel="a" selected />);
+    expect(hasPressOverlay(active)).toBe(false);
+    pressIn(active);
+    expect(hasPressOverlay(active)).toBe(true);
+
+    // Disabled: mesmo com pressIn, nenhum overlay (disabled tem precedência sobre pressed).
+    const off = render(<IconButton icon={glyph} accessibilityLabel="a" selected disabled />);
+    pressIn(off);
+    expect(hasPressOverlay(off)).toBe(false);
+  });
+});
+
+describe('IconButton — Tooltip e label (13, 14, 15)', () => {
+  it('não possui Tooltip interno no RN (nenhum texto/nó de tooltip)', () => {
+    const r = render(
+      <IconButton icon={glyph} accessibilityLabel="Fechar" shape="circular" selected />,
+    );
+    // Nenhum texto visível (o nome vem só do accessibilityLabel); nada de tooltip interno.
+    expect(r.root.findAllByType('Text')).toHaveLength(0);
+    expect(r.root.findAllByType('Tooltip')).toHaveLength(0);
+  });
+
+  it('accessibilityLabel permanece obrigatório e anunciado com shape/selected', () => {
+    const r = render(
+      <IconButton icon={glyph} accessibilityLabel="Favoritar" shape="circular" selected />,
+    );
+    expect(pressableOf(r).props.accessibilityLabel).toBe('Favoritar');
+  });
+
+  it('API pública expõe shape e selected sem quebrar (retrocompat)', () => {
+    // Compila e renderiza com o contrato completo, incluindo shape e selected.
+    const r = render(
+      <IconButton
+        icon={glyph}
+        accessibilityLabel="Completo"
+        hierarchy="secondary"
+        size="lg"
+        shape="circular"
+        selected
+        context="med"
+        mode="light"
+        disabled={false}
+        loading={false}
+        accessibilityHint="dica"
+        testID="ib-full"
+      />,
+    );
+    expect(r.root.findByProps({ testID: 'ib-full' })).toBeTruthy();
+    expect(containerStyleOf(r).borderRadius).toBe(radius.pill);
   });
 });

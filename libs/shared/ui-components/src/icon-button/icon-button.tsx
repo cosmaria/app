@@ -13,6 +13,10 @@
 //    mantém o tamanho e o nome acessível, e mostra progresso;
 //  - accessibilityLabel é OBRIGATÓRIO (ação sem texto precisa de nome acessível) —
 //    o ícone é decorativo (não anunciado), evitando anúncio duplicado;
+//  - `shape` (roundedSquare/circular) muda SÓ a geometria (radius), nunca hierarchy,
+//    estado ou alvo; `selected` é ESTADO (não hierarchy): ring de accent + a11y
+//    selected, com precedência disabled→loading→pressed→selected→default;
+//  - Tooltip NÃO existe internamente no RN — em desktop/web é composto por fora;
 //  - nenhum hardcode: todo valor vem de @cosmaria/shared-design-tokens.
 //
 // O `icon` é uma render-function que RECEBE `size` e `color` já resolvidos pelo
@@ -32,6 +36,7 @@ import {
 } from 'react-native';
 import {
   buildTheme,
+  borderWidth,
   fontSize,
   opacity,
   radius,
@@ -40,8 +45,11 @@ import {
   type ThemeMode,
 } from '@cosmaria/shared-design-tokens';
 
+/** Propósito visual (nunca por produto). Consistente com o Button. */
 export type IconButtonHierarchy = 'primary' | 'secondary' | 'tertiary' | 'destructive';
 export type IconButtonSize = 'sm' | 'md' | 'lg';
+/** Forma do container — só a geometria muda, nunca hierarchy/estado/alvo. */
+export type IconButtonShape = 'roundedSquare' | 'circular';
 
 /** Props injetadas no `icon`: dimensão e cor resolvidas pelo componente (tokens). */
 export interface IconRenderProps {
@@ -59,6 +67,10 @@ export interface IconButtonProps {
   /** Propósito visual (nunca por produto). Default: secondary (neutro). */
   readonly hierarchy?: IconButtonHierarchy;
   readonly size?: IconButtonSize;
+  /** Geometria do container. Default: roundedSquare. Não altera hierarchy/estado/alvo. */
+  readonly shape?: IconButtonShape;
+  /** Estado de seleção (toggle) — NÃO é hierarchy. Aplica ring de accent + a11y selected. Default: false. */
+  readonly selected?: boolean;
   /** Contexto de app — define o accent do primary (doc 11 §13). */
   readonly context?: AppContext;
   readonly mode?: ThemeMode;
@@ -131,6 +143,8 @@ export function IconButton(props: IconButtonProps): React.JSX.Element {
     onPress,
     hierarchy = 'secondary',
     size = 'md',
+    shape = 'roundedSquare',
+    selected = false,
     context = 'core',
     mode = 'dark',
     disabled = false,
@@ -154,17 +168,28 @@ export function IconButton(props: IconButtonProps): React.JSX.Element {
   const isInactive = disabled || loading;
 
   // hitSlop garante 44×44 mesmo quando o visual é menor (sm=36) — mesmo padrão do Button.
+  // O shape muda apenas a geometria (radius), nunca a dimensão do alvo.
   const hitExtra = Math.max(0, (minTouchTarget - sizeSpec.box) / 2);
+  const borderRadius = shape === 'circular' ? radius.pill : sizeSpec.borderRadius;
+
+  // Borda: selected desenha o ring de seleção (accent + borderWidth.focus), tokens
+  // oficiais de seleção/foco (ui-kit §7.10/§20.5); senão, a borda estrutural da
+  // hierarquia (secondary). Border-box do RN mantém o alvo inalterado.
+  const borderSpec = selected
+    ? { borderWidth: borderWidth.focus, borderColor: theme.accent }
+    : colors.border !== undefined
+      ? { borderWidth: borderWidth.hairline, borderColor: colors.border }
+      : undefined;
 
   const containerStyle: StyleProp<ViewStyle> = [
     styles.base,
     {
       width: sizeSpec.box,
       height: sizeSpec.box,
-      borderRadius: sizeSpec.borderRadius,
+      borderRadius,
       backgroundColor: colors.background,
     },
-    colors.border !== undefined && { borderWidth: 1, borderColor: colors.border },
+    borderSpec,
     disabled && { opacity: opacity.disabled },
   ];
 
@@ -174,7 +199,11 @@ export function IconButton(props: IconButtonProps): React.JSX.Element {
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled: isInactive, busy: loading }}
+      // Estados coexistem no a11y (disabled/busy/selected). A precedência VISUAL é
+      // disabled → loading → pressed → selected → default: a opacidade de disabled
+      // domina tudo; o spinner de loading substitui o ícone; o overlay de pressed
+      // (só quando ativo) cobre o ring de selected; selected fica acima do default.
+      accessibilityState={{ disabled: isInactive, busy: loading, selected }}
       disabled={isInactive}
       onPress={onPress}
       onPressIn={() => setPressed(true)}
@@ -205,10 +234,7 @@ export function IconButton(props: IconButtonProps): React.JSX.Element {
       {pressed && !isInactive ? (
         <View
           pointerEvents="none"
-          style={[
-            styles.overlay,
-            { borderRadius: sizeSpec.borderRadius, backgroundColor: pressedOverlay(mode) },
-          ]}
+          style={[styles.overlay, { borderRadius, backgroundColor: pressedOverlay(mode) }]}
         />
       ) : null}
     </Pressable>
