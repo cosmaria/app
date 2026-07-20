@@ -17,3 +17,6 @@ export type {
 
 export { TextField } from './text-field/text-field';
 export type { TextFieldProps, TextFieldSize, TextFieldStatus } from './text-field/text-field';
+
+export { TextArea } from './text-area/text-area';
+export type { TextAreaProps, TextAreaStatus } from './text-area/text-area';
