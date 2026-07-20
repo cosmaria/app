@@ -30,7 +30,10 @@
   },
   "overrides": {
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "node-pg-migrate": {
+      "glob": "^11.1.0"
+    }
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
